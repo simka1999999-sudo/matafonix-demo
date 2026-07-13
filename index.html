@@ -491,6 +491,81 @@
       filter: drop-shadow(0 8px 16px rgba(0,0,0,.45));
       pointer-events: none;
     }
+    .blogger {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      width: 118px;
+      margin-left: -59px;
+      z-index: 5;
+      pointer-events: none;
+      transition: transform .28s ease;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.4));
+    }
+    .blogger.throw {
+      animation: blogThrow .35s ease;
+    }
+    @keyframes blogThrow {
+      0% { transform: translateX(var(--bx, 0px)) rotate(0deg) scale(1); }
+      35% { transform: translateX(var(--bx, 0px)) rotate(-8deg) scale(1.04); }
+      70% { transform: translateX(var(--bx, 0px)) rotate(12deg) scale(1.02); }
+      100% { transform: translateX(var(--bx, 0px)) rotate(0deg) scale(1); }
+    }
+    .blogger-tag {
+      display: block;
+      text-align: center;
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: #fde68a;
+      background: rgba(2,6,23,.65);
+      border: 1px solid rgba(245,158,11,.4);
+      border-radius: 999px;
+      padding: 3px 8px;
+      margin: 0 auto 4px;
+      width: fit-content;
+      letter-spacing: -0.02em;
+    }
+    .blogger-svg {
+      width: 118px;
+      height: 108px;
+      display: block;
+    }
+    .blogger .arm {
+      transform-origin: 78px 58px;
+      transition: transform .15s ease;
+    }
+    .blogger.throw .arm {
+      animation: armToss .35s ease;
+    }
+    @keyframes armToss {
+      0% { transform: rotate(0deg); }
+      40% { transform: rotate(-40deg); }
+      70% { transform: rotate(25deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .blog-bubble {
+      position: absolute;
+      top: 8px;
+      left: 58%;
+      min-width: 72px;
+      max-width: 120px;
+      padding: 6px 9px;
+      background: #fff;
+      color: #0f172a;
+      font-size: 0.68rem;
+      font-weight: 800;
+      border-radius: 12px 12px 12px 4px;
+      opacity: 0;
+      transform: translateY(6px) scale(.9);
+      transition: opacity .25s, transform .25s;
+      z-index: 6;
+      pointer-events: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    }
+    .blog-bubble.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
     .fall {
       position: absolute;
       width: 48px;
@@ -503,7 +578,13 @@
       pointer-events: none;
       z-index: 1;
       filter: drop-shadow(0 4px 8px rgba(0,0,0,.25));
+      animation: fallIn .2s ease-out;
     }
+    @keyframes fallIn {
+      from { transform: scale(.6) rotate(-12deg); opacity: .5; }
+      to { transform: scale(1) rotate(0); opacity: 1; }
+    }
+    .fall.bomb { filter: drop-shadow(0 0 8px rgba(251,113,133,.55)); }
     .touch-hint {
       position: absolute;
       left: 50%;
@@ -1065,17 +1146,61 @@
       <span id="hudSpeed">скорость x1.0</span>
     </div>
     <div id="game">
+      <div class="blog-bubble" id="blogBubble">лови!</div>
+      <div class="blogger" id="blogger">
+        <span class="blogger-tag">@matafonixx</span>
+        <svg class="blogger-svg" viewBox="0 0 118 108" aria-hidden="true">
+          <defs>
+            <linearGradient id="hood" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#1d4ed8"/>
+            </linearGradient>
+            <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f8d5b8"/>
+              <stop offset="100%" stop-color="#e8b98f"/>
+            </linearGradient>
+          </defs>
+          <!-- body / hoodie -->
+          <path d="M34 70c2 18 18 30 25 30s23-12 25-30c-8-4-16-6-25-6s-17 2-25 6z" fill="url(#hood)"/>
+          <path d="M40 72c6-3 14-4 19-4s13 1 19 4l-3 14c-5 2-11 3-16 3s-11-1-16-3l-3-14z" fill="#0f172a" opacity=".18"/>
+          <!-- head -->
+          <ellipse cx="59" cy="42" rx="22" ry="24" fill="url(#skin)"/>
+          <!-- hair -->
+          <path d="M38 38c2-16 14-24 21-24 8 0 19 7 21 22-5-4-12-6-21-6-8 0-15 2-21 8z" fill="#1e293b"/>
+          <path d="M37 40c0-6 3-12 8-15-6 4-9 11-8 15z" fill="#0f172a"/>
+          <!-- face -->
+          <circle cx="51" cy="42" r="2.2" fill="#0f172a"/>
+          <circle cx="67" cy="42" r="2.2" fill="#0f172a"/>
+          <path d="M54 50c2 3 7 3 10 0" stroke="#b45309" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <!-- brows -->
+          <path d="M46 36h10" stroke="#0f172a" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M62 36h10" stroke="#0f172a" stroke-width="1.8" stroke-linecap="round"/>
+          <!-- phone in left hand -->
+          <g transform="translate(28 62)">
+            <rect x="0" y="0" width="14" height="22" rx="3" fill="#0f172a"/>
+            <rect x="2" y="3" width="10" height="14" rx="1.5" fill="#38bdf8"/>
+            <circle cx="7" cy="19.5" r="1.2" fill="#94a3b8"/>
+          </g>
+          <!-- throwing arm -->
+          <g class="arm">
+            <path d="M78 58c10 2 18 8 22 16" stroke="url(#skin)" stroke-width="9" stroke-linecap="round" fill="none"/>
+            <circle cx="100" cy="74" r="7" fill="url(#skin)"/>
+          </g>
+          <!-- hoodie hood rim -->
+          <path d="M40 28c6-8 14-11 19-11s13 3 19 11c-6-2-12-3-19-3s-13 1-19 3z" fill="#1e40af" opacity=".55"/>
+        </svg>
+      </div>
       <div class="player" id="player">😎</div>
       <div class="combo-fx" id="fx"></div>
-      <div class="touch-hint" id="touchHint">Води пальцем по экрану<br>Лови всё, кроме 💣</div>
+      <div class="touch-hint" id="touchHint">Матафоникс кидает лайки и просмотры<br>Води пальцем · лови всё, кроме 💣</div>
     </div>
-    <p class="foot">пропуск = −жизнь · скорость растёт · без лимита времени</p>
+    <p class="foot">Матафоникс скидывает контент · пропуск = −жизнь · скорость растёт</p>
   </div>
 
   <div class="overlay" id="end">
     <div class="sheet">
       <h2>Ролик готов</h2>
-      <p>На канал упало:</p>
+      <p>Матафоникс скинул на канал:</p>
       <div class="earn" id="earn"></div>
       <p id="endMsg"></p>
       <div class="actions" style="margin-top:8px">
@@ -1249,6 +1374,13 @@
 
   var game = document.getElementById("game");
   var player = document.getElementById("player");
+  var blogger = document.getElementById("blogger");
+  var blogBubble = document.getElementById("blogBubble");
+  var BLOG_LINES = [
+    "лови!", "тебе лайк", "смотри!", "не зевай", "огонь",
+    "за мной", "комбо!", "ещё!", "💣 мимо", "в топ"
+  ];
+  var bubbleTimer = 0;
 
   function defaultSave() {
     var now = Date.now();
@@ -2194,20 +2326,51 @@
     return TYPES[3];
   }
 
+  function sayBlog(force) {
+    if (!force && Date.now() - bubbleTimer < 1800) return;
+    bubbleTimer = Date.now();
+    blogBubble.textContent = BLOG_LINES[Math.floor(Math.random() * BLOG_LINES.length)];
+    blogBubble.classList.add("show");
+    clearTimeout(sayBlog._t);
+    sayBlog._t = setTimeout(function () { blogBubble.classList.remove("show"); }, 1200);
+  }
+
+  function throwPose(xRatio) {
+    var w = game.clientWidth || 320;
+    var shift = (xRatio - 0.5) * Math.min(70, w * 0.22);
+    blogger.style.setProperty("--bx", shift + "px");
+    blogger.style.transform = "translateX(" + shift + "px)";
+    blogger.classList.remove("throw");
+    void blogger.offsetWidth;
+    blogger.classList.add("throw");
+    clearTimeout(throwPose._t);
+    throwPose._t = setTimeout(function () { blogger.classList.remove("throw"); }, 360);
+  }
+
   function spawn() {
     if (!running) return;
     var t = pick();
     var el = document.createElement("div");
-    el.className = "fall";
+    el.className = "fall" + (t.bad ? " bomb" : "");
     el.textContent = t.emoji;
-    var x = 0.1 + Math.random() * 0.8;
+    var x = 0.12 + Math.random() * 0.76;
+    throwPose(x);
+    if (!t.bad && Math.random() < 0.35) sayBlog(false);
+    if (t.bad && Math.random() < 0.5) {
+      blogBubble.textContent = "ой, фейк";
+      blogBubble.classList.add("show");
+      bubbleTimer = Date.now();
+      clearTimeout(sayBlog._t);
+      sayBlog._t = setTimeout(function () { blogBubble.classList.remove("show"); }, 1000);
+    }
+    var startY = 95;
     el.style.left = (x * 100) + "%";
-    el.style.top = "-50px";
+    el.style.top = startY + "px";
     game.appendChild(el);
     spawnCount++;
     var d = difficulty();
     items.push({
-      el: el, x: x, y: -50,
+      el: el, x: x, y: startY,
       speed: (2.0 + Math.random() * 1.6) * d,
       key: t.key, amt: t.amt || 0, bad: !!t.bad
     });
@@ -2377,6 +2540,9 @@
     player.textContent = equippedSkin();
     applyGameBg();
     document.getElementById("touchHint").classList.remove("hide");
+    blogger.style.transform = "translateX(0)";
+    blogger.style.setProperty("--bx", "0px");
+    sayBlog(true);
     hud();
     requestAnimationFrame(function () {
       setPlayer(0.5);
