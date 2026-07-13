@@ -567,6 +567,133 @@
       color: var(--muted);
       margin-top: 2px;
     }
+
+    .stars-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(135deg, rgba(245,158,11,.25), rgba(15,23,42,.7));
+      border: 1px solid rgba(245,158,11,.45);
+      color: #fde68a;
+      font-weight: 800;
+      font-size: 0.78rem;
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+    .shop-bal {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+      font-size: 0.72rem;
+    }
+    .shop-bal span {
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 700;
+    }
+    .shop-bal .st {
+      background: linear-gradient(135deg, rgba(245,158,11,.22), rgba(15,23,42,.7));
+      border-color: rgba(245,158,11,.4);
+      color: #fde68a;
+    }
+    .tabs3 { grid-template-columns: 1fr 1fr 1fr; }
+    .shop-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .pack {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: linear-gradient(145deg, rgba(245,158,11,.16), rgba(15,23,42,.88));
+      border: 1px solid rgba(245,158,11,.35);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .pack h3 { font-size: 0.95rem; }
+    .pack p { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+    .pack .price {
+      font-family: Rubik, sans-serif;
+      font-weight: 800;
+      color: #fbbf24;
+      font-size: 1rem;
+      text-align: right;
+    }
+    .pack .price small {
+      display: block;
+      font-family: Manrope, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .shop-item {
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .shop-item.owned { border-color: rgba(52,211,153,.4); }
+    .shop-item.eq { border-color: rgba(56,189,248,.5); box-shadow: 0 0 0 1px rgba(56,189,248,.15); }
+    .shop-ico {
+      width: 48px; height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 1.4rem;
+      background: rgba(2,6,23,.45);
+      border: 1px solid var(--line);
+    }
+    .shop-item h3 { font-size: 0.9rem; }
+    .shop-item p { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+    .shop-item .cost {
+      font-size: 0.74rem;
+      color: var(--accent2);
+      margin-top: 5px;
+      font-weight: 700;
+    }
+    .shop-item .side { display: grid; gap: 6px; justify-items: end; }
+    .boost-banner {
+      display: none;
+      background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(37,99,235,.18));
+      border: 1px solid rgba(245,158,11,.4);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 0.78rem;
+    }
+    .boost-banner.show { display: block; }
+    .channel-card.frame-neon {
+      box-shadow: 0 0 0 2px rgba(56,189,248,.55), 0 18px 50px rgba(0,0,0,.35);
+    }
+    .channel-card.frame-gold {
+      box-shadow: 0 0 0 2px rgba(245,158,11,.6), 0 18px 50px rgba(0,0,0,.35);
+    }
+    .channel-card.frame-mata {
+      box-shadow: 0 0 0 2px rgba(244,63,94,.55), 0 18px 50px rgba(0,0,0,.35);
+    }
+    #game.bg-night {
+      background:
+        radial-gradient(circle at 50% 20%, rgba(99,102,241,.2), transparent 40%),
+        linear-gradient(180deg, #0f172a 0%, #1e1b4b 48%, #020617 100%);
+    }
+    #game.bg-sunset {
+      background:
+        radial-gradient(circle at 50% 15%, rgba(251,146,60,.22), transparent 40%),
+        linear-gradient(180deg, #431407 0%, #7c2d12 45%, #1c1917 100%);
+    }
   </style>
 </head>
 <body>
@@ -576,7 +703,10 @@
         <b>Матафоникс Ловит</b>
         <span>твой канал · твои правила</span>
       </div>
-      <button type="button" class="btn sm sec" id="btnReset">Сброс</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="stars-chip" id="hubStars">★ 0</div>
+        <button type="button" class="btn sm sec" id="btnReset">Сброс</button>
+      </div>
     </div>
     <div class="hub">
       <div class="channel-card" id="card">
@@ -585,6 +715,7 @@
         <div class="name">@мой_канал</div>
         <div class="rank" id="rank">Новичок</div>
         <div class="subs-line" id="subsLine">0 подписчиков</div>
+        <div class="boost-banner" id="boostBanner">Буст на следующий раунд: —</div>
         <div class="stats">
           <div class="stat"><div class="v" id="sSubs">0</div><div class="l">подписчики</div></div>
           <div class="stat"><div class="v" id="sLikes">0</div><div class="l">лайки</div></div>
@@ -611,7 +742,7 @@
       <div class="actions">
         <button type="button" class="btn" id="btnPlay"><span>Снять ролик</span><small>1 энергия · ловля</small></button>
         <div class="grid2">
-          <button type="button" class="btn sec" id="btnUp">Прокачка</button>
+          <button type="button" class="btn sec" id="btnShop">Магазин</button>
           <button type="button" class="btn sec" id="btnFriends">Друзья</button>
         </div>
         <button type="button" class="btn sec" id="btnTop"><span>Топ недели</span><small id="hubPlace">твоё место в рейтинге</small></button>
@@ -672,13 +803,22 @@
     </div>
   </div>
 
-  <div class="screen" id="ups">
+  <div class="screen" id="shop">
     <div class="topbar">
-      <button type="button" class="btn sm sec" id="back2">← Назад</button>
-      <h2 style="font-size:1rem">Прокачка</h2>
-      <span style="font-size:0.75rem;color:var(--muted)" id="upBal"></span>
+      <button type="button" class="btn sm sec" id="backShop">← Назад</button>
+      <h2 style="font-size:1rem">Магазин</h2>
+      <div class="stars-chip" id="shopStars">★ 0</div>
     </div>
-    <div class="hub" id="upList"></div>
+    <div class="hub">
+      <div class="shop-bal" id="shopBal"></div>
+      <div class="tabs tabs3">
+        <button type="button" class="tab on" id="tabRes" data-shop="res">Улучшения</button>
+        <button type="button" class="tab" id="tabStarsBuy" data-shop="stars">Купить ★</button>
+        <button type="button" class="tab" id="tabStarsShop" data-shop="goods">За ★</button>
+      </div>
+      <p class="shop-note" id="shopNote">Качай канал за лайки, просмотры и подписчиков. Stars — только косметика и бусты, без места в топе.</p>
+      <div id="shopList"></div>
+    </div>
   </div>
 
   <div class="screen" id="gameScreen">
@@ -716,7 +856,7 @@
 (function () {
   "use strict";
 
-  var SAVE = "matafonix_v3";
+  var SAVE = "matafonix_v4";
   var ENERGY_MAX_BASE = 5;
   var ENERGY_REGEN_MS = 45000; // демо: 45 сек на +1 (в проде 20–30 мин)
   var OFFLINE_CAP_SEC = 8 * 3600; // макс 8 часов офлайна
@@ -731,7 +871,34 @@
     { id: "camera", name: "Камера", desc: "+25% просмотров в раунде и idle", cost: { views: 80 } },
     { id: "edit", name: "Монтаж", desc: "+25% лайков в раунде и idle", cost: { likes: 60 } },
     { id: "cover", name: "Обложка", desc: "Рамка +10% ко всему idle", cost: { likes: 120, views: 40 } },
-    { id: "promo", name: "Продвижение", desc: "+1 жизнь и +1 макс. энергия", cost: { likes: 250, views: 150 } }
+    { id: "mic", name: "Микрофон", desc: "+20% ко всем ресурсам раунда", cost: { likes: 90, subs: 25 } },
+    { id: "trend", name: "Тренды", desc: "+30% подписчиков в раунде и idle", cost: { views: 120, subs: 40 } },
+    { id: "promo", name: "Продвижение", desc: "+1 жизнь и +1 макс. энергия", cost: { likes: 250, views: 150, subs: 20 } },
+    { id: "collab", name: "Коллаб", desc: "пассив +0.35 ⭐/мин", cost: { subs: 80 } }
+  ];
+  var STAR_PACKS = [
+    { id: "p50", stars: 50, rub: 99, label: "Старт" },
+    { id: "p100", stars: 100, rub: 179, label: "Хит", best: true },
+    { id: "p250", stars: 250, rub: 399, label: "Пачка" },
+    { id: "p500", stars: 500, rub: 749, label: "Макс" }
+  ];
+  var COSMETICS = [
+    { id: "skin_fox", type: "skin", name: "Скин «Лиса»", desc: "Персонаж в раунде", icon: "🦊", price: 80 },
+    { id: "skin_bot", type: "skin", name: "Скин «Бот»", desc: "Персонаж в раунде", icon: "🤖", price: 80 },
+    { id: "skin_mata", type: "skin", name: "Скин «Matafonix»", desc: "Фирменный образ", icon: "🎬", price: 150 },
+    { id: "frame_neon", type: "frame", name: "Рамка Neon", desc: "Обводка канала", icon: "💙", price: 50 },
+    { id: "frame_gold", type: "frame", name: "Рамка Gold", desc: "Обводка канала", icon: "🟡", price: 70 },
+    { id: "frame_mata", type: "frame", name: "Рамка Mata", desc: "Обводка канала", icon: "❤️", price: 90 },
+    { id: "badge_fan", type: "badge", name: "Бейдж фаната", desc: "Подпись в профиле", icon: "🏅", price: 25 },
+    { id: "bg_night", type: "bg", name: "Фон «Ночь»", desc: "Поле раунда", icon: "🌌", price: 60 },
+    { id: "bg_sunset", type: "bg", name: "Фон «Закат»", desc: "Поле раунда", icon: "🌅", price: 60 }
+  ];
+  var BOOSTS = [
+    { id: "shield", name: "Щит", desc: "Игнор 1 бомбы или промаха", icon: "🛡️", price: 15, limit: 2 },
+    { id: "magnet", name: "Магнит", desc: "Шире зона ловли", icon: "🧲", price: 20, limit: 2 },
+    { id: "fire", name: "Огонь", desc: "x1.5 к ресурсам раунда", icon: "🔥", price: 25, limit: 1 },
+    { id: "revive", name: "Ревайв", desc: "+1 жизнь один раз", icon: "💖", price: 30, limit: 1 },
+    { id: "rain", name: "Дождь звёзд", desc: "Чаще падают ⭐", icon: "✨", price: 35, limit: 1 }
   ];
   var TYPES = [
     { emoji: "❤", key: "likes", amt: 1 },
@@ -748,6 +915,8 @@
   var loopId = 0, spawnId = 0, dragging = false, hintGone = false;
   var roundStartedAt = 0, spawnCount = 0;
   var lbMode = "subs";
+  var shopTab = "res";
+  var roundFX = { shield: false, magnet: false, fire: false, revive: false, shieldUsed: false, reviveUsed: false };
 
   var BOTS = [
     { name: "@kira_clips", avatar: "🦊", subs: 2140, best: 186 },
@@ -777,13 +946,20 @@
       energyAt: now,
       lastSeen: now,
       pending: { likes: 0, views: 0, subs: 0 },
-      bestRound: 0
+      bestRound: 0,
+      stars: 0,
+      owned: {},
+      equipped: { skin: "", frame: "", badge: "", bg: "" },
+      boosts: {},
+      boostDay: "",
+      boostUsed: {},
+      nextBoost: ""
     };
   }
 
   function load() {
     try {
-      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v2");
+      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
       if (raw) {
         var d = JSON.parse(raw);
         if (!d.upgrades) d.upgrades = {};
@@ -795,6 +971,13 @@
         if (!d.lastSeen) d.lastSeen = Date.now();
         if (!d.pending) d.pending = { likes: 0, views: 0, subs: 0 };
         if (d.bestRound == null) d.bestRound = 0;
+        if (d.stars == null) d.stars = 0;
+        if (!d.owned) d.owned = {};
+        if (!d.equipped) d.equipped = { skin: "", frame: "", badge: "", bg: "" };
+        if (!d.boosts) d.boosts = {};
+        if (!d.boostDay) d.boostDay = "";
+        if (!d.boostUsed) d.boostUsed = {};
+        if (d.nextBoost == null) d.nextBoost = "";
         return d;
       }
     } catch (e) {}
@@ -837,7 +1020,8 @@
       views *= 1.1;
       subs *= 1.1;
     }
-    // больше подписчиков на канале чуть ускоряет idle
+    if (has("trend")) subs *= 1.3;
+    if (has("collab")) subs += 0.35;
     likes += Math.min(8, channel.subs / 200);
     views += Math.min(10, channel.subs / 150);
     subs += Math.min(1.5, channel.subs / 800);
@@ -890,7 +1074,7 @@
   }
 
   function show(id) {
-    ["hub", "friends", "ups", "top", "gameScreen"].forEach(function (s) {
+    ["hub", "friends", "shop", "top", "gameScreen"].forEach(function (s) {
       document.getElementById(s).classList.toggle("active", s === id);
     });
   }
@@ -921,7 +1105,7 @@
   function meEntry() {
     return {
       name: "@мой_канал",
-      avatar: has("cover") ? "🎬" : (channel.avatar || "😎"),
+      avatar: equippedSkin(),
       subs: channel.subs || 0,
       best: channel.bestRound || 0,
       me: true
@@ -1005,6 +1189,40 @@
     }
   }
 
+  function equippedSkin() {
+    var id = channel.equipped && channel.equipped.skin;
+    if (id && channel.owned[id]) {
+      for (var i = 0; i < COSMETICS.length; i++) {
+        if (COSMETICS[i].id === id) return COSMETICS[i].icon;
+      }
+    }
+    return has("cover") ? "🎬" : (channel.avatar || "😎");
+  }
+
+  function boostName(id) {
+    for (var i = 0; i < BOOSTS.length; i++) if (BOOSTS[i].id === id) return BOOSTS[i].name;
+    return id;
+  }
+
+  function todayKey() {
+    var d = new Date();
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  }
+
+  function resetBoostDay() {
+    var t = todayKey();
+    if (channel.boostDay !== t) {
+      channel.boostDay = t;
+      channel.boostUsed = {};
+    }
+  }
+
+  function costLabel(cost) {
+    return Object.keys(cost).map(function (k) {
+      return (k === "likes" ? "❤" : k === "views" ? "👁" : "⭐") + cost[k];
+    }).join(" ");
+  }
+
   function has(id) { return !!channel.upgrades[id]; }
 
   function rank() {
@@ -1026,14 +1244,27 @@
     document.getElementById("sSubs").textContent = formatNum(channel.subs);
     document.getElementById("sLikes").textContent = formatNum(channel.likes);
     document.getElementById("sViews").textContent = formatNum(channel.views);
-    document.getElementById("rank").textContent = rank();
+    document.getElementById("rank").textContent = rank() + (channel.equipped.badge && channel.owned[channel.equipped.badge] ? " · фанат №1" : "");
     document.getElementById("subsLine").textContent = formatNum(channel.subs) + " подписчиков";
     document.getElementById("studioBadge").textContent = studioName();
-    var av = has("cover") ? "🎬" : channel.avatar;
+    var av = equippedSkin();
     document.getElementById("avatar").textContent = av;
     player.textContent = av;
     var card = document.getElementById("card");
-    card.className = "channel-card" + (channel.subs >= 500 ? " t3" : channel.subs >= 100 ? " t2" : channel.subs >= 1 ? " t1" : "");
+    var frame = channel.equipped.frame && channel.owned[channel.equipped.frame] ? channel.equipped.frame.replace("frame_", "frame-") : "";
+    card.className = "channel-card" +
+      (channel.subs >= 500 ? " t3" : channel.subs >= 100 ? " t2" : channel.subs >= 1 ? " t1" : "") +
+      (frame ? " " + frame : "");
+
+    document.getElementById("hubStars").textContent = "★ " + formatNum(channel.stars || 0);
+
+    var banner = document.getElementById("boostBanner");
+    if (channel.nextBoost) {
+      banner.classList.add("show");
+      banner.textContent = "Буст на следующий раунд: " + boostName(channel.nextBoost);
+    } else {
+      banner.classList.remove("show");
+    }
 
     var rates = idleRatesPerMin();
     var maxE = energyMax();
@@ -1110,36 +1341,185 @@
     return Object.keys(cost).every(function (k) { return (channel[k] || 0) >= cost[k]; });
   }
 
-  function renderUps() {
-    document.getElementById("upBal").textContent = "❤" + channel.likes + " 👁" + channel.views;
-    var list = document.getElementById("upList");
+  function renderShop() {
+    resetBoostDay();
+    document.getElementById("shopStars").textContent = "★ " + formatNum(channel.stars || 0);
+    document.getElementById("shopBal").innerHTML =
+      "<span>❤ " + formatNum(channel.likes) + "</span>" +
+      "<span>👁 " + formatNum(channel.views) + "</span>" +
+      "<span>⭐ " + formatNum(channel.subs) + "</span>" +
+      "<span class='st'>★ Stars " + formatNum(channel.stars || 0) + "</span>";
+
+    document.getElementById("tabRes").classList.toggle("on", shopTab === "res");
+    document.getElementById("tabStarsBuy").classList.toggle("on", shopTab === "stars");
+    document.getElementById("tabStarsShop").classList.toggle("on", shopTab === "goods");
+
+    var note = document.getElementById("shopNote");
+    if (shopTab === "res") note.textContent = "Улучшения канала — только за лайки, просмотры и подписчиков. Это не Stars.";
+    else if (shopTab === "stars") note.textContent = "Демо-покупка Stars «за деньги». В проде — оплата через Telegram (Apple/Google / PremiumBot).";
+    else note.textContent = "За Stars: косметика и бусты. Нельзя купить подписчиков, место в топе или бесконечные жизни.";
+
+    var list = document.getElementById("shopList");
     list.innerHTML = "";
-    UPS.forEach(function (u) {
-      var done = has(u.id);
-      var cost = Object.keys(u.cost).map(function (k) {
-        return (k === "likes" ? "❤" : k === "views" ? "👁" : "⭐") + u.cost[k];
-      }).join(" ");
-      var div = document.createElement("div");
-      div.className = "upgrade" + (done ? " done" : "");
-      div.innerHTML = "<div><h3>" + u.name + (done ? " ✓" : "") + "</h3><p>" + u.desc + "</p>" +
-        (done ? "" : "<div class='cost'>" + cost + "</div>") + "</div>";
-      if (!done) {
+
+    if (shopTab === "res") {
+      UPS.forEach(function (u) {
+        var done = has(u.id);
+        var div = document.createElement("div");
+        div.className = "upgrade" + (done ? " done" : "");
+        div.innerHTML = "<div><h3>" + u.name + (done ? " ✓" : "") + "</h3><p>" + u.desc + "</p>" +
+          (done ? "" : "<div class='cost'>" + costLabel(u.cost) + "</div>") + "</div>";
+        if (!done) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "btn sm";
+          b.textContent = "Купить";
+          b.disabled = !canBuy(u.cost);
+          b.onclick = function () {
+            if (!canBuy(u.cost) || has(u.id)) return;
+            Object.keys(u.cost).forEach(function (k) { channel[k] -= u.cost[k]; });
+            channel.upgrades[u.id] = 1;
+            refreshEnergy();
+            save();
+            renderHub();
+            renderShop();
+            toast("Куплено: " + u.name);
+          };
+          div.appendChild(b);
+        }
+        list.appendChild(div);
+      });
+      return;
+    }
+
+    if (shopTab === "stars") {
+      STAR_PACKS.forEach(function (p) {
+        var div = document.createElement("div");
+        div.className = "pack";
+        div.innerHTML =
+          "<div><h3>" + p.label + (p.best ? " · выгодно" : "") + "</h3>" +
+          "<p>+" + p.stars + " Telegram Stars</p></div>" +
+          "<div class='price'>" + p.rub + " ₽<small>демо-оплата</small></div>";
         var b = document.createElement("button");
         b.type = "button";
         b.className = "btn sm";
         b.textContent = "Купить";
-        b.disabled = !canBuy(u.cost);
+        b.style.gridColumn = "1 / -1";
         b.onclick = function () {
-          if (!canBuy(u.cost) || has(u.id)) return;
-          Object.keys(u.cost).forEach(function (k) { channel[k] -= u.cost[k]; });
-          channel.upgrades[u.id] = 1;
-          refreshEnergy();
+          if (!confirm("Демо: купить " + p.stars + " ★ за " + p.rub + " ₽?\nВ проде откроется оплата Telegram Stars.")) return;
+          channel.stars = (channel.stars || 0) + p.stars;
           save();
           renderHub();
-          renderUps();
+          renderShop();
+          toast("+" + p.stars + " Stars на баланс");
         };
         div.appendChild(b);
+        list.appendChild(div);
+      });
+      return;
+    }
+
+    // goods: cosmetics + boosts
+    var h1 = document.createElement("p");
+    h1.style.cssText = "font-size:0.78rem;font-weight:800;margin:4px 0 8px;color:var(--muted)";
+    h1.textContent = "Косметика";
+    list.appendChild(h1);
+
+    COSMETICS.forEach(function (c) {
+      var owned = !!channel.owned[c.id];
+      var eq = channel.equipped[c.type] === c.id;
+      var div = document.createElement("div");
+      div.className = "shop-item" + (owned ? " owned" : "") + (eq ? " eq" : "");
+      div.innerHTML =
+        "<div class='shop-ico'>" + c.icon + "</div>" +
+        "<div><h3>" + c.name + "</h3><p>" + c.desc + "</p>" +
+        (owned ? "" : "<div class='cost'>★ " + c.price + "</div>") + "</div>";
+      var side = document.createElement("div");
+      side.className = "side";
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn sm";
+      if (!owned) {
+        b.textContent = "Купить";
+        b.disabled = (channel.stars || 0) < c.price;
+        b.onclick = function () {
+          if ((channel.stars || 0) < c.price) return toast("Не хватает Stars — купи пачку");
+          channel.stars -= c.price;
+          channel.owned[c.id] = 1;
+          channel.equipped[c.type] = c.id;
+          save();
+          renderHub();
+          renderShop();
+          toast("Куплено: " + c.name);
+        };
+      } else {
+        b.textContent = eq ? "Надето" : "Надеть";
+        b.disabled = eq;
+        b.onclick = function () {
+          channel.equipped[c.type] = c.id;
+          save();
+          renderHub();
+          renderShop();
+        };
       }
+      side.appendChild(b);
+      div.appendChild(side);
+      list.appendChild(div);
+    });
+
+    var h2 = document.createElement("p");
+    h2.style.cssText = "font-size:0.78rem;font-weight:800;margin:14px 0 8px;color:var(--muted)";
+    h2.textContent = "Бусты на раунд";
+    list.appendChild(h2);
+
+    BOOSTS.forEach(function (bo) {
+      var have = channel.boosts[bo.id] || 0;
+      var used = channel.boostUsed[bo.id] || 0;
+      var left = Math.max(0, bo.limit - used);
+      var div = document.createElement("div");
+      div.className = "shop-item";
+      div.innerHTML =
+        "<div class='shop-ico'>" + bo.icon + "</div>" +
+        "<div><h3>" + bo.name + (have ? " · x" + have : "") + "</h3>" +
+        "<p>" + bo.desc + " · лимит " + left + "/" + bo.limit + " сегодня</p>" +
+        "<div class='cost'>★ " + bo.price + "</div></div>";
+      var side = document.createElement("div");
+      side.className = "side";
+      var buy = document.createElement("button");
+      buy.type = "button";
+      buy.className = "btn sm";
+      buy.textContent = "Купить";
+      buy.disabled = (channel.stars || 0) < bo.price || left <= 0;
+      buy.onclick = function () {
+        resetBoostDay();
+        if ((channel.boostUsed[bo.id] || 0) >= bo.limit) return toast("Лимит на сегодня");
+        if ((channel.stars || 0) < bo.price) return toast("Не хватает Stars");
+        channel.stars -= bo.price;
+        channel.boosts[bo.id] = (channel.boosts[bo.id] || 0) + 1;
+        channel.boostUsed[bo.id] = (channel.boostUsed[bo.id] || 0) + 1;
+        if (!channel.nextBoost) channel.nextBoost = bo.id;
+        save();
+        renderHub();
+        renderShop();
+        toast("Буст в инвентаре" + (!channel.nextBoost || channel.nextBoost === bo.id ? " · на след. раунд" : ""));
+      };
+      side.appendChild(buy);
+      if (have > 0) {
+        var use = document.createElement("button");
+        use.type = "button";
+        use.className = "btn sm sec";
+        use.textContent = channel.nextBoost === bo.id ? "Выбран" : "На раунд";
+        use.disabled = channel.nextBoost === bo.id;
+        use.onclick = function () {
+          channel.nextBoost = bo.id;
+          save();
+          renderHub();
+          renderShop();
+          toast("Буст на следующий раунд: " + bo.name);
+        };
+        side.appendChild(use);
+      }
+      div.appendChild(side);
       list.appendChild(div);
     });
   }
@@ -1209,10 +1589,15 @@
   }
 
   function pick() {
-    // чуть больше бомб на высокой сложности
     var bombChance = Math.min(0.28, 0.12 + (difficulty() - 1) * 0.04);
     if (Math.random() < bombChance) return TYPES[4];
     var r = Math.random();
+    if (roundFX.rain) {
+      if (r < 0.32) return TYPES[0];
+      if (r < 0.55) return TYPES[1];
+      if (r < 0.88) return TYPES[2];
+      return TYPES[3];
+    }
     if (r < 0.42) return TYPES[0];
     if (r < 0.72) return TYPES[1];
     if (r < 0.88) return TYPES[2];
@@ -1240,14 +1625,18 @@
 
   function hit(it) {
     var a = player.getBoundingClientRect();
+    var pad = roundFX.magnet ? 22 : 0;
     var b = it.el.getBoundingClientRect();
-    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+    return !(a.right + pad < b.left || a.left - pad > b.right || a.bottom + pad < b.top || a.top - pad > b.bottom);
   }
 
   function mult(key) {
     var m = combo >= 5 ? 2 : 1;
     if (key === "views" && has("camera")) m *= 1.25;
     if (key === "likes" && has("edit")) m *= 1.25;
+    if (key === "subs" && has("trend")) m *= 1.3;
+    if (has("mic")) m *= 1.2;
+    if (roundFX.fire) m *= 1.5;
     return m;
   }
 
@@ -1266,11 +1655,25 @@
   }
 
   function loseLife() {
+    if (roundFX.shield && !roundFX.shieldUsed) {
+      roundFX.shieldUsed = true;
+      flash("Щит!");
+      return;
+    }
     lives--;
     combo = 0;
     hud();
     flash("−1 жизнь");
-    if (lives <= 0) gameOver();
+    if (lives <= 0) {
+      if (roundFX.revive && !roundFX.reviveUsed) {
+        roundFX.reviveUsed = true;
+        lives = 1;
+        flash("Ревайв!");
+        hud();
+        return;
+      }
+      gameOver();
+    }
   }
 
   function tick() {
@@ -1343,6 +1746,22 @@
     }
     channel.energy -= 1;
     channel.energyAt = Date.now();
+
+    roundFX = { shield: false, magnet: false, fire: false, revive: false, rain: false, shieldUsed: false, reviveUsed: false };
+    if (channel.nextBoost && (channel.boosts[channel.nextBoost] || 0) > 0) {
+      var usedBoost = channel.nextBoost;
+      roundFX[usedBoost] = true;
+      channel.boosts[usedBoost] -= 1;
+      if (channel.boosts[usedBoost] <= 0) delete channel.boosts[usedBoost];
+      toast("Буст: " + boostName(usedBoost));
+      channel.nextBoost = "";
+      for (var i = 0; i < BOOSTS.length; i++) {
+        if ((channel.boosts[BOOSTS[i].id] || 0) > 0) {
+          channel.nextBoost = BOOSTS[i].id;
+          break;
+        }
+      }
+    }
     save();
 
     document.getElementById("end").classList.remove("show");
@@ -1354,6 +1773,11 @@
     hintGone = false;
     roundStartedAt = Date.now();
     spawnCount = 0;
+    player.textContent = equippedSkin();
+    game.className = "";
+    if (channel.equipped.bg && channel.owned[channel.equipped.bg]) {
+      game.classList.add(channel.equipped.bg.replace("bg_", "bg-"));
+    }
     document.getElementById("touchHint").classList.remove("hide");
     hud();
     requestAnimationFrame(function () {
@@ -1400,13 +1824,16 @@
     show("hub");
   };
   document.getElementById("btnFriends").onclick = function () { renderFriends(); show("friends"); };
-  document.getElementById("btnUp").onclick = function () { renderUps(); show("ups"); };
+  document.getElementById("btnShop").onclick = function () { shopTab = "res"; renderShop(); show("shop"); };
   document.getElementById("btnTop").onclick = function () { renderTop(); show("top"); };
   document.getElementById("back1").onclick = function () { renderHub(); show("hub"); };
-  document.getElementById("back2").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("backShop").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backTop").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("tabSubs").onclick = function () { lbMode = "subs"; renderTop(); };
   document.getElementById("tabBest").onclick = function () { lbMode = "best"; renderTop(); };
+  document.getElementById("tabRes").onclick = function () { shopTab = "res"; renderShop(); };
+  document.getElementById("tabStarsBuy").onclick = function () { shopTab = "stars"; renderShop(); };
+  document.getElementById("tabStarsShop").onclick = function () { shopTab = "goods"; renderShop(); };
   document.getElementById("btnSharePlace").onclick = sharePlace;
   document.getElementById("btnSim").onclick = addFriend;
   document.getElementById("btnCopy").onclick = function () {
