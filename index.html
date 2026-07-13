@@ -1391,6 +1391,106 @@
     }
     .pvp-tabs { display:flex; gap:6px; margin-bottom:10px; }
     .pvp-tabs .tab { flex:1; }
+
+    /* onboard */
+    .onboard {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      background: rgba(2,6,23,.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .onboard.show { display: flex; animation: fadeIn .28s ease; }
+    .onboard-sheet {
+      width: min(100%, 420px);
+      background:
+        linear-gradient(165deg, rgba(190,24,93,.22), transparent 40%),
+        linear-gradient(180deg, #1a2238, #0b1220);
+      border: 1px solid rgba(244,114,182,.35);
+      border-radius: 28px 28px 24px 24px;
+      padding: 20px 18px 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+      text-align: left;
+    }
+    .onboard-head {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .onboard-photo {
+      width: 64px; height: 64px;
+      border-radius: 22px;
+      object-fit: cover;
+      object-position: center top;
+      border: 3px solid #f472b6;
+      box-shadow: 0 0 0 4px rgba(244,114,182,.2);
+      display: block;
+      background: #111;
+    }
+    .onboard-head b {
+      font-family: Rubik, Manrope, sans-serif;
+      font-size: 1.05rem;
+      display: block;
+    }
+    .onboard-head span { font-size: 0.72rem; color: #fda4af; font-weight: 700; }
+    .onboard-step {
+      display: none;
+      animation: claimIn .3s ease;
+    }
+    .onboard-step.on { display: block; }
+    .onboard-step h3 {
+      font-family: Rubik, Manrope, sans-serif;
+      font-size: 1.12rem;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .onboard-step p {
+      font-size: 0.88rem;
+      line-height: 1.45;
+      color: #e2e8f0;
+      margin-bottom: 10px;
+    }
+    .onboard-step ul {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .onboard-step li {
+      font-size: 0.82rem;
+      line-height: 1.4;
+      background: rgba(2,6,23,.4);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .onboard-step li strong { color: #f9a8d4; }
+    .onboard-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin: 8px 0 12px;
+    }
+    .onboard-dots i {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(148,163,184,.35);
+    }
+    .onboard-dots i.on { background: #f472b6; box-shadow: 0 0 10px rgba(244,114,182,.55); }
+    .onboard-actions { display: grid; gap: 8px; }
+    .onboard-actions .btn { width: 100%; }
+    .play-panel.pulse-hint {
+      animation: pulseSoft 1s ease-in-out 3;
+      box-shadow: 0 0 0 2px rgba(56,189,248,.45), 0 12px 30px rgba(37,99,235,.25);
+    }
   </style>
 </head>
 <body data-loc="hostel">
@@ -1665,6 +1765,50 @@
     </div>
   </div>
 
+  <div class="onboard" id="onboard" role="dialog" aria-modal="true">
+    <div class="onboard-sheet">
+      <div class="onboard-head">
+        <img class="onboard-photo" id="onboardPhoto" src="matafonix-author.png" alt="@matafonixx"/>
+        <div>
+          <b>@matafonixx</b>
+          <span>голосом с района · вводный ролик</span>
+        </div>
+      </div>
+
+      <div class="onboard-step on" data-step="0">
+        <h3>Эй. Привет, начинающий блогер</h3>
+        <p>Ты добрался до Москвы — уважаю. Правда, бюджета хватило ровно на койку в хостеле у Казанского: восемь человек в комнате, Wi‑Fi от соседа, свет с улицы.</p>
+        <p>В рюкзаке — зарядка, мечта на миллион подписчиков и ноль понимания, с чего начать. Я Матафоникс. Коротко покажу, как тут не сгореть в первую неделю.</p>
+      </div>
+
+      <div class="onboard-step" data-step="1">
+        <h3>Как снимать ролик</h3>
+        <ul>
+          <li><strong>Я кидаю контент</strong> — ❤ лайки, 👁 просмотры, ⭐ подписчиков. Лови пальцем.</li>
+          <li><strong>💣 — фейк.</strong> Не бери. Пропустил полезное — минус жизнь.</li>
+          <li><strong>Скорость растёт.</strong> Комбо с 5 лова даёт x1.5. Не зевай.</li>
+        </ul>
+        <p>Пальцем води по экрану — это твой единственный контроллер. Клавиатура не нужна.</p>
+      </div>
+
+      <div class="onboard-step" data-step="2">
+        <h3>Энергия, канал, переезд</h3>
+        <ul>
+          <li><strong>Энергия</strong> — сколько роликов снимешь. Кончилась — подожди реген.</li>
+          <li><strong>Офлайн</strong> — канал крутится без тебя. Забери награду, когда вернёшься.</li>
+          <li><strong>Хостел → холдинг</strong> — копи ⭐ и переезжай. Чем круче адрес, тем жирнее idle.</li>
+        </ul>
+        <p>PvP — потом, когда освоишься. Сейчас главное: первый ролик с койки.</p>
+      </div>
+
+      <div class="onboard-dots" id="onboardDots"><i class="on"></i><i></i><i></i></div>
+      <div class="onboard-actions">
+        <button type="button" class="btn" id="btnOnboardNext"><span>Дальше</span><small>шаг 1 из 3</small></button>
+        <button type="button" class="btn sec" id="btnOnboardSkip">Пропустить</button>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay" id="end">
     <div class="sheet">
       <h2>Ролик готов</h2>
@@ -1926,6 +2070,7 @@
       pvpLosses: 0,
       mmr: 1000,
       unlockedLocs: { hostel: 1 },
+      onboarded: false,
       ac: { strikes: 0, flags: [], sig: "" }
     };
   }
@@ -2092,6 +2237,7 @@
         if (!d.pending) d.pending = { likes: 0, views: 0, subs: 0 };
         if (d.bestRound == null) d.bestRound = 0;
         if (d.avatarImg == null) d.avatarImg = "";
+        if (d.onboarded == null) d.onboarded = !!(d.bestRound || d.subs || d.likes || d.views);
         if (typeof d.avatarImg === "string" && d.avatarImg.length > 180000) d.avatarImg = "";
         if (d.stars == null) d.stars = 0;
         if (!d.owned) d.owned = {};
@@ -3758,6 +3904,79 @@
     toast("+30❤ +20👁 +5⭐ за друга");
   }
 
+
+  var onboardStep = 0;
+  var ONBOARD_TOTAL = 3;
+
+  function fixOnboardPhoto() {
+    var img = document.getElementById("onboardPhoto");
+    if (!img) return;
+    var tries = ["matafonix-author.png", "assets/matafonix-author.png"];
+    var i = 0;
+    img.onerror = function () {
+      i++;
+      if (i < tries.length) img.src = tries[i];
+    };
+  }
+
+  function renderOnboardStep() {
+    var root = document.getElementById("onboard");
+    if (!root) return;
+    root.querySelectorAll(".onboard-step").forEach(function (s) {
+      s.classList.toggle("on", Number(s.getAttribute("data-step")) === onboardStep);
+    });
+    var dots = document.getElementById("onboardDots");
+    if (dots) {
+      dots.innerHTML = "";
+      for (var i = 0; i < ONBOARD_TOTAL; i++) {
+        var d = document.createElement("i");
+        if (i === onboardStep) d.className = "on";
+        dots.appendChild(d);
+      }
+    }
+    var btn = document.getElementById("btnOnboardNext");
+    var last = onboardStep >= ONBOARD_TOTAL - 1;
+    btn.innerHTML = last
+      ? "<span>Понял. Снимаем</span><small>первый ролик с хостела</small>"
+      : ("<span>Дальше</span><small>шаг " + (onboardStep + 1) + " из " + ONBOARD_TOTAL + "</small>");
+  }
+
+  function startOnboard() {
+    if (channel.onboarded) return;
+    onboardStep = 0;
+    fixOnboardPhoto();
+    renderOnboardStep();
+    document.getElementById("onboard").classList.add("show");
+  }
+
+  function finishOnboard(startPlay) {
+    channel.onboarded = true;
+    save();
+    document.getElementById("onboard").classList.remove("show");
+    renderHub();
+    var panel = document.querySelector(".play-panel");
+    if (panel) {
+      panel.classList.add("pulse-hint");
+      setTimeout(function () { panel.classList.remove("pulse-hint"); }, 3200);
+    }
+    toast(startPlay ? "Лови контент. Я кидаю — ты ловишь" : "Ок. Кнопка «Снять ролик» — под карточкой");
+    if (startPlay) {
+      pvp = null;
+      startRound(false);
+    }
+  }
+
+  function nextOnboard() {
+    if (onboardStep >= ONBOARD_TOTAL - 1) {
+      finishOnboard(true);
+      return;
+    }
+    onboardStep++;
+    renderOnboardStep();
+  }
+
+  document.getElementById("btnOnboardNext").onclick = nextOnboard;
+  document.getElementById("btnOnboardSkip").onclick = function () { finishOnboard(false); };
   document.getElementById("btnPlay").onclick = function () { pvp = null; startRound(false); };
   document.getElementById("btnAgain").onclick = function () {
     pvp = null;
@@ -3850,6 +4069,7 @@
   save(); // переподписать pending после офлайна
   acWatchdog(true);
   renderHub();
+  if (!channel.onboarded) setTimeout(startOnboard, 350);
   setInterval(function () {
     refreshEnergy();
     if (!acWatchdog(false)) return;
