@@ -99,6 +99,86 @@
     .channel-card.t1 { border-color: rgba(148,163,184,.45); }
     .channel-card.t2 { border-color: rgba(52,211,153,.45); }
     .channel-card.t3 { border-color: rgba(245,158,11,.55); }
+
+    .channel-card.loc-hostel {
+      background: linear-gradient(165deg, #3f2a1e 0%, #1a120e 42%, #0c0907 100%);
+      border-color: rgba(180, 120, 70, .45);
+    }
+    .channel-card.loc-hostel::before {
+      background: radial-gradient(circle, rgba(245,158,11,.18), transparent 70%);
+    }
+    .channel-card.loc-dorm {
+      background: linear-gradient(165deg, #2a3340 0%, #141a22 50%, #0a0e14 100%);
+      border-color: rgba(148,163,184,.4);
+    }
+    .channel-card.loc-edge {
+      background: linear-gradient(165deg, #3a2f28 0%, #1c1714 48%, #0d0b0a 100%);
+      border-color: rgba(168, 132, 100, .4);
+    }
+    .channel-card.loc-metro {
+      background: linear-gradient(165deg, #1e3a5f 0%, #122033 48%, #0a121c 100%);
+      border-color: rgba(56,189,248,.4);
+    }
+    .channel-card.loc-patriki {
+      background: linear-gradient(165deg, #3b2a4a 0%, #1a1428 48%, #0c0a14 100%);
+      border-color: rgba(196, 141, 255, .4);
+    }
+    .channel-card.loc-city {
+      background: linear-gradient(165deg, #0e3d4f 0%, #0b1c2a 45%, #050d14 100%);
+      border-color: rgba(34, 211, 238, .5);
+    }
+    .channel-card.loc-pent {
+      background: linear-gradient(165deg, #3a2a12 0%, #1a1408 48%, #0a0804 100%);
+      border-color: rgba(251, 191, 36, .55);
+    }
+    .channel-card.loc-holding {
+      background: linear-gradient(165deg, #2a2010 0%, #120e08 40%, #050403 100%);
+      border-color: rgba(253, 230, 138, .65);
+      box-shadow: 0 0 0 1px rgba(251,191,36,.2), 0 22px 60px rgba(0,0,0,.45);
+    }
+
+    .loc-card {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .loc-card.here {
+      border-color: rgba(56,189,248,.55);
+      background: linear-gradient(135deg, rgba(37,99,235,.22), rgba(15,23,42,.85));
+    }
+    .loc-card.locked { opacity: .55; }
+    .loc-card.open:not(.here) { border-color: rgba(52,211,153,.35); }
+    .loc-ico {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      background: rgba(2,6,23,.45);
+      border: 1px solid var(--line);
+    }
+    .loc-card h3 { font-size: 0.88rem; }
+    .loc-card p { font-size: 0.7rem; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+    .loc-tag {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+    .loc-path {
+      width: 2px;
+      height: 10px;
+      background: rgba(148,163,184,.25);
+      margin: -4px auto 4px 36px;
+    }
+    .loc-path:last-of-type { display: none; }
     .studio-pill {
       display: inline-flex;
       align-items: center;
@@ -694,6 +774,46 @@
         radial-gradient(circle at 50% 15%, rgba(251,146,60,.22), transparent 40%),
         linear-gradient(180deg, #431407 0%, #7c2d12 45%, #1c1917 100%);
     }
+    #game.bg-hostel {
+      background:
+        radial-gradient(circle at 30% 10%, rgba(180,120,70,.2), transparent 45%),
+        linear-gradient(180deg, #4a3426 0%, #2a1c14 50%, #120c08 100%);
+    }
+    #game.bg-dorm {
+      background:
+        radial-gradient(circle at 50% 0%, rgba(100,116,139,.2), transparent 40%),
+        linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
+    }
+    #game.bg-edge {
+      background:
+        radial-gradient(circle at 70% 20%, rgba(168,132,100,.18), transparent 40%),
+        linear-gradient(180deg, #44403c 0%, #292524 50%, #0c0a09 100%);
+    }
+    #game.bg-metro {
+      background:
+        radial-gradient(circle at 50% 15%, rgba(56,189,248,.18), transparent 40%),
+        linear-gradient(180deg, #1e3a5f 0%, #0f2744 50%, #061018 100%);
+    }
+    #game.bg-patriki {
+      background:
+        radial-gradient(circle at 40% 10%, rgba(196,141,255,.2), transparent 40%),
+        linear-gradient(180deg, #4c1d95 0%, #2e1065 45%, #0f0618 100%);
+    }
+    #game.bg-city {
+      background:
+        radial-gradient(circle at 50% 10%, rgba(34,211,238,.22), transparent 40%),
+        linear-gradient(180deg, #155e75 0%, #0e7490 35%, #082f49 100%);
+    }
+    #game.bg-pent {
+      background:
+        radial-gradient(circle at 50% 0%, rgba(251,191,36,.22), transparent 42%),
+        linear-gradient(180deg, #78350f 0%, #451a03 45%, #1c0f05 100%);
+    }
+    #game.bg-holding {
+      background:
+        radial-gradient(circle at 50% 5%, rgba(253,230,138,.28), transparent 40%),
+        linear-gradient(180deg, #a16207 0%, #422006 40%, #0a0703 100%);
+    }
   </style>
 </head>
 <body>
@@ -710,11 +830,12 @@
     </div>
     <div class="hub">
       <div class="channel-card" id="card">
-        <div class="studio-pill">🎬 Студия · <span id="studioBadge">Комната</span></div>
+        <div class="studio-pill"><span id="locEmoji">🛏️</span> <span id="studioBadge">Хостел у Казанского</span></div>
         <div class="avatar-wrap"><div class="avatar" id="avatar">😎</div></div>
         <div class="name">@мой_канал</div>
         <div class="rank" id="rank">Новичок</div>
         <div class="subs-line" id="subsLine">0 подписчиков</div>
+        <p class="passive" id="locFlavor" style="margin-top:0;margin-bottom:10px;border-style:solid">Москва · старт с нуля</p>
         <div class="boost-banner" id="boostBanner">Буст на следующий раунд: —</div>
         <div class="stats">
           <div class="stat"><div class="v" id="sSubs">0</div><div class="l">подписчики</div></div>
@@ -743,9 +864,12 @@
         <button type="button" class="btn" id="btnPlay"><span>Снять ролик</span><small>1 энергия · ловля</small></button>
         <div class="grid2">
           <button type="button" class="btn sec" id="btnShop">Магазин</button>
-          <button type="button" class="btn sec" id="btnFriends">Друзья</button>
+          <button type="button" class="btn sec" id="btnLoc">Локации</button>
         </div>
-        <button type="button" class="btn sec" id="btnTop"><span>Топ недели</span><small id="hubPlace">твоё место в рейтинге</small></button>
+        <div class="grid2">
+          <button type="button" class="btn sec" id="btnFriends">Друзья</button>
+          <button type="button" class="btn sec" id="btnTop"><span>Топ</span><small id="hubPlace">#—</small></button>
+        </div>
         <button type="button" class="btn sec" id="btnSimOffline" style="font-size:0.85rem;padding:12px">Демо: +1 час офлайна</button>
       </div>
       <p class="hint">Води пальцем в раунде · лови всё кроме бомб · канал качает офлайн</p>
@@ -779,6 +903,18 @@
         <button type="button" class="btn" id="btnSharePlace"><span>Поделиться местом</span><small>в чат класса / канал</small></button>
       </div>
       <p class="hint">Топ по скиллу и подписчикам канала — без покупки места. За Stars только косметика.</p>
+    </div>
+  </div>
+
+  <div class="screen" id="locs">
+    <div class="topbar">
+      <button type="button" class="btn sm sec" id="backLoc">← Назад</button>
+      <h2 style="font-size:1rem">Локации</h2>
+      <span style="width:64px"></span>
+    </div>
+    <div class="hub">
+      <p class="shop-note">Путь от хостела в Москве до своего холдинга. Чем круче адрес — тем выше пассивный доход. Переезд за ресурсы канала.</p>
+      <div id="locList"></div>
     </div>
   </div>
 
@@ -856,10 +992,68 @@
 (function () {
   "use strict";
 
-  var SAVE = "matafonix_v4";
+  var SAVE = "matafonix_v5";
   var ENERGY_MAX_BASE = 5;
   var ENERGY_REGEN_MS = 45000; // демо: 45 сек на +1 (в проде 20–30 мин)
   var OFFLINE_CAP_SEC = 8 * 3600; // макс 8 часов офлайна
+  var LOCATIONS = [
+    {
+      id: "hostel", name: "Хостел у Казанского", short: "Хостел",
+      city: "Москва · у вокзала", emoji: "🛏️",
+      flavor: "8 человек в комнате, Wi‑Fi от соседа, свет с улицы",
+      minSubs: 0, idle: 1, className: "loc-hostel", bg: "bg-hostel",
+      cost: null
+    },
+    {
+      id: "dorm", name: "Койка в общаге", short: "Общага",
+      city: "Москва · ЮВАО", emoji: "🏫",
+      flavor: "Общий душ, микроволновка на этаже, монтаж ночью",
+      minSubs: 40, idle: 1.15, className: "loc-dorm", bg: "bg-dorm",
+      cost: { likes: 50, views: 30 }
+    },
+    {
+      id: "edge", name: "Однушка в Бирюлёво", short: "Однушка",
+      city: "Москва · окраина", emoji: "🏢",
+      flavor: "Свои стены, шум за окном, первая «студия» на столе",
+      minSubs: 120, idle: 1.3, className: "loc-edge", bg: "bg-edge",
+      cost: { likes: 120, views: 90, subs: 15 }
+    },
+    {
+      id: "metro", name: "Квартира у метро", short: "У метро",
+      city: "Москва · кольцевая", emoji: "🚇",
+      flavor: "До центра 20 минут, софтбокс в углу, коллабы ближе",
+      minSubs: 350, idle: 1.5, className: "loc-metro", bg: "bg-metro",
+      cost: { likes: 280, views: 200, subs: 40 }
+    },
+    {
+      id: "patriki", name: "Студия на Патриках", short: "Патрики",
+      city: "Москва · Патриаршие", emoji: "☕",
+      flavor: "Кофейни вокруг, фон для рилсов, тебя уже узнают",
+      minSubs: 800, idle: 1.75, className: "loc-patriki", bg: "bg-patriki",
+      cost: { likes: 500, views: 400, subs: 80 }
+    },
+    {
+      id: "city", name: "Лофт с видом на Сити", short: "Сити",
+      city: "Москва · Пресненская", emoji: "🏙️",
+      flavor: "Панорамные окна, свет весь день, команда на кухне",
+      minSubs: 2000, idle: 2.1, className: "loc-city", bg: "bg-city",
+      cost: { likes: 900, views: 700, subs: 150 }
+    },
+    {
+      id: "pent", name: "Пентхаус на Пресне", short: "Пентхаус",
+      city: "Москва · Пресня", emoji: "🥂",
+      flavor: "Съёмка на крыше, гримёрка, бренд уже стучится",
+      minSubs: 5000, idle: 2.5, className: "loc-pent", bg: "bg-pent",
+      cost: { likes: 1800, views: 1400, subs: 300 }
+    },
+    {
+      id: "holding", name: "Медиахолдинг · Рублёвка", short: "Холдинг",
+      city: "Москва · Рублёвка", emoji: "🏰",
+      flavor: "Свой дом + студия, агенты, топ Москвы. Ты — бренд",
+      minSubs: 12000, idle: 3.2, className: "loc-holding", bg: "bg-holding",
+      cost: { likes: 4000, views: 3000, subs: 800 }
+    }
+  ];
   var MILES = [
     { n: 1, title: "Первый друг", reward: "Бейдж", bonus: { likes: 30, views: 20, subs: 5 } },
     { n: 3, title: "Команда", reward: "Рамка + 100 подп.", bonus: { subs: 100 } },
@@ -953,13 +1147,14 @@
       boosts: {},
       boostDay: "",
       boostUsed: {},
-      nextBoost: ""
+      nextBoost: "",
+      location: "hostel"
     };
   }
 
   function load() {
     try {
-      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
+      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v4") || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
       if (raw) {
         var d = JSON.parse(raw);
         if (!d.upgrades) d.upgrades = {};
@@ -978,6 +1173,7 @@
         if (!d.boostDay) d.boostDay = "";
         if (!d.boostUsed) d.boostUsed = {};
         if (d.nextBoost == null) d.nextBoost = "";
+        if (!d.location) d.location = "hostel";
         return d;
       }
     } catch (e) {}
@@ -1025,6 +1221,10 @@
     likes += Math.min(8, channel.subs / 200);
     views += Math.min(10, channel.subs / 150);
     subs += Math.min(1.5, channel.subs / 800);
+    var loc = currentLoc();
+    likes *= loc.idle;
+    views *= loc.idle;
+    subs *= loc.idle;
     return { likes: likes, views: views, subs: subs };
   }
 
@@ -1074,7 +1274,7 @@
   }
 
   function show(id) {
-    ["hub", "friends", "shop", "top", "gameScreen"].forEach(function (s) {
+    ["hub", "friends", "shop", "top", "locs", "gameScreen"].forEach(function (s) {
       document.getElementById(s).classList.toggle("active", s === id);
     });
   }
@@ -1225,18 +1425,99 @@
 
   function has(id) { return !!channel.upgrades[id]; }
 
+  function currentLoc() {
+    for (var i = 0; i < LOCATIONS.length; i++) {
+      if (LOCATIONS[i].id === channel.location) return LOCATIONS[i];
+    }
+    return LOCATIONS[0];
+  }
+
+  function locById(id) {
+    for (var i = 0; i < LOCATIONS.length; i++) {
+      if (LOCATIONS[i].id === id) return LOCATIONS[i];
+    }
+    return null;
+  }
+
+  function locUnlocked(loc) {
+    return (channel.subs || 0) >= loc.minSubs;
+  }
+
+  function moveToLoc(id) {
+    var loc = locById(id);
+    if (!loc) return;
+    if (channel.location === id) return toast("Ты уже здесь");
+    if (!locUnlocked(loc)) return toast("Нужно " + formatNum(loc.minSubs) + " подписчиков");
+    if (loc.cost && !canBuy(loc.cost)) return toast("Не хватает ресурсов на переезд");
+    if (loc.cost) Object.keys(loc.cost).forEach(function (k) { channel[k] -= loc.cost[k]; });
+    channel.location = id;
+    save();
+    renderHub();
+    renderLocs();
+    toast("Переезд: " + loc.name);
+  }
+
+  function renderLocs() {
+    var list = document.getElementById("locList");
+    list.innerHTML = "";
+    LOCATIONS.forEach(function (loc, idx) {
+      if (idx > 0) {
+        var path = document.createElement("div");
+        path.className = "loc-path";
+        list.appendChild(path);
+      }
+      var here = channel.location === loc.id;
+      var open = locUnlocked(loc);
+      var div = document.createElement("div");
+      div.className = "loc-card" + (here ? " here" : "") + (!open ? " locked" : here ? "" : " open");
+      var need = open
+        ? (loc.cost ? ("переезд · " + costLabel(loc.cost)) : "старт · бесплатно")
+        : ("с " + formatNum(loc.minSubs) + " подп.");
+      div.innerHTML =
+        "<div class='loc-ico'>" + loc.emoji + "</div>" +
+        "<div><h3>" + loc.name + (here ? " · ты тут" : "") + "</h3>" +
+        "<p>" + loc.city + " · " + loc.flavor + "</p>" +
+        "<div class='loc-tag'>idle x" + loc.idle.toFixed(2) + " · " + need + "</div></div>";
+      var side = document.createElement("div");
+      if (here) {
+        side.innerHTML = "<span style='font-size:0.72rem;font-weight:800;color:var(--accent)'>здесь</span>";
+      } else if (!open) {
+        side.innerHTML = "<span style='font-size:0.72rem;color:var(--muted)'>🔒</span>";
+      } else {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "btn sm";
+        b.textContent = "Переехать";
+        b.disabled = !!(loc.cost && !canBuy(loc.cost));
+        b.onclick = function () { moveToLoc(loc.id); };
+        side.appendChild(b);
+      }
+      div.appendChild(side);
+      list.appendChild(div);
+    });
+  }
+
   function rank() {
-    if (channel.subs >= 2000) return "Легенда";
-    if (channel.subs >= 500) return "На радаре";
+    var loc = currentLoc();
+    if (loc.id === "holding") return "Медиамагнат";
+    if (loc.id === "pent") return "Топ Москвы";
+    if (loc.id === "city") return "На радаре";
+    if (loc.id === "patriki") return "В тренде";
     if (channel.subs >= 100) return "Блогер с района";
     return "Новичок";
   }
 
   function studioName() {
-    if (channel.subs >= 2000) return "Агентство";
-    if (channel.subs >= 500) return "Офис";
-    if (channel.subs >= 100) return "Студия";
-    return "Комната";
+    return currentLoc().name;
+  }
+
+  function applyGameBg() {
+    game.className = "";
+    if (channel.equipped.bg && channel.owned[channel.equipped.bg]) {
+      game.classList.add(channel.equipped.bg.replace("bg_", "bg-"));
+    } else {
+      game.classList.add(currentLoc().bg);
+    }
   }
 
   function renderHub() {
@@ -1246,13 +1527,16 @@
     document.getElementById("sViews").textContent = formatNum(channel.views);
     document.getElementById("rank").textContent = rank() + (channel.equipped.badge && channel.owned[channel.equipped.badge] ? " · фанат №1" : "");
     document.getElementById("subsLine").textContent = formatNum(channel.subs) + " подписчиков";
-    document.getElementById("studioBadge").textContent = studioName();
+    var loc = currentLoc();
+    document.getElementById("studioBadge").textContent = loc.name;
+    document.getElementById("locEmoji").textContent = loc.emoji;
+    document.getElementById("locFlavor").textContent = loc.city + " · " + loc.flavor;
     var av = equippedSkin();
     document.getElementById("avatar").textContent = av;
     player.textContent = av;
     var card = document.getElementById("card");
     var frame = channel.equipped.frame && channel.owned[channel.equipped.frame] ? channel.equipped.frame.replace("frame_", "frame-") : "";
-    card.className = "channel-card" +
+    card.className = "channel-card " + loc.className +
       (channel.subs >= 500 ? " t3" : channel.subs >= 100 ? " t2" : channel.subs >= 1 ? " t1" : "") +
       (frame ? " " + frame : "");
 
@@ -1269,7 +1553,7 @@
     var rates = idleRatesPerMin();
     var maxE = energyMax();
     document.getElementById("passiveLine").textContent =
-      "+" + rates.likes.toFixed(1) + " ❤/мин · +" + rates.views.toFixed(1) + " 👁/мин · +" + rates.subs.toFixed(2) + " ⭐/мин";
+      loc.short + " · +" + rates.likes.toFixed(1) + " ❤/мин · +" + rates.views.toFixed(1) + " 👁/мин · +" + rates.subs.toFixed(2) + " ⭐/мин";
 
     document.getElementById("energyLabel").textContent = channel.energy + "/" + maxE;
     var playBtn = document.getElementById("btnPlay");
@@ -1730,10 +2014,18 @@
       "<span class='chip'><em>👁</em>+" + round.views + "</span>" +
       "<span class='chip'><em>⭐</em>+" + round.subs + "</span>";
     var place = myPlace("subs");
+    var loc = currentLoc();
     document.getElementById("endMsg").textContent =
-      "На канале " + formatNum(channel.subs) + " подп. · #" + place + " в топе · рекорд раунда " + formatNum(channel.bestRound);
+      loc.name + " · " + formatNum(channel.subs) + " подп. · #" + place + " в топе · рекорд " + formatNum(channel.bestRound);
     document.getElementById("end").classList.add("show");
     renderHub();
+    for (var i = 0; i < LOCATIONS.length; i++) {
+      var L = LOCATIONS[i];
+      if (L.id !== channel.location && locUnlocked(L) && channel.subs - round.subs < L.minSubs) {
+        toast("Доступен переезд: " + L.name);
+        break;
+      }
+    }
   }
 
   function startRound() {
@@ -1774,10 +2066,7 @@
     roundStartedAt = Date.now();
     spawnCount = 0;
     player.textContent = equippedSkin();
-    game.className = "";
-    if (channel.equipped.bg && channel.owned[channel.equipped.bg]) {
-      game.classList.add(channel.equipped.bg.replace("bg_", "bg-"));
-    }
+    applyGameBg();
     document.getElementById("touchHint").classList.remove("hide");
     hud();
     requestAnimationFrame(function () {
@@ -1825,10 +2114,12 @@
   };
   document.getElementById("btnFriends").onclick = function () { renderFriends(); show("friends"); };
   document.getElementById("btnShop").onclick = function () { shopTab = "res"; renderShop(); show("shop"); };
+  document.getElementById("btnLoc").onclick = function () { renderLocs(); show("locs"); };
   document.getElementById("btnTop").onclick = function () { renderTop(); show("top"); };
   document.getElementById("back1").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backShop").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backTop").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("backLoc").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("tabSubs").onclick = function () { lbMode = "subs"; renderTop(); };
   document.getElementById("tabBest").onclick = function () { lbMode = "best"; renderTop(); };
   document.getElementById("tabRes").onclick = function () { shopTab = "res"; renderShop(); };
