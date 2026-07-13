@@ -1096,7 +1096,7 @@
         </div>
         <button type="button" class="btn sec" id="btnSimOffline" style="font-size:0.85rem;padding:12px">Демо: +1 час офлайна</button>
       </div>
-      <p class="hint">Хардкор: мало энергии · дорогой прогресс · 2 жизни · PvP на ресурсы</p>
+      <p class="hint">Хардкор · античит: подпись сейва · лимиты раунда · 3 страйка = сброс</p>
     </div>
   </div>
 
@@ -1260,10 +1260,25 @@
 (function () {
   "use strict";
 
-  var SAVE = "matafonix_v7";
+  var SAVE = "matafonix_v8";
   var ENERGY_MAX_BASE = 3;
   var ENERGY_REGEN_MS = 90000; // хардкор-демо: 90 сек на +1 (в проде 25–40 мин)
   var OFFLINE_CAP_SEC = 4 * 3600; // хардкор: макс 4 часа офлайна
+  var AC_SALT = "mtx_ac_9f2a_" + String((typeof location !== "undefined" && location.host) || "local");
+  var AC_MAX_STRIKES = 3;
+  var AC_HARD = {
+    likes: 250000,
+    views: 250000,
+    subs: 80000,
+    stars: 5000,
+    bestRound: 2500,
+    mmr: 2200,
+    energy: 8,
+    pending: 25000,
+    roundScorePerSec: 14,
+    roundAbs: 2200,
+    minRoundSecForHigh: 8
+  };
   var GEAR = [
     { id: "look_tee", slot: "look", name: "Футболка с дыркой", icon: "👕", desc: "Старт с хостела", cost: { likes: 70 }, idle: 1.02 },
     { id: "look_hoodie", slot: "look", name: "Худи с района", icon: "🧥", desc: "+idle · заметнее в кадре", cost: { likes: 252, views: 112 }, idle: 1.04 },
@@ -1400,6 +1415,7 @@
   var styleSlot = "look";
   var roundFX = { shield: false, magnet: false, fire: false, revive: false, shieldUsed: false, reviveUsed: false };
   var pvp = null; // { rival, pot, rivalScore, rivalRate }
+  var roundMeta = { catches: 0, bombs: 0, flagged: false };
 
   var BOTS = [
     { name: "@kira_clips", avatar: "🦊", subs: 2140, best: 186 },
@@ -1465,13 +1481,151 @@
       pvpWins: 0,
       pvpLosses: 0,
       mmr: 1000,
-      unlockedLocs: { hostel: 1 }
+      unlockedLocs: { hostel: 1 },
+      ac: { strikes: 0, flags: [], sig: "" }
     };
+  }
+
+  function acHash(str) {
+    var h = 5381;
+    for (var i = 0; i < str.length; i++) {
+      h = ((h << 5) + h) ^ str.charCodeAt(i);
+    }
+    return (h >>> 0).toString(36);
+  }
+
+  function acFingerprint(ch) {
+    var ups = Object.keys(ch.upgrades || {}).sort().join(",");
+    var owned = Object.keys(ch.owned || {}).sort().join(",");
+    var gear = Object.keys(ch.gearOwned || {}).sort().join(",");
+    return [
+      ch.likes | 0, ch.views | 0, ch.subs | 0, ch.stars | 0,
+      ch.bestRound | 0, ch.energy | 0, ch.mmr | 0,
+      ch.pvpWins | 0, ch.pvpLosses | 0, ch.refActive | 0,
+      ch.location || "", ups, owned, gear,
+      (ch.pending && ch.pending.likes) | 0,
+      (ch.pending && ch.pending.views) | 0,
+      (ch.pending && ch.pending.subs) | 0
+    ].join("|") + "|" + AC_SALT;
+  }
+
+  function acSign(ch) {
+    if (!ch.ac) ch.ac = { strikes: 0, flags: [], sig: "" };
+    ch.ac.sig = acHash(acFingerprint(ch));
+    return ch.ac.sig;
+  }
+
+  function acVerify(ch) {
+    if (!ch || !ch.ac || !ch.ac.sig) return false;
+    return ch.ac.sig === acHash(acFingerprint(ch));
+  }
+
+  function acFlag(reason) {
+    if (!channel.ac) channel.ac = { strikes: 0, flags: [], sig: "" };
+    channel.ac.flags = (channel.ac.flags || []).slice(-20);
+    channel.ac.flags.push({ t: Date.now(), r: reason });
+    channel.ac.strikes = (channel.ac.strikes || 0) + 1;
+    console.warn("[anti-cheat]", reason, "strikes=", channel.ac.strikes);
+  }
+
+  function acPunish(reason) {
+    acFlag(reason);
+    // мягкий сброс аномалий
+    channel.stars = Math.min(channel.stars || 0, 50);
+    channel.bestRound = Math.min(channel.bestRound || 0, 120);
+    channel.likes = Math.min(channel.likes || 0, 200);
+    channel.views = Math.min(channel.views || 0, 200);
+    channel.subs = Math.min(channel.subs || 0, 80);
+    channel.pending = { likes: 0, views: 0, subs: 0 };
+    channel.energy = Math.min(channel.energy || 0, ENERGY_MAX_BASE);
+    channel.mmr = Math.min(Math.max(channel.mmr || 1000, 600), 1100);
+    if ((channel.ac.strikes || 0) >= AC_MAX_STRIKES) {
+      var code = channel.refCode;
+      channel = defaultSave();
+      channel.refCode = code;
+      channel.ac = { strikes: AC_MAX_STRIKES, flags: [{ t: Date.now(), r: "hard_reset:" + reason }], sig: "" };
+      toast("Античит: прогресс сброшен");
+    } else {
+      toast("Античит: подозрительные данные · штраф");
+    }
+    acSign(channel);
+    try { localStorage.setItem(SAVE, JSON.stringify(channel)); } catch (e) {}
+  }
+
+  function acSanitize(ch, opts) {
+    opts = opts || {};
+    var now = Date.now();
+    if (!ch.ac) ch.ac = { strikes: 0, flags: [], sig: "" };
+    ch.likes = Math.max(0, Math.min(AC_HARD.likes, Math.floor(Number(ch.likes) || 0)));
+    ch.views = Math.max(0, Math.min(AC_HARD.views, Math.floor(Number(ch.views) || 0)));
+    ch.subs = Math.max(0, Math.min(AC_HARD.subs, Math.floor(Number(ch.subs) || 0)));
+    ch.stars = Math.max(0, Math.min(AC_HARD.stars, Math.floor(Number(ch.stars) || 0)));
+    ch.bestRound = Math.max(0, Math.min(AC_HARD.bestRound, Math.floor(Number(ch.bestRound) || 0)));
+    ch.mmr = Math.max(600, Math.min(AC_HARD.mmr, Math.floor(Number(ch.mmr) || 1000)));
+    ch.pvpWins = Math.max(0, Math.min(5000, Math.floor(Number(ch.pvpWins) || 0)));
+    ch.pvpLosses = Math.max(0, Math.min(5000, Math.floor(Number(ch.pvpLosses) || 0)));
+    ch.refActive = Math.max(0, Math.min(500, Math.floor(Number(ch.refActive) || 0)));
+    ch.energy = Math.max(0, Math.min(AC_HARD.energy, Math.floor(Number(ch.energy) || 0)));
+    if (!ch.pending) ch.pending = { likes: 0, views: 0, subs: 0 };
+    ch.pending.likes = Math.max(0, Math.min(AC_HARD.pending, Math.floor(Number(ch.pending.likes) || 0)));
+    ch.pending.views = Math.max(0, Math.min(AC_HARD.pending, Math.floor(Number(ch.pending.views) || 0)));
+    ch.pending.subs = Math.max(0, Math.min(AC_HARD.pending, Math.floor(Number(ch.pending.subs) || 0)));
+    if (ch.energyAt > now + 5000) ch.energyAt = now;
+    if (ch.lastSeen > now + 5000) ch.lastSeen = now;
+    if (ch.lastSeen < now - 40 * 86400000) ch.lastSeen = now - OFFLINE_CAP_SEC * 1000;
+    // неизвестные апгрейды / косметика
+    var validUps = {};
+    UPS.forEach(function (u) { validUps[u.id] = 1; });
+    Object.keys(ch.upgrades || {}).forEach(function (k) {
+      if (!validUps[k]) delete ch.upgrades[k];
+    });
+    var validCos = {};
+    COSMETICS.forEach(function (c) { validCos[c.id] = 1; });
+    Object.keys(ch.owned || {}).forEach(function (k) {
+      if (!validCos[k]) delete ch.owned[k];
+    });
+    var validGear = {};
+    GEAR.forEach(function (g) { validGear[g.id] = 1; });
+    Object.keys(ch.gearOwned || {}).forEach(function (k) {
+      if (!validGear[k]) delete ch.gearOwned[k];
+    });
+    if (!ch.gearOwned.ride_walk) ch.gearOwned.ride_walk = 1;
+    if (opts.tampered) acFlag("save_tamper");
+    return ch;
+  }
+
+  function acValidateRound(r, durSec, meta) {
+    var score = roundScore(r);
+    var maxByTime = Math.ceil(durSec * AC_HARD.roundScorePerSec + 40);
+    var flagged = false;
+    if (score > AC_HARD.roundAbs) {
+      flagged = true;
+    }
+    if (score > maxByTime) {
+      flagged = true;
+    }
+    if (durSec < AC_HARD.minRoundSecForHigh && score > 80) {
+      flagged = true;
+    }
+    if (meta && meta.catches > 0) {
+      var perCatch = score / meta.catches;
+      if (perCatch > 25) flagged = true;
+    }
+    if (r.likes < 0 || r.views < 0 || r.subs < 0) flagged = true;
+    if (flagged) {
+      var scale = Math.min(1, maxByTime / Math.max(score, 1));
+      r.likes = Math.floor(Math.max(0, r.likes) * scale);
+      r.views = Math.floor(Math.max(0, r.views) * scale);
+      r.subs = Math.floor(Math.max(0, r.subs) * scale);
+      acFlag("round_anomaly");
+      toast("Античит: раунд урезан");
+    }
+    return r;
   }
 
   function load() {
     try {
-      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v6") || localStorage.getItem("matafonix_v5") || localStorage.getItem("matafonix_v4") || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
+      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v7") || localStorage.getItem("matafonix_v6") || localStorage.getItem("matafonix_v5") || localStorage.getItem("matafonix_v4") || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
       if (raw) {
         var d = JSON.parse(raw);
         if (!d.upgrades) d.upgrades = {};
@@ -1503,15 +1657,59 @@
         if (d.mmr == null) d.mmr = 1000;
         if (!d.unlockedLocs) d.unlockedLocs = { hostel: 1 };
         if (d.location && !d.unlockedLocs[d.location]) d.unlockedLocs[d.location] = 1;
+        if (!d.ac) d.ac = { strikes: 0, flags: [], sig: "" };
+
+        var tampered = d.ac.sig ? !acVerify(d) : false;
+        // миграция со старых сейвов без подписи — не наказывать, только подписать после sanitize
+        if (!d.ac.sig && (localStorage.getItem(SAVE) == null)) tampered = false;
+        if (d.ac.sig && tampered) {
+          d = acSanitize(d, { tampered: true });
+          if ((d.ac.strikes || 0) >= AC_MAX_STRIKES) {
+            var code = d.refCode;
+            d = defaultSave();
+            d.refCode = code;
+            d.ac.strikes = AC_MAX_STRIKES;
+            d.ac.flags = [{ t: Date.now(), r: "hard_reset:save_tamper" }];
+          } else {
+            // штрафной clamp уже в punish-подобном sanitize
+            d.stars = Math.min(d.stars, 50);
+            d.bestRound = Math.min(d.bestRound, 120);
+            d.likes = Math.min(d.likes, Math.max(200, Math.floor(d.likes * 0.15)));
+            d.views = Math.min(d.views, Math.max(200, Math.floor(d.views * 0.15)));
+            d.subs = Math.min(d.subs, Math.max(80, Math.floor(d.subs * 0.15)));
+          }
+        } else {
+          d = acSanitize(d, {});
+        }
+        acSign(d);
         return d;
       }
     } catch (e) {}
-    return defaultSave();
+    var fresh = defaultSave();
+    acSign(fresh);
+    return fresh;
   }
 
   function save() {
     channel.lastSeen = Date.now();
+    acSanitize(channel, {});
+    acSign(channel);
     try { localStorage.setItem(SAVE, JSON.stringify(channel)); } catch (e) {}
+  }
+
+  function acWatchdog() {
+    if (!acVerify(channel)) {
+      acPunish("runtime_tamper");
+      renderHub();
+      return false;
+    }
+    // невозможные значения в рантайме
+    if ((channel.likes | 0) > AC_HARD.likes || (channel.stars | 0) > AC_HARD.stars || (channel.bestRound | 0) > AC_HARD.bestRound) {
+      acPunish("cap_overflow");
+      renderHub();
+      return false;
+    }
+    return true;
   }
 
   function energyMax() {
@@ -1571,9 +1769,14 @@
     var sec = Math.min(OFFLINE_CAP_SEC, elapsed);
     var rates = idleRatesPerMin();
     var mins = sec / 60;
-    channel.pending.likes += Math.floor(rates.likes * mins);
-    channel.pending.views += Math.floor(rates.views * mins);
-    channel.pending.subs += Math.max(0, Math.floor(rates.subs * mins));
+    var addL = Math.floor(rates.likes * mins);
+    var addV = Math.floor(rates.views * mins);
+    var addS = Math.max(0, Math.floor(rates.subs * mins));
+    // античит: потолок офлайна
+    var maxPend = Math.ceil(rates.likes * (OFFLINE_CAP_SEC / 60) * 1.05);
+    channel.pending.likes = Math.min(AC_HARD.pending, (channel.pending.likes || 0) + Math.min(addL, maxPend));
+    channel.pending.views = Math.min(AC_HARD.pending, (channel.pending.views || 0) + Math.min(addV, maxPend));
+    channel.pending.subs = Math.min(AC_HARD.pending, (channel.pending.subs || 0) + Math.min(addS, maxPend));
     channel.lastSeen = now;
   }
 
@@ -1947,6 +2150,7 @@
   function moveToLoc(id) {
     var loc = locById(id);
     if (!loc) return;
+    if (!channel.unlockedLocs) channel.unlockedLocs = { hostel: 1 };
     if (channel.location === id) return toast("Ты уже здесь");
     if (!locUnlocked(loc)) return toast("Нужно " + formatNum(loc.minSubs) + " подписчиков");
     var firstTime = !channel.unlockedLocs[id];
@@ -2310,7 +2514,13 @@
         b.style.gridColumn = "1 / -1";
         b.onclick = function () {
           if (!confirm("Демо: купить " + p.stars + " ★ за " + p.rub + " ₽?\nВ проде откроется оплата Telegram Stars.")) return;
-          channel.stars = (channel.stars || 0) + p.stars;
+          if (!channel.ac) channel.ac = { strikes: 0, flags: [], sig: "" };
+          channel.ac.starBuys = (channel.ac.starBuys || 0) + 1;
+          if (channel.ac.starBuys > 40) {
+            acFlag("star_spam");
+            return toast("Античит: слишком много покупок Stars");
+          }
+          channel.stars = Math.min(AC_HARD.stars, (channel.stars || 0) + p.stars);
           save();
           renderHub();
           renderShop();
@@ -2630,10 +2840,14 @@
       it.el.style.top = it.y + "px";
       if (hit(it)) {
         if (it.bad) {
+          roundMeta.bombs++;
           loseLife();
         } else {
           combo++;
+          roundMeta.catches++;
           var add = Math.max(1, Math.round(it.amt * mult(it.key)));
+          // античит: за один кэтч не больше разумного
+          add = Math.min(add, 12);
           round[it.key] += add;
           hud();
           if (combo === 5) flash("COMBO x1.5!");
@@ -2664,6 +2878,12 @@
     cancelAnimationFrame(loopId);
     clearInterval(spawnId);
     clearItems();
+    if (roundMeta.settled) return;
+    roundMeta.settled = true;
+
+    var durSec = Math.max(0.5, (Date.now() - roundStartedAt) / 1000);
+    round = acValidateRound(round, durSec, roundMeta);
+
     var wasPvp = !!pvp;
     var score = roundScore(round);
     var pvpMsg = "";
@@ -2679,7 +2899,17 @@
       bumpQuest("rounds", 1);
       if (round.subs > 0) bumpQuest("subsCaught", round.subs);
     }
-    if (score > (channel.bestRound || 0)) channel.bestRound = score;
+    if (score > (channel.bestRound || 0)) {
+      // античит: рекорд не может вырасти больше чем x3 за один раунд от текущего
+      var prev = channel.bestRound || 0;
+      if (prev > 40 && score > prev * 3.5) {
+        score = Math.floor(prev * 2.2);
+        acFlag("best_spike");
+        toast("Античит: рекорд ограничен");
+      }
+      channel.bestRound = Math.min(AC_HARD.bestRound, Math.max(channel.bestRound || 0, score));
+    }
+    acWatchdog();
     save();
     document.getElementById("earn").innerHTML =
       "<span class='chip'><em>❤</em>+" + round.likes + "</span>" +
@@ -2718,6 +2948,7 @@
     channel.energy -= 1;
     channel.energyAt = Date.now();
     running = true; // блокируем повторный старт до rAF
+    roundMeta = { catches: 0, bombs: 0, settled: false };
 
     roundFX = { shield: false, magnet: false, fire: false, revive: false, rain: false, shieldUsed: false, reviveUsed: false };
     if (!fromPvp && channel.nextBoost && (channel.boosts[channel.nextBoost] || 0) > 0) {
@@ -2840,15 +3071,18 @@
   document.getElementById("btnReset").onclick = function () {
     if (!confirm("Сбросить прогресс?")) return;
     channel = defaultSave();
+    acSign(channel);
     save();
     renderHub();
   };
 
   // старт: начислить офлайн + тик UI
   accrueOffline();
+  acWatchdog();
   renderHub();
   setInterval(function () {
     refreshEnergy();
+    if (!acWatchdog()) return;
     if (document.getElementById("hub").classList.contains("active")) renderHub();
     else save();
   }, 1000);
