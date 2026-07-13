@@ -1740,7 +1740,7 @@
         <div class="duel-champ rival" id="duelRival"><img alt="" id="duelRivalImg"/></div>
       </div>
       <div class="combo-fx" id="fx"></div>
-      <div class="touch-hint" id="touchHint">Матафоникс кидает лайки и просмотры<br>Води пальцем · лови всё, кроме 💣</div>
+      <div class="touch-hint" id="touchHint">Лови ❤ и 👁 · ★ Stars в раунде нет<br>Води пальцем · всё, кроме 💣</div>
     </div>
     <p class="foot">Матафоникс скидывает контент · пропуск = −жизнь · скорость растёт</p>
   </div>
@@ -1784,7 +1784,7 @@
       <div class="onboard-step" data-step="1">
         <h3>Как снимать ролик</h3>
         <ul>
-          <li><strong>Я кидаю контент</strong> — ❤ лайки, 👁 просмотры, ⭐ подписчиков. Лови пальцем.</li>
+          <li><strong>Я кидаю контент</strong> — ❤ лайки и 👁 просмотры (и 🔥). Лови пальцем. ★ Stars в раунде не падают.</li>
           <li><strong>💣 — фейк.</strong> Не бери. Пропустил полезное — минус жизнь.</li>
           <li><strong>Скорость растёт.</strong> Комбо с 5 лова даёт x1.5. Не зевай.</li>
         </ul>
@@ -1796,7 +1796,7 @@
         <ul>
           <li><strong>Энергия</strong> — сколько роликов снимешь. Кончилась — подожди реген.</li>
           <li><strong>Офлайн</strong> — канал крутится без тебя. Забери награду, когда вернёшься.</li>
-          <li><strong>Хостел → холдинг</strong> — копи ⭐ и переезжай. Чем круче адрес, тем жирнее idle.</li>
+          <li><strong>Хостел → холдинг</strong> — копи 👥 подписчиков (с охвата и idle) и переезжай. ★ Stars — отдельно, за деньги/коллабы.</li>
         </ul>
         <p>PvP — потом, когда освоишься. Сейчас главное: первый ролик с койки.</p>
       </div>
@@ -1877,7 +1877,7 @@
   ];
   var QUESTS = [
     { id: "film2", title: "Сними 3 ролика", key: "rounds", target: 3, reward: { likes: 18, views: 12 } },
-    { id: "subs20", title: "Поймай 35 ⭐ за день", key: "subsCaught", target: 35, reward: { likes: 14, subs: 3 } },
+    { id: "likes50", title: "Поймай 40 ❤ за день", key: "likesCaught", target: 40, reward: { likes: 14, subs: 3 } },
     { id: "claim1", title: "Забери офлайн-награду", key: "claims", target: 1, reward: { views: 18, likes: 8 } }
   ];
   var LOCATIONS = [
@@ -1952,7 +1952,7 @@
     { id: "mic", name: "Микрофон", desc: "+10% ко всем ресурсам раунда", cost: { likes: 252, subs: 70 } },
     { id: "trend", name: "Тренды", desc: "+15% подписчиков в раунде и idle", cost: { views: 336, subs: 112 } },
     { id: "promo", name: "Продвижение", desc: "+1 жизнь и +1 макс. энергия", cost: { likes: 700, views: 420, subs: 56 } },
-    { id: "collab", name: "Коллаб", desc: "пассив +0.12 ⭐/мин", cost: { subs: 224 } }
+    { id: "collab", name: "Коллаб", desc: "+0.02 ★/мин Stars + чуть подписчиков idle", cost: { subs: 224 } }
   ];
   var STAR_PACKS = [
     { id: "p50", stars: 50, rub: 99, label: "Старт" },
@@ -1976,12 +1976,11 @@
     { id: "magnet", name: "Магнит", desc: "Шире зона ловли", icon: "🧲", price: 20, limit: 2 },
     { id: "fire", name: "Огонь", desc: "x1.5 к ресурсам раунда", icon: "🔥", price: 25, limit: 1 },
     { id: "revive", name: "Ревайв", desc: "+1 жизнь один раз", icon: "💖", price: 30, limit: 1 },
-    { id: "rain", name: "Дождь звёзд", desc: "Чаще падают ⭐", icon: "✨", price: 35, limit: 1 }
+    { id: "rain", name: "Дождь хайпа", desc: "Чаще падают ❤ и 🔥", icon: "✨", price: 35, limit: 1 }
   ];
   var TYPES = [
     { emoji: "❤", key: "likes", amt: 1 },
     { emoji: "👁", key: "views", amt: 1 },
-    { emoji: "⭐", key: "subs", amt: 1 },
     { emoji: "🔥", key: "likes", amt: 2 },
     { emoji: "💣", bad: true }
   ];
@@ -2051,7 +2050,7 @@
       energy: ENERGY_MAX_BASE,
       energyAt: now,
       lastSeen: now,
-      pending: { likes: 0, views: 0, subs: 0 },
+      pending: { likes: 0, views: 0, subs: 0, stars: 0 },
       bestRound: 0,
       stars: 0,
       owned: {},
@@ -2095,7 +2094,8 @@
       ch.location || "", ups, owned, gear,
       (ch.pending && ch.pending.likes) | 0,
       (ch.pending && ch.pending.views) | 0,
-      (ch.pending && ch.pending.subs) | 0
+      (ch.pending && ch.pending.subs) | 0,
+      (ch.pending && ch.pending.stars) | 0
     ].join("|") + "|" + (salt || AC_SALT);
   }
 
@@ -2133,7 +2133,7 @@
     channel.likes = Math.min(channel.likes || 0, 200);
     channel.views = Math.min(channel.views || 0, 200);
     channel.subs = Math.min(channel.subs || 0, 80);
-    channel.pending = { likes: 0, views: 0, subs: 0 };
+    channel.pending = { likes: 0, views: 0, subs: 0, stars: 0 };
     channel.energy = Math.min(channel.energy || 0, ENERGY_MAX_BASE);
     channel.mmr = Math.min(Math.max(channel.mmr || 1000, 600), 1100);
     if ((channel.ac.strikes || 0) >= AC_MAX_STRIKES) {
@@ -2169,6 +2169,7 @@
     ch.pending.likes = Math.max(0, Math.min(AC_HARD.pending, Math.floor(Number(ch.pending.likes) || 0)));
     ch.pending.views = Math.max(0, Math.min(AC_HARD.pending, Math.floor(Number(ch.pending.views) || 0)));
     ch.pending.subs = Math.max(0, Math.min(AC_HARD.pending, Math.floor(Number(ch.pending.subs) || 0)));
+    ch.pending.stars = Math.max(0, Math.min(40, Math.floor(Number(ch.pending.stars) || 0)));
     if (ch.energyAt > now + 5000) ch.energyAt = now;
     if (ch.lastSeen > now + 5000) ch.lastSeen = now;
     if (ch.lastSeen < now - 40 * 86400000) ch.lastSeen = now - OFFLINE_CAP_SEC * 1000;
@@ -2234,7 +2235,8 @@
         if (d.energy == null) d.energy = ENERGY_MAX_BASE;
         if (!d.energyAt) d.energyAt = Date.now();
         if (!d.lastSeen) d.lastSeen = Date.now();
-        if (!d.pending) d.pending = { likes: 0, views: 0, subs: 0 };
+        if (!d.pending) d.pending = { likes: 0, views: 0, subs: 0, stars: 0 };
+        if (d.pending.stars == null) d.pending.stars = 0;
         if (d.bestRound == null) d.bestRound = 0;
         if (d.avatarImg == null) d.avatarImg = "";
         if (d.onboarded == null) d.onboarded = !!(d.bestRound || d.subs || d.likes || d.views);
@@ -2341,15 +2343,20 @@
     var likes = 0.9;
     var views = 1.2;
     var subs = 0.05;
+    var stars = 0; // ★ Telegram Stars — только пассив/покупка, не ловля
     if (has("edit")) likes *= 1.12;
     if (has("camera")) views *= 1.12;
     if (has("cover")) {
       likes *= 1.05;
       views *= 1.05;
       subs *= 1.05;
+      stars += 0.004;
     }
     if (has("trend")) subs *= 1.15;
-    if (has("collab")) subs += 0.12;
+    if (has("collab")) {
+      subs += 0.06;
+      stars += 0.02; // очень мало: ~1 ★ / 50 мин
+    }
     likes += Math.min(3, channel.subs / 500);
     views += Math.min(4, channel.subs / 400);
     subs += Math.min(0.5, channel.subs / 2000);
@@ -2357,11 +2364,12 @@
     likes *= loc.idle;
     views *= loc.idle;
     subs *= loc.idle;
+    // Stars почти не зависят от локации — коллабы/сделки
     var gm = gearIdleMul();
     likes *= gm;
     views *= gm;
     subs *= gm;
-    return { likes: likes, views: views, subs: subs };
+    return { likes: likes, views: views, subs: subs, stars: stars };
   }
 
   function accrueOffline() {
@@ -2377,16 +2385,19 @@
     var addL = Math.floor(rates.likes * mins);
     var addV = Math.floor(rates.views * mins);
     var addS = Math.max(0, Math.floor(rates.subs * mins));
-    // античит: потолок офлайна
+    // Stars: очень жёсткий потолок офлайна
+    var addStars = Math.min(8, Math.floor((rates.stars || 0) * mins));
     var maxPend = Math.ceil(rates.likes * (OFFLINE_CAP_SEC / 60) * 1.05);
+    if (!channel.pending) channel.pending = { likes: 0, views: 0, subs: 0, stars: 0 };
     channel.pending.likes = Math.min(AC_HARD.pending, (channel.pending.likes || 0) + Math.min(addL, maxPend));
     channel.pending.views = Math.min(AC_HARD.pending, (channel.pending.views || 0) + Math.min(addV, maxPend));
     channel.pending.subs = Math.min(AC_HARD.pending, (channel.pending.subs || 0) + Math.min(addS, maxPend));
+    channel.pending.stars = Math.min(40, (channel.pending.stars || 0) + addStars);
     channel.lastSeen = now;
   }
 
   function pendingTotal() {
-    return (channel.pending.likes || 0) + (channel.pending.views || 0) + (channel.pending.subs || 0);
+    return (channel.pending.likes || 0) + (channel.pending.views || 0) + (channel.pending.subs || 0) + (channel.pending.stars || 0);
   }
 
   function claimIdle() {
@@ -2394,8 +2405,10 @@
     channel.likes += channel.pending.likes || 0;
     channel.views += channel.pending.views || 0;
     channel.subs += channel.pending.subs || 0;
-    toast("Забрано: ❤" + channel.pending.likes + " 👁" + channel.pending.views + " ⭐" + channel.pending.subs);
-    channel.pending = { likes: 0, views: 0, subs: 0 };
+    var gotStars = channel.pending.stars || 0;
+    if (gotStars) channel.stars = Math.min(AC_HARD.stars, (channel.stars || 0) + gotStars);
+    toast("Забрано: ❤" + channel.pending.likes + " 👁" + channel.pending.views + " 👥" + channel.pending.subs + (gotStars ? (" ★" + gotStars) : ""));
+    channel.pending = { likes: 0, views: 0, subs: 0, stars: 0 };
     bumpQuest("claims", 1);
     save();
     renderHub();
@@ -2651,7 +2664,8 @@
 
   function costLabel(cost) {
     return Object.keys(cost).map(function (k) {
-      return (k === "likes" ? "❤" : k === "views" ? "👁" : "⭐") + cost[k];
+      var icon = k === "likes" ? "❤" : k === "views" ? "👁" : k === "stars" ? "★" : "👥";
+      return icon + cost[k];
     }).join(" ");
   }
 
@@ -3262,7 +3276,8 @@
     var rates = idleRatesPerMin();
     var maxE = energyMax();
     document.getElementById("passiveLine").textContent =
-      loc.short + " · +" + rates.likes.toFixed(1) + " ❤/мин · +" + rates.views.toFixed(1) + " 👁/мин · +" + rates.subs.toFixed(2) + " ⭐/мин";
+      loc.short + " · +" + rates.likes.toFixed(1) + " ❤/мин · +" + rates.views.toFixed(1) + " 👁/мин · +" + rates.subs.toFixed(2) + " 👥/мин" +
+      ((rates.stars || 0) > 0 ? (" · +" + rates.stars.toFixed(2) + " ★/мин") : "");
 
     document.getElementById("energyLabel").textContent = channel.energy + "/" + maxE;
     var playBtn = document.getElementById("btnPlay");
@@ -3292,7 +3307,8 @@
     if (pendingTotal() > 0) {
       box.classList.remove("hidden");
       document.getElementById("idleText").innerHTML =
-        "<b>❤ +" + formatNum(channel.pending.likes) + "</b> · <b>👁 +" + formatNum(channel.pending.views) + "</b> · <b>⭐ +" + formatNum(channel.pending.subs) + "</b>";
+        "<b>❤ +" + formatNum(channel.pending.likes) + "</b> · <b>👁 +" + formatNum(channel.pending.views) + "</b> · <b>👥 +" + formatNum(channel.pending.subs) + "</b>" +
+        ((channel.pending.stars || 0) > 0 ? (" · <b>★ +" + formatNum(channel.pending.stars) + "</b>") : "");
     } else {
       box.classList.add("hidden");
     }
@@ -3353,8 +3369,8 @@
 
     var note = document.getElementById("shopNote");
     if (shopTab === "res") note.textContent = "Улучшения канала — только за лайки, просмотры и подписчиков. Это не Stars.";
-    else if (shopTab === "stars") note.textContent = "Демо-покупка Stars «за деньги». В проде — оплата через Telegram (Apple/Google / PremiumBot).";
-    else note.textContent = "За Stars: косметика и бусты. Нельзя купить подписчиков, место в топе или бесконечные жизни.";
+    else if (shopTab === "stars") note.textContent = "★ Stars покупаются за деньги. В раунде их нет. В проде — оплата Telegram Stars.";
+    else note.textContent = "★ Stars — премиум-валюта: покупка за ₽ или крошечный пассив с коллабов. В раунде Stars не ловятся.";
 
     var list = document.getElementById("shopList");
     list.innerHTML = "";
@@ -3593,18 +3609,17 @@
 
   function pick() {
     var bombChance = Math.min(0.38, 0.18 + (difficulty() - 1) * 0.05);
-    if (Math.random() < bombChance) return TYPES[4];
+    if (Math.random() < bombChance) return TYPES[3]; // 💣
     var r = Math.random();
+    // ★ Stars в раунде не падают — только ❤ / 👁 / 🔥
     if (roundFX.rain) {
-      if (r < 0.32) return TYPES[0];
-      if (r < 0.55) return TYPES[1];
-      if (r < 0.88) return TYPES[2];
-      return TYPES[3];
+      if (r < 0.40) return TYPES[0];
+      if (r < 0.72) return TYPES[1];
+      return TYPES[2];
     }
-    if (r < 0.42) return TYPES[0];
-    if (r < 0.72) return TYPES[1];
-    if (r < 0.88) return TYPES[2];
-    return TYPES[3];
+    if (r < 0.46) return TYPES[0];
+    if (r < 0.82) return TYPES[1];
+    return TYPES[2];
   }
 
   function sayBlog(force) {
@@ -3684,7 +3699,7 @@
   }
 
   function hud() {
-    document.getElementById("hudRes").textContent = "❤ " + round.likes + "   👁 " + round.views + "   ⭐ " + round.subs;
+    document.getElementById("hudRes").textContent = "❤ " + round.likes + "   👁 " + round.views;
     document.getElementById("hudCombo").textContent = combo > 0 ? ("комбо x" + combo + (combo >= 5 ? " 🔥" : "")) : "комбо x0";
     document.getElementById("hudLives").textContent = lives > 0 ? ("❤".repeat(lives)) : "💀";
     document.getElementById("hudSpeed").textContent = "скорость x" + difficulty().toFixed(1);
@@ -3784,21 +3799,24 @@
     var lastRival = wasPvp ? pvp.rival : null;
     var score = roundScore(round);
     var pvpMsg = "";
-    var credit = { likes: round.likes, views: round.views, subs: round.subs };
+    // подписчики с ролика — от охвата, не от ловли ★
+    var bonusSubs = Math.floor((round.likes + round.views) / 35);
+    round.subs = bonusSubs;
+    var credit = { likes: round.likes, views: round.views, subs: bonusSubs };
     if (wasPvp) {
       pvpMsg = finishPvp(score);
       credit.likes = Math.floor(round.likes * 0.5);
       credit.views = Math.floor(round.views * 0.5);
-      credit.subs = Math.floor(round.subs * 0.5);
+      credit.subs = Math.floor(bonusSubs * 0.5);
       channel.likes += credit.likes;
       channel.views += credit.views;
       channel.subs += credit.subs;
     } else {
       channel.likes += round.likes;
       channel.views += round.views;
-      channel.subs += round.subs;
+      channel.subs += bonusSubs;
       bumpQuest("rounds", 1);
-      if (round.subs > 0) bumpQuest("subsCaught", round.subs);
+      if (round.likes > 0) bumpQuest("likesCaught", round.likes);
     }
     if (score > (channel.bestRound || 0)) {
       // античит: рекорд не может вырасти больше чем x3 за один раунд от текущего
@@ -3814,7 +3832,8 @@
     document.getElementById("earn").innerHTML =
       "<span class='chip'><em>❤</em>+" + credit.likes + "</span>" +
       "<span class='chip'><em>👁</em>+" + credit.views + "</span>" +
-      "<span class='chip'><em>⭐</em>+" + credit.subs + "</span>";
+      "<span class='chip'><em>👥</em>+" + credit.subs + "</span>" +
+      "<p style='font-size:0.72rem;color:var(--muted);margin-top:8px'>★ Stars в раунде не падают — только магазин / коллабы</p>";
     var place = myPlace("subs");
     var loc = currentLoc();
     document.getElementById("endMsg").textContent = pvpMsg ||
@@ -3900,7 +3919,7 @@
     document.getElementById("touchHint").classList.remove("hide");
     document.getElementById("touchHint").innerHTML = fromPvp
       ? "PvP · чистый скилл без бустов<br>Набери больше очков, чем соперник"
-      : "Матафоникс кидает лайки и просмотры<br>Води пальцем · лови всё, кроме 💣";
+      : "Лови ❤ и 👁 · ★ Stars только в магазине<br>Води пальцем · всё, кроме 💣";
     document.getElementById("pvpHud").classList.toggle("show", !!fromPvp);
     document.getElementById("duelArena").classList.toggle("show", !!fromPvp);
     if (fromPvp && pvp) {
@@ -4025,9 +4044,11 @@
   document.getElementById("btnClaim").onclick = claimIdle;
   document.getElementById("btnSimOffline").onclick = function () {
     var rates = idleRatesPerMin();
+    if (!channel.pending) channel.pending = { likes: 0, views: 0, subs: 0, stars: 0 };
     channel.pending.likes += Math.floor(rates.likes * 60);
     channel.pending.views += Math.floor(rates.views * 60);
     channel.pending.subs += Math.max(1, Math.floor(rates.subs * 60));
+    channel.pending.stars += Math.min(3, Math.floor((rates.stars || 0) * 60));
     save();
     renderHub();
     toast("Симуляция: +1 час офлайна");
