@@ -988,6 +988,146 @@
         radial-gradient(circle at 50% 5%, rgba(253,230,138,.28), transparent 40%),
         linear-gradient(180deg, #a16207 0%, #422006 40%, #0a0703 100%);
     }
+
+    /* фон хаба = текущая локация */
+    #hub.hub-bg-hostel {
+      background:
+        radial-gradient(ellipse at 20% 0%, rgba(180,120,70,.28), transparent 50%),
+        radial-gradient(ellipse at 90% 40%, rgba(245,158,11,.1), transparent 45%),
+        linear-gradient(180deg, #3a281c 0%, #120c08 55%, #070504 100%);
+    }
+    #hub.hub-bg-dorm {
+      background:
+        radial-gradient(ellipse at 50% -10%, rgba(100,116,139,.25), transparent 50%),
+        linear-gradient(180deg, #2a3544 0%, #0f172a 55%, #070b12 100%);
+    }
+    #hub.hub-bg-edge {
+      background:
+        radial-gradient(ellipse at 80% 0%, rgba(168,132,100,.22), transparent 48%),
+        linear-gradient(180deg, #3a332e 0%, #1c1714 55%, #0a0807 100%);
+    }
+    #hub.hub-bg-metro {
+      background:
+        radial-gradient(ellipse at 50% -5%, rgba(56,189,248,.22), transparent 48%),
+        linear-gradient(180deg, #16324f 0%, #0a1624 55%, #050a12 100%);
+    }
+    #hub.hub-bg-patriki {
+      background:
+        radial-gradient(ellipse at 30% 0%, rgba(196,141,255,.22), transparent 50%),
+        linear-gradient(180deg, #3b1d63 0%, #160e28 55%, #08050f 100%);
+    }
+    #hub.hub-bg-city {
+      background:
+        radial-gradient(ellipse at 50% -10%, rgba(34,211,238,.25), transparent 48%),
+        linear-gradient(180deg, #0e4a5c 0%, #082433 55%, #040d14 100%);
+    }
+    #hub.hub-bg-pent {
+      background:
+        radial-gradient(ellipse at 50% -5%, rgba(251,191,36,.25), transparent 48%),
+        linear-gradient(180deg, #6b3a0f 0%, #1f1206 55%, #0a0703 100%);
+    }
+    #hub.hub-bg-holding {
+      background:
+        radial-gradient(ellipse at 50% -8%, rgba(253,230,138,.3), transparent 45%),
+        linear-gradient(180deg, #8a5a10 0%, #2a1808 45%, #080503 100%);
+    }
+    #hub .hub { background: transparent; }
+
+    .channel-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .55;
+      background:
+        linear-gradient(180deg, transparent 35%, rgba(0,0,0,.35) 100%),
+        repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(255,255,255,.02) 28px, rgba(255,255,255,.02) 29px);
+    }
+    .channel-card > * { position: relative; z-index: 1; }
+
+    .avatar-wrap {
+      cursor: pointer;
+      position: relative;
+    }
+    .avatar-wrap:active { transform: scale(.97); }
+    .avatar {
+      width: 100%; height: 100%;
+      display: grid; place-items: center;
+      overflow: hidden;
+      border-radius: 26px;
+    }
+    .avatar img, .player img, .lb-av img, .pvp-card .lb-av img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: inherit;
+    }
+    .avatar-edit {
+      position: absolute;
+      right: -4px; bottom: -4px;
+      width: 28px; height: 28px;
+      border-radius: 10px;
+      display: grid; place-items: center;
+      font-size: 0.85rem;
+      background: rgba(15,23,42,.92);
+      border: 1px solid rgba(56,189,248,.45);
+      box-shadow: 0 4px 12px rgba(0,0,0,.35);
+      z-index: 2;
+    }
+    .player.has-photo {
+      font-size: 0;
+      background: rgba(15,23,42,.35);
+      border-radius: 24px;
+      border: 2px solid rgba(56,189,248,.45);
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,.45);
+      filter: none;
+    }
+    .player.has-photo img { border-radius: 22px; }
+    .lb-av.has-photo, .pvp-card .lb-av.has-photo {
+      padding: 0; overflow: hidden; font-size: 0;
+    }
+    .avatar-panel {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+      align-items: center;
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .avatar-panel .preview {
+      width: 72px; height: 72px;
+      border-radius: 22px;
+      overflow: hidden;
+      display: grid; place-items: center;
+      font-size: 2rem;
+      background: linear-gradient(145deg, rgba(56,189,248,.35), rgba(37,99,235,.15));
+      border: 2px solid rgba(56,189,248,.35);
+    }
+    .avatar-panel .preview img { width:100%; height:100%; object-fit:cover; }
+    .avatar-panel h3 { font-size: 0.9rem; margin-bottom: 4px; }
+    .avatar-panel p { font-size: 0.7rem; color: var(--muted); margin-bottom: 8px; line-height: 1.35; }
+    .avatar-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .loc-chip-game {
+      position: absolute;
+      top: 10px; left: 10px;
+      z-index: 6;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      background: rgba(2,6,23,.55);
+      border: 1px solid rgba(255,255,255,.14);
+      color: #e2e8f0;
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
     .pvp-card {
       display: grid;
       grid-template-columns: 44px 1fr auto;
@@ -1042,7 +1182,11 @@
     <div class="hub">
       <div class="channel-card" id="card">
         <div class="studio-pill"><span id="locEmoji">🛏️</span> <span id="studioBadge">Хостел у Казанского</span></div>
-        <div class="avatar-wrap"><div class="avatar" id="avatar">😎</div></div>
+        <div class="avatar-wrap" id="avatarWrap" title="Загрузить свой аватар">
+          <div class="avatar" id="avatar">😎</div>
+          <span class="avatar-edit" aria-hidden="true">📷</span>
+        </div>
+        <input type="file" id="avatarFile" accept="image/*" hidden/>
         <div class="status-row" id="statusRow"></div>
         <div class="name">@мой_канал</div>
         <div class="rank" id="rank">Новичок</div>
@@ -1152,6 +1296,17 @@
     </div>
     <div class="hub">
       <p class="shop-note">Как в Ламаре: шмот, гаджеты и тачка — сразу видно, что ты вырос. Покупается за ресурсы канала, даёт бонус к idle.</p>
+      <div class="avatar-panel" id="avatarPanel">
+        <div class="preview" id="avatarPreview">😎</div>
+        <div>
+          <h3>Твой аватар</h3>
+          <p>Загрузи фото вместо эмодзи — будет в профиле, в раунде и в топе.</p>
+          <div class="avatar-actions">
+            <button type="button" class="btn sm" id="btnAvatarUpload">Загрузить</button>
+            <button type="button" class="btn sm sec" id="btnAvatarClear">Сбросить</button>
+          </div>
+        </div>
+      </div>
       <div class="shop-bal" id="styleBal"></div>
       <div class="tabs tabs3">
         <button type="button" class="tab on" id="tabLook" data-slot="look">Шмот</button>
@@ -1225,6 +1380,7 @@
       <span id="pvpRivalHud">Соперник · 0</span>
     </div>
     <div id="game">
+      <div class="loc-chip-game" id="gameLocChip">🛏️ Хостел</div>
       <div class="blog-bubble" id="blogBubble">лови!</div>
       <div class="blogger" id="blogger">
         <span class="blogger-tag">@matafonixx</span>
@@ -1462,7 +1618,7 @@
   function defaultSave() {
     var now = Date.now();
     return {
-      likes: 0, views: 0, subs: 0, upgrades: {}, avatar: "😎",
+      likes: 0, views: 0, subs: 0, upgrades: {}, avatar: "😎", avatarImg: "",
       refCode: "ref_" + Math.random().toString(36).slice(2, 8),
       refActive: 0, claimed: [],
       energy: ENERGY_MAX_BASE,
@@ -1579,6 +1735,8 @@
     ch.pvpLosses = Math.max(0, Math.min(5000, Math.floor(Number(ch.pvpLosses) || 0)));
     ch.refActive = Math.max(0, Math.min(500, Math.floor(Number(ch.refActive) || 0)));
     ch.energy = Math.max(0, Math.min(AC_HARD.energy, Math.floor(Number(ch.energy) || 0)));
+    if (typeof ch.avatarImg !== "string") ch.avatarImg = "";
+    if (ch.avatarImg && (ch.avatarImg.indexOf("data:image/") !== 0 || ch.avatarImg.length > 180000)) ch.avatarImg = "";
     if (!ch.pending) ch.pending = { likes: 0, views: 0, subs: 0 };
     ch.pending.likes = Math.max(0, Math.min(AC_HARD.pending, Math.floor(Number(ch.pending.likes) || 0)));
     ch.pending.views = Math.max(0, Math.min(AC_HARD.pending, Math.floor(Number(ch.pending.views) || 0)));
@@ -1650,6 +1808,8 @@
         if (!d.lastSeen) d.lastSeen = Date.now();
         if (!d.pending) d.pending = { likes: 0, views: 0, subs: 0 };
         if (d.bestRound == null) d.bestRound = 0;
+        if (d.avatarImg == null) d.avatarImg = "";
+        if (typeof d.avatarImg === "string" && d.avatarImg.length > 180000) d.avatarImg = "";
         if (d.stars == null) d.stars = 0;
         if (!d.owned) d.owned = {};
         if (!d.equipped) d.equipped = { skin: "", frame: "", badge: "", bg: "" };
@@ -1919,9 +2079,17 @@
       var score = lbMode === "best" ? row.best : row.subs;
       var label = lbMode === "best" ? "рекорд" : "подп.";
       var medal = pos === 1 ? "🥇" : pos === 2 ? "🥈" : pos === 3 ? "🥉" : String(pos);
+      var avHtml;
+      var avCls = "lb-av";
+      if (row.me && hasCustomAvatar()) {
+        avCls += " has-photo";
+        avHtml = "<img src=\"" + channel.avatarImg + "\" alt=\"\">";
+      } else {
+        avHtml = row.avatar;
+      }
       el.innerHTML =
         "<div class='lb-pos'>" + medal + "</div>" +
-        "<div class='lb-av'>" + row.avatar + "</div>" +
+        "<div class='" + avCls + "'>" + avHtml + "</div>" +
         "<div class='lb-name'>" + row.name + (row.me ? " <small>это ты</small>" : "") + "</div>" +
         "<div class='lb-score'>" + formatNum(score) + "<span>" + label + "</span></div>";
       list.appendChild(el);
@@ -1950,6 +2118,88 @@
       }
     }
     return has("cover") ? "🎬" : (channel.avatar || "😎");
+  }
+
+  function hasCustomAvatar() {
+    return !!(channel.avatarImg && channel.avatarImg.indexOf("data:image/") === 0);
+  }
+
+  function paintAvatarNode(node, withPhotoClass) {
+    if (!node) return;
+    if (hasCustomAvatar()) {
+      node.innerHTML = "";
+      var img = document.createElement("img");
+      img.src = channel.avatarImg;
+      img.alt = "аватар";
+      node.appendChild(img);
+      if (withPhotoClass) node.classList.add("has-photo");
+    } else {
+      node.textContent = equippedSkin();
+      if (withPhotoClass) node.classList.remove("has-photo");
+    }
+  }
+
+  function renderAvatarUI() {
+    paintAvatarNode(document.getElementById("avatar"), false);
+    paintAvatarNode(player, true);
+    var prev = document.getElementById("avatarPreview");
+    if (prev) paintAvatarNode(prev, false);
+    var clearBtn = document.getElementById("btnAvatarClear");
+    if (clearBtn) clearBtn.disabled = !hasCustomAvatar();
+  }
+
+  function compressAvatarFile(file, cb) {
+    if (!file || !file.type || file.type.indexOf("image/") !== 0) {
+      toast("Нужен файл изображения");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast("Файл слишком большой (макс 8 МБ)");
+      return;
+    }
+    var reader = new FileReader();
+    reader.onerror = function () { toast("Не удалось прочитать файл"); };
+    reader.onload = function () {
+      var img = new Image();
+      img.onerror = function () { toast("Битое изображение"); };
+      img.onload = function () {
+        var max = 256;
+        var w = img.width, h = img.height;
+        var scale = Math.min(1, max / Math.max(w, h));
+        w = Math.max(1, Math.round(w * scale));
+        h = Math.max(1, Math.round(h * scale));
+        var canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        var q = 0.78;
+        var data = canvas.toDataURL("image/jpeg", q);
+        while (data.length > 140000 && q > 0.45) {
+          q -= 0.08;
+          data = canvas.toDataURL("image/jpeg", q);
+        }
+        if (data.length > 180000) {
+          toast("Не удалось сжать фото — попробуй другое");
+          return;
+        }
+        cb(data);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function setCustomAvatar(dataUrl) {
+    channel.avatarImg = dataUrl || "";
+    save();
+    renderAvatarUI();
+    renderHub();
+    toast(dataUrl ? "Аватар обновлён" : "Аватар сброшен");
+  }
+
+  function openAvatarPicker() {
+    var input = document.getElementById("avatarFile");
+    if (input) input.click();
   }
 
   function boostName(id) {
@@ -2091,6 +2341,7 @@
   }
 
   function renderStyle() {
+    renderAvatarUI();
     document.getElementById("styleBal").innerHTML =
       "<span>❤ " + formatNum(channel.likes) + "</span>" +
       "<span>👁 " + formatNum(channel.views) + "</span>" +
@@ -2345,12 +2596,28 @@
     return currentLoc().name;
   }
 
+  function applyHubBg() {
+    var hub = document.getElementById("hub");
+    if (!hub) return;
+    var classes = hub.className.split(/\s+/).filter(function (c) {
+      return c && c.indexOf("hub-bg-") !== 0;
+    });
+    classes.push("hub-" + currentLoc().bg);
+    hub.className = classes.join(" ");
+  }
+
   function applyGameBg() {
     game.className = "";
+    // хаб всегда в теме локации; в раунде — локация, либо купленный фон
     if (channel.equipped.bg && channel.owned[channel.equipped.bg]) {
       game.classList.add(channel.equipped.bg.replace("bg_", "bg-"));
     } else {
       game.classList.add(currentLoc().bg);
+    }
+    var chip = document.getElementById("gameLocChip");
+    if (chip) {
+      var loc = currentLoc();
+      chip.textContent = loc.emoji + " " + loc.short;
     }
   }
 
@@ -2365,9 +2632,8 @@
     document.getElementById("studioBadge").textContent = loc.name;
     document.getElementById("locEmoji").textContent = loc.emoji;
     document.getElementById("locFlavor").textContent = loc.city + " · " + loc.flavor;
-    var av = equippedSkin();
-    document.getElementById("avatar").textContent = av;
-    player.textContent = av;
+    applyHubBg();
+    renderAvatarUI();
     var card = document.getElementById("card");
     var frame = channel.equipped.frame && channel.owned[channel.equipped.frame] ? channel.equipped.frame.replace("frame_", "frame-") : "";
     card.className = "channel-card " + loc.className +
@@ -2993,7 +3259,7 @@
     hintGone = false;
     roundStartedAt = Date.now();
     spawnCount = 0;
-    player.textContent = equippedSkin();
+    renderAvatarUI();
     applyGameBg();
     document.getElementById("touchHint").classList.remove("hide");
     document.getElementById("touchHint").innerHTML = fromPvp
@@ -3085,6 +3351,19 @@
     } else {
       prompt("Скопируй ссылку:", text);
     }
+  };
+  document.getElementById("avatarWrap").onclick = openAvatarPicker;
+  document.getElementById("btnAvatarUpload").onclick = openAvatarPicker;
+  document.getElementById("btnAvatarClear").onclick = function () {
+    if (!hasCustomAvatar()) return;
+    if (!confirm("Убрать своё фото и вернуть эмодзи?")) return;
+    setCustomAvatar("");
+  };
+  document.getElementById("avatarFile").onchange = function () {
+    var file = this.files && this.files[0];
+    this.value = "";
+    if (!file) return;
+    compressAvatarFile(file, function (data) { setCustomAvatar(data); });
   };
   document.getElementById("btnReset").onclick = function () {
     if (!confirm("Сбросить прогресс?")) return;
