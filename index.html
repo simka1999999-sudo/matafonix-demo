@@ -456,6 +456,117 @@
       box-shadow: var(--shadow);
     }
     .toast.show { opacity: 1; }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .tab {
+      border: 1px solid var(--line);
+      background: rgba(15,23,42,.55);
+      color: var(--muted);
+      border-radius: 14px;
+      padding: 10px 8px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab.on {
+      color: #fff;
+      background: linear-gradient(180deg, rgba(56,189,248,.28), rgba(37,99,235,.35));
+      border-color: rgba(56,189,248,.45);
+    }
+    .lb-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .lb-meta strong { color: var(--accent); }
+    .lb-you {
+      background: linear-gradient(135deg, rgba(37,99,235,.28), rgba(15,23,42,.85));
+      border: 1px solid rgba(56,189,248,.4);
+      border-radius: 18px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .lb-you .place {
+      font-family: Rubik, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--accent2);
+    }
+    .lb-you p { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .lb-list { display: grid; gap: 8px; }
+    .lb-row {
+      display: grid;
+      grid-template-columns: 36px 40px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+    .lb-row.me {
+      border-color: rgba(56,189,248,.55);
+      background: linear-gradient(135deg, rgba(37,99,235,.22), rgba(15,23,42,.8));
+      box-shadow: 0 0 0 1px rgba(56,189,248,.12);
+    }
+    .lb-row.gold { border-color: rgba(245,158,11,.5); }
+    .lb-row.silver { border-color: rgba(148,163,184,.45); }
+    .lb-row.bronze { border-color: rgba(217,119,6,.4); }
+    .lb-pos {
+      font-family: Rubik, sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    .lb-row.gold .lb-pos { color: #fbbf24; }
+    .lb-row.silver .lb-pos { color: #cbd5e1; }
+    .lb-row.bronze .lb-pos { color: #fdba74; }
+    .lb-av {
+      width: 40px; height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(2,6,23,.45);
+      border: 1px solid var(--line);
+      font-size: 1.25rem;
+    }
+    .lb-name { font-size: 0.86rem; font-weight: 800; }
+    .lb-name small {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .lb-score {
+      text-align: right;
+      font-family: Rubik, sans-serif;
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+    .lb-score span {
+      display: block;
+      font-family: Manrope, sans-serif;
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -503,9 +614,40 @@
           <button type="button" class="btn sec" id="btnUp">Прокачка</button>
           <button type="button" class="btn sec" id="btnFriends">Друзья</button>
         </div>
+        <button type="button" class="btn sec" id="btnTop"><span>Топ недели</span><small id="hubPlace">твоё место в рейтинге</small></button>
         <button type="button" class="btn sec" id="btnSimOffline" style="font-size:0.85rem;padding:12px">Демо: +1 час офлайна</button>
       </div>
       <p class="hint">Води пальцем в раунде · лови всё кроме бомб · канал качает офлайн</p>
+    </div>
+  </div>
+
+  <div class="screen" id="top">
+    <div class="topbar">
+      <button type="button" class="btn sm sec" id="backTop">← Назад</button>
+      <h2 style="font-size:1rem">Топ недели</h2>
+      <span style="width:64px"></span>
+    </div>
+    <div class="hub">
+      <div class="tabs">
+        <button type="button" class="tab on" id="tabSubs" data-mode="subs">По подписчикам</button>
+        <button type="button" class="tab" id="tabBest" data-mode="best">Лучший раунд</button>
+      </div>
+      <div class="lb-meta">
+        <span>Сезон · демо-фанаты</span>
+        <span>до сброса <strong id="weekLeft">—</strong></span>
+      </div>
+      <div class="lb-you" id="lbYou">
+        <div>
+          <strong id="lbYouTitle">Ты · #—</strong>
+          <p id="lbYouSub">сыграй раунд, чтобы подняться</p>
+        </div>
+        <div class="place" id="lbYouPlace">—</div>
+      </div>
+      <div class="lb-list" id="lbList"></div>
+      <div class="actions" style="margin-top:14px">
+        <button type="button" class="btn" id="btnSharePlace"><span>Поделиться местом</span><small>в чат класса / канал</small></button>
+      </div>
+      <p class="hint">Топ по скиллу и подписчикам канала — без покупки места. За Stars только косметика.</p>
     </div>
   </div>
 
@@ -605,6 +747,22 @@
   var lives = 3, combo = 0, items = [], running = false;
   var loopId = 0, spawnId = 0, dragging = false, hintGone = false;
   var roundStartedAt = 0, spawnCount = 0;
+  var lbMode = "subs";
+
+  var BOTS = [
+    { name: "@kira_clips", avatar: "🦊", subs: 2140, best: 186 },
+    { name: "@den_likes", avatar: "🧢", subs: 1680, best: 154 },
+    { name: "@masha_cut", avatar: "🐰", subs: 1320, best: 171 },
+    { name: "@tim_byte", avatar: "🤖", subs: 980, best: 129 },
+    { name: "@anya_glow", avatar: "✨", subs: 760, best: 142 },
+    { name: "@leo_frame", avatar: "🎥", subs: 540, best: 118 },
+    { name: "@nika_wave", avatar: "🌊", subs: 410, best: 97 },
+    { name: "@max_drop", avatar: "🚀", subs: 290, best: 88 },
+    { name: "@sofia_lab", avatar: "🧪", subs: 180, best: 76 },
+    { name: "@art_pulse", avatar: "🎧", subs: 95, best: 64 },
+    { name: "@vika_mini", avatar: "🌙", subs: 62, best: 51 },
+    { name: "@roma_zero", avatar: "🧩", subs: 28, best: 39 }
+  ];
 
   var game = document.getElementById("game");
   var player = document.getElementById("player");
@@ -618,7 +776,8 @@
       energy: ENERGY_MAX_BASE,
       energyAt: now,
       lastSeen: now,
-      pending: { likes: 0, views: 0, subs: 0 }
+      pending: { likes: 0, views: 0, subs: 0 },
+      bestRound: 0
     };
   }
 
@@ -635,6 +794,7 @@
         if (!d.energyAt) d.energyAt = Date.now();
         if (!d.lastSeen) d.lastSeen = Date.now();
         if (!d.pending) d.pending = { likes: 0, views: 0, subs: 0 };
+        if (d.bestRound == null) d.bestRound = 0;
         return d;
       }
     } catch (e) {}
@@ -730,9 +890,119 @@
   }
 
   function show(id) {
-    ["hub", "friends", "ups", "gameScreen"].forEach(function (s) {
+    ["hub", "friends", "ups", "top", "gameScreen"].forEach(function (s) {
       document.getElementById(s).classList.toggle("active", s === id);
     });
+  }
+
+  function roundScore(r) {
+    return (r.likes || 0) + (r.views || 0) + (r.subs || 0) * 3;
+  }
+
+  function weekResetAt() {
+    var d = new Date();
+    var day = d.getDay(); // 0=Sun
+    var daysToMon = (8 - day) % 7;
+    if (daysToMon === 0) daysToMon = 7;
+    var next = new Date(d.getFullYear(), d.getMonth(), d.getDate() + daysToMon, 0, 0, 0, 0);
+    return next.getTime();
+  }
+
+  function formatWeekLeft() {
+    var ms = Math.max(0, weekResetAt() - Date.now());
+    var h = Math.floor(ms / 3600000);
+    var d = Math.floor(h / 24);
+    h = h % 24;
+    if (d > 0) return d + "д " + h + "ч";
+    var m = Math.floor((ms % 3600000) / 60000);
+    return h + "ч " + m + "м";
+  }
+
+  function meEntry() {
+    return {
+      name: "@мой_канал",
+      avatar: has("cover") ? "🎬" : (channel.avatar || "😎"),
+      subs: channel.subs || 0,
+      best: channel.bestRound || 0,
+      me: true
+    };
+  }
+
+  function boardRows(mode) {
+    var rows = BOTS.map(function (b) {
+      return { name: b.name, avatar: b.avatar, subs: b.subs, best: b.best, me: false };
+    });
+    rows.push(meEntry());
+    rows.sort(function (a, b) {
+      var av = mode === "best" ? a.best : a.subs;
+      var bv = mode === "best" ? b.best : b.subs;
+      if (bv !== av) return bv - av;
+      return a.name.localeCompare(b.name);
+    });
+    return rows;
+  }
+
+  function myPlace(mode) {
+    var rows = boardRows(mode);
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].me) return i + 1;
+    }
+    return rows.length;
+  }
+
+  function renderTop() {
+    document.getElementById("weekLeft").textContent = formatWeekLeft();
+    document.getElementById("tabSubs").classList.toggle("on", lbMode === "subs");
+    document.getElementById("tabBest").classList.toggle("on", lbMode === "best");
+
+    var rows = boardRows(lbMode);
+    var place = 1;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].me) { place = i + 1; break; }
+    }
+    var me = meEntry();
+    var value = lbMode === "best" ? me.best : me.subs;
+    var unit = lbMode === "best" ? "очков раунда" : "подписчиков";
+    document.getElementById("lbYouPlace").textContent = "#" + place;
+    document.getElementById("lbYouTitle").textContent = "Ты · #" + place;
+    document.getElementById("lbYouSub").textContent =
+      formatNum(value) + " " + unit + (place <= 3 ? " · ты в призах" : " · догони топ-3");
+
+    var list = document.getElementById("lbList");
+    list.innerHTML = "";
+    rows.slice(0, 12).forEach(function (row, idx) {
+      var pos = idx + 1;
+      var el = document.createElement("div");
+      var cls = "lb-row";
+      if (row.me) cls += " me";
+      if (pos === 1) cls += " gold";
+      else if (pos === 2) cls += " silver";
+      else if (pos === 3) cls += " bronze";
+      el.className = cls;
+      var score = lbMode === "best" ? row.best : row.subs;
+      var label = lbMode === "best" ? "рекорд" : "подп.";
+      var medal = pos === 1 ? "🥇" : pos === 2 ? "🥈" : pos === 3 ? "🥉" : String(pos);
+      el.innerHTML =
+        "<div class='lb-pos'>" + medal + "</div>" +
+        "<div class='lb-av'>" + row.avatar + "</div>" +
+        "<div class='lb-name'>" + row.name + (row.me ? " <small>это ты</small>" : "") + "</div>" +
+        "<div class='lb-score'>" + formatNum(score) + "<span>" + label + "</span></div>";
+      list.appendChild(el);
+    });
+  }
+
+  function sharePlace() {
+    var place = myPlace(lbMode);
+    var modeLabel = lbMode === "best" ? "лучший раунд" : "подписчики";
+    var value = lbMode === "best" ? (channel.bestRound || 0) : (channel.subs || 0);
+    var text = "Я #" + place + " в «Матафоникс Ловит» (" + modeLabel + ": " + formatNum(value) + "). Обойдёшь? 😎";
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast("Текст скопирован"); }).catch(function () {
+        prompt("Скопируй:", text);
+      });
+    } else {
+      prompt("Скопируй:", text);
+    }
   }
 
   function has(id) { return !!channel.upgrades[id]; }
@@ -802,6 +1072,10 @@
     } else {
       box.classList.add("hidden");
     }
+
+    var place = myPlace("subs");
+    document.getElementById("hubPlace").textContent =
+      "#" + place + " по подписчикам · рекорд " + formatNum(channel.bestRound || 0);
   }
 
   function formatNum(n) {
@@ -1045,12 +1319,16 @@
     channel.likes += round.likes;
     channel.views += round.views;
     channel.subs += round.subs;
+    var score = roundScore(round);
+    if (score > (channel.bestRound || 0)) channel.bestRound = score;
     save();
     document.getElementById("earn").innerHTML =
       "<span class='chip'><em>❤</em>+" + round.likes + "</span>" +
       "<span class='chip'><em>👁</em>+" + round.views + "</span>" +
       "<span class='chip'><em>⭐</em>+" + round.subs + "</span>";
-    document.getElementById("endMsg").textContent = "На канале теперь " + formatNum(channel.subs) + " подписчиков · " + studioName();
+    var place = myPlace("subs");
+    document.getElementById("endMsg").textContent =
+      "На канале " + formatNum(channel.subs) + " подп. · #" + place + " в топе · рекорд раунда " + formatNum(channel.bestRound);
     document.getElementById("end").classList.add("show");
     renderHub();
   }
@@ -1123,8 +1401,13 @@
   };
   document.getElementById("btnFriends").onclick = function () { renderFriends(); show("friends"); };
   document.getElementById("btnUp").onclick = function () { renderUps(); show("ups"); };
+  document.getElementById("btnTop").onclick = function () { renderTop(); show("top"); };
   document.getElementById("back1").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("back2").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("backTop").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("tabSubs").onclick = function () { lbMode = "subs"; renderTop(); };
+  document.getElementById("tabBest").onclick = function () { lbMode = "best"; renderTop(); };
+  document.getElementById("btnSharePlace").onclick = sharePlace;
   document.getElementById("btnSim").onclick = addFriend;
   document.getElementById("btnCopy").onclick = function () {
     var text = document.getElementById("refLink").textContent;
