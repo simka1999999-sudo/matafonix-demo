@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <title>Матафоникс Ловит</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #070b16;
+      --bg2: #10182b;
+      --card: rgba(22, 30, 52, 0.88);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent2: #f59e0b;
+      --good: #34d399;
+      --danger: #fb7185;
+      --btn: #2563eb;
+      --btn2: rgba(148, 163, 184, 0.14);
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      height: 100%;
+      font-family: Manrope, system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 50% -10%, rgba(56,189,248,.18), transparent 55%),
+        radial-gradient(800px 500px at 100% 30%, rgba(245,158,11,.08), transparent 40%),
+        linear-gradient(180deg, #0b1220 0%, var(--bg) 45%, #05070f 100%);
+      color: var(--text);
+      overflow: hidden;
+    }
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      height: 100dvh;
+      max-width: 440px;
+      margin: 0 auto;
+      animation: fadeIn .28s ease;
+    }
+    .screen.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes pulseSoft { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+    @keyframes claimIn { from { opacity: 0; transform: translateY(-8px) scale(.98); } to { opacity: 1; transform: none; } }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 10px;
+      padding-top: max(14px, env(safe-area-inset-top));
+      flex-shrink: 0;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .brand b {
+      font-family: Rubik, Manrope, sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+    .brand span { font-size: 0.72rem; color: var(--muted); }
+    .hub {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 16px 28px;
+      padding-bottom: max(28px, env(safe-area-inset-bottom));
+    }
+
+    .channel-card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, rgba(37,99,235,.35), rgba(15,23,42,.92) 45%, rgba(2,6,23,.95));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 22px 18px 16px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .channel-card::before {
+      content: "";
+      position: absolute;
+      inset: -40% auto auto 20%;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(56,189,248,.25), transparent 70%);
+      pointer-events: none;
+    }
+    .channel-card.t1 { border-color: rgba(148,163,184,.45); }
+    .channel-card.t2 { border-color: rgba(52,211,153,.45); }
+    .channel-card.t3 { border-color: rgba(245,158,11,.55); }
+    .studio-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--line);
+      color: #e2e8f0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .avatar-wrap {
+      width: 88px; height: 88px;
+      margin: 0 auto 10px;
+      border-radius: 28px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, rgba(56,189,248,.35), rgba(37,99,235,.15));
+      border: 2px solid rgba(56,189,248,.35);
+      box-shadow: 0 0 0 6px rgba(56,189,248,.08);
+      animation: pulseSoft 3.2s ease-in-out infinite;
+    }
+    .avatar { font-size: 2.7rem; line-height: 1; }
+    .name {
+      font-family: Rubik, Manrope, sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .rank { color: var(--accent); font-size: 0.82rem; font-weight: 700; margin-top: 4px; }
+    .subs-line { color: var(--muted); font-size: 0.78rem; margin-top: 2px; margin-bottom: 14px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat {
+      background: rgba(2,6,23,.35);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px 6px;
+    }
+    .stat .v { font-family: Rubik, sans-serif; font-size: 1.05rem; font-weight: 800; }
+    .stat .l { font-size: 0.65rem; color: var(--muted); margin-top: 3px; text-transform: lowercase; }
+    .passive {
+      margin-top: 12px;
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      background: rgba(15,23,42,.45);
+      border-radius: 12px;
+      padding: 8px 10px;
+      border: 1px dashed rgba(148,163,184,.25);
+    }
+
+    .idle-box {
+      display: none;
+      background: linear-gradient(135deg, rgba(16,185,129,.2), rgba(14,116,144,.18));
+      border: 1px solid rgba(52,211,153,.4);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 14px;
+      animation: claimIn .35s ease;
+    }
+    .idle-box:not(.hidden) { display: block; }
+    .idle-box.hidden { display: none; }
+    .idle-box h3 { font-size: 0.95rem; margin-bottom: 6px; }
+    .idle-box p { font-size: 0.8rem; color: #bbf7d0; margin-bottom: 12px; }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(10px);
+    }
+    .energy-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .energy-head strong { color: var(--accent2); font-size: 0.95rem; }
+    .energy-track {
+      height: 10px;
+      background: rgba(15,23,42,.7);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .energy-track > div {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      border-radius: 999px;
+      transition: width .35s ease;
+    }
+    .energy-dots {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .energy-dots i {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(148,163,184,.2);
+    }
+    .energy-dots i.on { background: linear-gradient(90deg, #f59e0b, #fde68a); }
+
+    .btn {
+      border: none;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 16px 18px;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(37,99,235,.35);
+    }
+    .btn span { display: block; }
+    .btn small { display: block; font-size: 0.72rem; font-weight: 600; opacity: .85; margin-top: 2px; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: .45; box-shadow: none; cursor: default; transform: none; }
+    .btn.sec {
+      background: var(--btn2);
+      box-shadow: none;
+      border: 1px solid var(--line);
+      font-weight: 700;
+    }
+    .btn.good {
+      background: linear-gradient(180deg, #34d399, #059669);
+      box-shadow: 0 10px 24px rgba(16,185,129,.28);
+    }
+    .btn.sm { width: auto; padding: 8px 12px; font-size: 0.78rem; border-radius: 12px; box-shadow: none; }
+    .actions { display: grid; gap: 10px; margin-top: 4px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .hint { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 14px; line-height: 1.4; }
+
+    .upgrade, .milestone {
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .upgrade.done, .milestone.done { border-color: rgba(52,211,153,.45); }
+    .upgrade h3, .milestone strong { font-size: 0.92rem; }
+    .upgrade p, .reward { font-size: 0.74rem; color: var(--muted); margin-top: 3px; }
+    .cost { font-size: 0.74rem; color: var(--accent2); margin-top: 5px; font-weight: 700; }
+    .ref-card {
+      background: linear-gradient(160deg, rgba(37,99,235,.25), rgba(15,23,42,.9));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .ref-link {
+      background: rgba(2,6,23,.45);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 0.7rem;
+      word-break: break-all;
+      color: #7dd3fc;
+      margin: 10px 0;
+      border: 1px solid var(--line);
+    }
+    .bar {
+      height: 8px;
+      background: rgba(15,23,42,.7);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 8px 0 4px;
+      border: 1px solid var(--line);
+    }
+    .bar > div {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      width: 0%;
+      transition: width .3s ease;
+    }
+
+    #gameScreen { touch-action: none; }
+    .hud {
+      display: grid;
+      grid-template-columns: 1.4fr .9fr .7fr .8fr;
+      gap: 6px;
+      padding: 10px 12px;
+      padding-top: max(10px, env(safe-area-inset-top));
+      flex-shrink: 0;
+    }
+    .hud span {
+      background: rgba(15,23,42,.72);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+      padding: 8px 8px;
+      border-radius: 14px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #game {
+      position: relative;
+      flex: 1;
+      width: calc(100% - 20px);
+      margin: 0 10px;
+      overflow: hidden;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(56,189,248,.12), transparent 40%),
+        linear-gradient(180deg, #15213b 0%, #1e293b 48%, #0f172a 100%);
+      touch-action: none;
+      box-shadow: var(--shadow);
+    }
+    .player {
+      position: absolute;
+      bottom: 18px;
+      width: 76px;
+      height: 76px;
+      margin-left: -38px;
+      font-size: 2.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      left: 50%;
+      z-index: 2;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,.45));
+      pointer-events: none;
+    }
+    .fall {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      margin-left: -24px;
+      font-size: 1.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 1;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.25));
+    }
+    .touch-hint {
+      position: absolute;
+      left: 50%;
+      top: 42%;
+      transform: translate(-50%, -50%);
+      width: min(86%, 280px);
+      color: #e2e8f0;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 16px 18px;
+      pointer-events: none;
+      z-index: 3;
+      transition: opacity .4s;
+      background: rgba(2,6,23,.55);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      backdrop-filter: blur(8px);
+      line-height: 1.35;
+    }
+    .touch-hint.hide { opacity: 0; }
+    .combo-fx {
+      position: absolute;
+      top: 38%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: Rubik, sans-serif;
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--accent2);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 4;
+      transition: opacity .15s;
+      text-shadow: 0 4px 16px rgba(0,0,0,.6);
+    }
+    .combo-fx.show { opacity: 1; }
+    .foot {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      padding: 10px 14px max(12px, env(safe-area-inset-bottom));
+      flex-shrink: 0;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,.72);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+      padding: 16px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      backdrop-filter: blur(8px);
+    }
+    .overlay.show { display: flex; }
+    .sheet {
+      width: min(100%, 420px);
+      background: linear-gradient(180deg, #172033, #0b1220);
+      border: 1px solid var(--line);
+      border-radius: 28px 28px 24px 24px;
+      padding: 22px 18px 18px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      animation: claimIn .3s ease;
+    }
+    .sheet h2 {
+      font-family: Rubik, sans-serif;
+      font-size: 1.45rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .sheet > p { color: var(--muted); margin-bottom: 8px; font-size: 0.9rem; }
+    .earn { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 14px 0 16px; }
+    .earn .chip {
+      background: rgba(15,23,42,.8);
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 800;
+      min-width: 78px;
+    }
+    .earn .chip em { font-style: normal; margin-right: 4px; }
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(16,185,129,.95);
+      color: #052e1c;
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      z-index: 60;
+      opacity: 0;
+      transition: opacity .25s;
+      pointer-events: none;
+      max-width: 90%;
+      box-shadow: var(--shadow);
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="screen active" id="hub">
+    <div class="topbar">
+      <div class="brand">
+        <b>Матафоникс Ловит</b>
+        <span>твой канал · твои правила</span>
+      </div>
+      <button type="button" class="btn sm sec" id="btnReset">Сброс</button>
+    </div>
+    <div class="hub">
+      <div class="channel-card" id="card">
+        <div class="studio-pill">🎬 Студия · <span id="studioBadge">Комната</span></div>
+        <div class="avatar-wrap"><div class="avatar" id="avatar">😎</div></div>
+        <div class="name">@мой_канал</div>
+        <div class="rank" id="rank">Новичок</div>
+        <div class="subs-line" id="subsLine">0 подписчиков</div>
+        <div class="stats">
+          <div class="stat"><div class="v" id="sSubs">0</div><div class="l">подписчики</div></div>
+          <div class="stat"><div class="v" id="sLikes">0</div><div class="l">лайки</div></div>
+          <div class="stat"><div class="v" id="sViews">0</div><div class="l">просмотры</div></div>
+        </div>
+        <p class="passive" id="passiveLine">пассивный доход загружается…</p>
+      </div>
+
+      <div class="idle-box hidden" id="idleBox">
+        <h3>Канал работал без тебя</h3>
+        <p id="idleText">—</p>
+        <button type="button" class="btn good" id="btnClaim">Забрать награды</button>
+      </div>
+
+      <div class="panel">
+        <div class="energy-head">
+          <span>Энергия <strong id="energyLabel">5/5</strong></span>
+          <span id="energyTimer">полная</span>
+        </div>
+        <div class="energy-track"><div id="energyFill"></div></div>
+        <div class="energy-dots" id="energyDots"></div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btnPlay"><span>Снять ролик</span><small>1 энергия · ловля</small></button>
+        <div class="grid2">
+          <button type="button" class="btn sec" id="btnUp">Прокачка</button>
+          <button type="button" class="btn sec" id="btnFriends">Друзья</button>
+        </div>
+        <button type="button" class="btn sec" id="btnSimOffline" style="font-size:0.85rem;padding:12px">Демо: +1 час офлайна</button>
+      </div>
+      <p class="hint">Води пальцем в раунде · лови всё кроме бомб · канал качает офлайн</p>
+    </div>
+  </div>
+
+  <div class="screen" id="friends">
+    <div class="topbar">
+      <button type="button" class="btn sm sec" id="back1">← Назад</button>
+      <h2 style="font-size:1rem">Друзья</h2>
+      <span style="width:64px"></span>
+    </div>
+    <div class="hub">
+      <div class="ref-card">
+        <strong style="font-size:1rem">Приведи друга</strong>
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Друг играет 1 раунд — бонус вам обоим</p>
+        <div class="ref-link" id="refLink"></div>
+        <button type="button" class="btn" id="btnCopy">Скопировать ссылку</button>
+        <button type="button" class="btn sec" id="btnSim" style="margin-top:8px">Демо: друг сыграл</button>
+      </div>
+      <p style="font-size:0.82rem;margin-bottom:6px">Активных друзей: <strong id="refN">0</strong></p>
+      <div class="bar"><div id="refBar"></div></div>
+      <p class="hint" id="refTxt" style="margin:4px 0 12px;text-align:left">0 / 3 до рамки</p>
+      <div id="miles"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="ups">
+    <div class="topbar">
+      <button type="button" class="btn sm sec" id="back2">← Назад</button>
+      <h2 style="font-size:1rem">Прокачка</h2>
+      <span style="font-size:0.75rem;color:var(--muted)" id="upBal"></span>
+    </div>
+    <div class="hub" id="upList"></div>
+  </div>
+
+  <div class="screen" id="gameScreen">
+    <div class="hud">
+      <span id="hudRes">❤ 0</span>
+      <span id="hudCombo">комбо x0</span>
+      <span id="hudLives">❤❤❤</span>
+      <span id="hudSpeed">скорость x1.0</span>
+    </div>
+    <div id="game">
+      <div class="player" id="player">😎</div>
+      <div class="combo-fx" id="fx"></div>
+      <div class="touch-hint" id="touchHint">Води пальцем по экрану<br>Лови всё, кроме 💣</div>
+    </div>
+    <p class="foot">пропуск = −жизнь · скорость растёт · без лимита времени</p>
+  </div>
+
+  <div class="overlay" id="end">
+    <div class="sheet">
+      <h2>Ролик готов</h2>
+      <p>На канал упало:</p>
+      <div class="earn" id="earn"></div>
+      <p id="endMsg"></p>
+      <div class="actions" style="margin-top:8px">
+        <button type="button" class="btn" id="btnAgain"><span>Ещё раунд</span><small>если есть энергия</small></button>
+        <button type="button" class="btn sec" id="btnHub">На канал</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+
+(function () {
+  "use strict";
+
+  var SAVE = "matafonix_v3";
+  var ENERGY_MAX_BASE = 5;
+  var ENERGY_REGEN_MS = 45000; // демо: 45 сек на +1 (в проде 20–30 мин)
+  var OFFLINE_CAP_SEC = 8 * 3600; // макс 8 часов офлайна
+  var MILES = [
+    { n: 1, title: "Первый друг", reward: "Бейдж", bonus: { likes: 30, views: 20, subs: 5 } },
+    { n: 3, title: "Команда", reward: "Рамка + 100 подп.", bonus: { subs: 100 } },
+    { n: 5, title: "Пятерка", reward: "Бонус ресурсов", bonus: { likes: 50, views: 50 } },
+    { n: 10, title: "Амбассадор", reward: "Особый бейдж", bonus: { subs: 200 } }
+  ];
+  var PER = { likes: 30, views: 20, subs: 5 };
+  var UPS = [
+    { id: "camera", name: "Камера", desc: "+25% просмотров в раунде и idle", cost: { views: 80 } },
+    { id: "edit", name: "Монтаж", desc: "+25% лайков в раунде и idle", cost: { likes: 60 } },
+    { id: "cover", name: "Обложка", desc: "Рамка +10% ко всему idle", cost: { likes: 120, views: 40 } },
+    { id: "promo", name: "Продвижение", desc: "+1 жизнь и +1 макс. энергия", cost: { likes: 250, views: 150 } }
+  ];
+  var TYPES = [
+    { emoji: "❤", key: "likes", amt: 1 },
+    { emoji: "👁", key: "views", amt: 2 },
+    { emoji: "⭐", key: "subs", amt: 1 },
+    { emoji: "🔥", key: "likes", amt: 3 },
+    { emoji: "💣", bad: true }
+  ];
+
+  var channel = load();
+  var px = 0.5;
+  var round = { likes: 0, views: 0, subs: 0 };
+  var lives = 3, combo = 0, items = [], running = false;
+  var loopId = 0, spawnId = 0, dragging = false, hintGone = false;
+  var roundStartedAt = 0, spawnCount = 0;
+
+  var game = document.getElementById("game");
+  var player = document.getElementById("player");
+
+  function defaultSave() {
+    var now = Date.now();
+    return {
+      likes: 0, views: 0, subs: 0, upgrades: {}, avatar: "😎",
+      refCode: "ref_" + Math.random().toString(36).slice(2, 8),
+      refActive: 0, claimed: [],
+      energy: ENERGY_MAX_BASE,
+      energyAt: now,
+      lastSeen: now,
+      pending: { likes: 0, views: 0, subs: 0 }
+    };
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v2");
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (!d.upgrades) d.upgrades = {};
+        if (!d.refCode) d.refCode = "ref_" + Math.random().toString(36).slice(2, 8);
+        if (d.refActive == null) d.refActive = 0;
+        if (!d.claimed) d.claimed = [];
+        if (d.energy == null) d.energy = ENERGY_MAX_BASE;
+        if (!d.energyAt) d.energyAt = Date.now();
+        if (!d.lastSeen) d.lastSeen = Date.now();
+        if (!d.pending) d.pending = { likes: 0, views: 0, subs: 0 };
+        return d;
+      }
+    } catch (e) {}
+    return defaultSave();
+  }
+
+  function save() {
+    channel.lastSeen = Date.now();
+    try { localStorage.setItem(SAVE, JSON.stringify(channel)); } catch (e) {}
+  }
+
+  function energyMax() {
+    return ENERGY_MAX_BASE + (has("promo") ? 1 : 0);
+  }
+
+  function refreshEnergy() {
+    var max = energyMax();
+    var now = Date.now();
+    if (channel.energy >= max) {
+      channel.energy = max;
+      channel.energyAt = now;
+      return;
+    }
+    var gained = Math.floor((now - channel.energyAt) / ENERGY_REGEN_MS);
+    if (gained > 0) {
+      channel.energy = Math.min(max, channel.energy + gained);
+      channel.energyAt += gained * ENERGY_REGEN_MS;
+      if (channel.energy >= max) channel.energyAt = now;
+    }
+  }
+
+  function idleRatesPerMin() {
+    var likes = 2;
+    var views = 3;
+    var subs = 0.15;
+    if (has("edit")) likes *= 1.25;
+    if (has("camera")) views *= 1.25;
+    if (has("cover")) {
+      likes *= 1.1;
+      views *= 1.1;
+      subs *= 1.1;
+    }
+    // больше подписчиков на канале чуть ускоряет idle
+    likes += Math.min(8, channel.subs / 200);
+    views += Math.min(10, channel.subs / 150);
+    subs += Math.min(1.5, channel.subs / 800);
+    return { likes: likes, views: views, subs: subs };
+  }
+
+  function accrueOffline() {
+    var now = Date.now();
+    var elapsed = Math.max(0, (now - channel.lastSeen) / 1000);
+    if (elapsed < 15) {
+      channel.lastSeen = now;
+      return;
+    }
+    var sec = Math.min(OFFLINE_CAP_SEC, elapsed);
+    var rates = idleRatesPerMin();
+    var mins = sec / 60;
+    channel.pending.likes += Math.floor(rates.likes * mins);
+    channel.pending.views += Math.floor(rates.views * mins);
+    channel.pending.subs += Math.max(0, Math.floor(rates.subs * mins));
+    channel.lastSeen = now;
+  }
+
+  function pendingTotal() {
+    return (channel.pending.likes || 0) + (channel.pending.views || 0) + (channel.pending.subs || 0);
+  }
+
+  function claimIdle() {
+    if (pendingTotal() <= 0) return;
+    channel.likes += channel.pending.likes || 0;
+    channel.views += channel.pending.views || 0;
+    channel.subs += channel.pending.subs || 0;
+    toast("Забрано: ❤" + channel.pending.likes + " 👁" + channel.pending.views + " ⭐" + channel.pending.subs);
+    channel.pending = { likes: 0, views: 0, subs: 0 };
+    save();
+    renderHub();
+  }
+
+  function formatMs(ms) {
+    var s = Math.max(0, Math.ceil(ms / 1000));
+    var m = Math.floor(s / 60);
+    s = s % 60;
+    return m > 0 ? (m + ":" + (s < 10 ? "0" : "") + s) : (s + "с");
+  }
+
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(function () { t.classList.remove("show"); }, 2000);
+  }
+
+  function show(id) {
+    ["hub", "friends", "ups", "gameScreen"].forEach(function (s) {
+      document.getElementById(s).classList.toggle("active", s === id);
+    });
+  }
+
+  function has(id) { return !!channel.upgrades[id]; }
+
+  function rank() {
+    if (channel.subs >= 2000) return "Легенда";
+    if (channel.subs >= 500) return "На радаре";
+    if (channel.subs >= 100) return "Блогер с района";
+    return "Новичок";
+  }
+
+  function studioName() {
+    if (channel.subs >= 2000) return "Агентство";
+    if (channel.subs >= 500) return "Офис";
+    if (channel.subs >= 100) return "Студия";
+    return "Комната";
+  }
+
+  function renderHub() {
+    refreshEnergy();
+    document.getElementById("sSubs").textContent = formatNum(channel.subs);
+    document.getElementById("sLikes").textContent = formatNum(channel.likes);
+    document.getElementById("sViews").textContent = formatNum(channel.views);
+    document.getElementById("rank").textContent = rank();
+    document.getElementById("subsLine").textContent = formatNum(channel.subs) + " подписчиков";
+    document.getElementById("studioBadge").textContent = studioName();
+    var av = has("cover") ? "🎬" : channel.avatar;
+    document.getElementById("avatar").textContent = av;
+    player.textContent = av;
+    var card = document.getElementById("card");
+    card.className = "channel-card" + (channel.subs >= 500 ? " t3" : channel.subs >= 100 ? " t2" : channel.subs >= 1 ? " t1" : "");
+
+    var rates = idleRatesPerMin();
+    var maxE = energyMax();
+    document.getElementById("passiveLine").textContent =
+      "+" + rates.likes.toFixed(1) + " ❤/мин · +" + rates.views.toFixed(1) + " 👁/мин · +" + rates.subs.toFixed(2) + " ⭐/мин";
+
+    document.getElementById("energyLabel").textContent = channel.energy + "/" + maxE;
+    var playBtn = document.getElementById("btnPlay");
+    playBtn.disabled = channel.energy < 1;
+    playBtn.innerHTML = channel.energy < 1
+      ? "<span>Энергия на нуле</span><small>подожди восстановления</small>"
+      : "<span>Снять ролик</span><small>1 энергия · ловля</small>";
+
+    var fill = document.getElementById("energyFill");
+    fill.style.width = Math.round((channel.energy / maxE) * 100) + "%";
+    var dots = document.getElementById("energyDots");
+    dots.innerHTML = "";
+    for (var i = 0; i < maxE; i++) {
+      var d = document.createElement("i");
+      if (i < channel.energy) d.className = "on";
+      dots.appendChild(d);
+    }
+
+    if (channel.energy >= maxE) {
+      document.getElementById("energyTimer").textContent = "полная";
+    } else {
+      var left = ENERGY_REGEN_MS - ((Date.now() - channel.energyAt) % ENERGY_REGEN_MS);
+      document.getElementById("energyTimer").textContent = "через " + formatMs(left);
+    }
+
+    var box = document.getElementById("idleBox");
+    if (pendingTotal() > 0) {
+      box.classList.remove("hidden");
+      document.getElementById("idleText").innerHTML =
+        "<b>❤ +" + formatNum(channel.pending.likes) + "</b> · <b>👁 +" + formatNum(channel.pending.views) + "</b> · <b>⭐ +" + formatNum(channel.pending.subs) + "</b>";
+    } else {
+      box.classList.add("hidden");
+    }
+  }
+
+  function formatNum(n) {
+    n = Math.floor(n || 0);
+    if (n >= 10000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+    return String(n);
+  }
+
+  function renderFriends() {
+    document.getElementById("refLink").textContent = "t.me/matafonix_game_bot?start=" + channel.refCode;
+    document.getElementById("refN").textContent = channel.refActive;
+    var next = MILES.find(function (m) { return channel.refActive < m.n; }) || MILES[MILES.length - 1];
+    var prev = 0;
+    for (var i = 0; i < MILES.length; i++) if (MILES[i].n <= channel.refActive) prev = MILES[i].n;
+    var pct = channel.refActive >= 10 ? 100 : ((channel.refActive - prev) / (next.n - prev || 1)) * 100;
+    document.getElementById("refBar").style.width = pct + "%";
+    document.getElementById("refTxt").textContent = channel.refActive >= 10
+      ? "Все вехи получены"
+      : channel.refActive + " / " + next.n + " до «" + next.title + "»";
+    var box = document.getElementById("miles");
+    box.innerHTML = "";
+    MILES.forEach(function (m) {
+      var done = channel.claimed.indexOf(m.n) >= 0;
+      var div = document.createElement("div");
+      div.className = "milestone" + (done ? " done" : "");
+      div.innerHTML = "<div><strong>" + m.n + " друзей — " + m.title + "</strong><div class='reward'>" + m.reward + "</div></div><span>" + (done ? "✓" : "") + "</span>";
+      box.appendChild(div);
+    });
+  }
+
+  function canBuy(cost) {
+    return Object.keys(cost).every(function (k) { return (channel[k] || 0) >= cost[k]; });
+  }
+
+  function renderUps() {
+    document.getElementById("upBal").textContent = "❤" + channel.likes + " 👁" + channel.views;
+    var list = document.getElementById("upList");
+    list.innerHTML = "";
+    UPS.forEach(function (u) {
+      var done = has(u.id);
+      var cost = Object.keys(u.cost).map(function (k) {
+        return (k === "likes" ? "❤" : k === "views" ? "👁" : "⭐") + u.cost[k];
+      }).join(" ");
+      var div = document.createElement("div");
+      div.className = "upgrade" + (done ? " done" : "");
+      div.innerHTML = "<div><h3>" + u.name + (done ? " ✓" : "") + "</h3><p>" + u.desc + "</p>" +
+        (done ? "" : "<div class='cost'>" + cost + "</div>") + "</div>";
+      if (!done) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "btn sm";
+        b.textContent = "Купить";
+        b.disabled = !canBuy(u.cost);
+        b.onclick = function () {
+          if (!canBuy(u.cost) || has(u.id)) return;
+          Object.keys(u.cost).forEach(function (k) { channel[k] -= u.cost[k]; });
+          channel.upgrades[u.id] = 1;
+          refreshEnergy();
+          save();
+          renderHub();
+          renderUps();
+        };
+        div.appendChild(b);
+      }
+      list.appendChild(div);
+    });
+  }
+
+  function setPlayer(ratio) {
+    var w = game.clientWidth || 1;
+    var half = 36 / w;
+    px = Math.max(half, Math.min(1 - half, ratio));
+    player.style.left = (px * 100) + "%";
+  }
+
+  function pointerX(e) {
+    var t = e.touches && e.touches[0] ? e.touches[0] : e;
+    return t.clientX;
+  }
+
+  function moveToEvent(e) {
+    if (!running) return;
+    var rect = game.getBoundingClientRect();
+    if (!rect.width) return;
+    setPlayer((pointerX(e) - rect.left) / rect.width);
+    if (!hintGone) {
+      hintGone = true;
+      document.getElementById("touchHint").classList.add("hide");
+    }
+  }
+
+  function onDown(e) {
+    if (!running) return;
+    dragging = true;
+    moveToEvent(e);
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (!dragging || !running) return;
+    moveToEvent(e);
+    e.preventDefault();
+  }
+  function onUp() { dragging = false; }
+
+  game.addEventListener("touchstart", onDown, { passive: false });
+  game.addEventListener("touchmove", onMove, { passive: false });
+  game.addEventListener("touchend", onUp);
+  game.addEventListener("touchcancel", onUp);
+  game.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+
+  function difficulty() {
+    if (!roundStartedAt) return 1;
+    var t = (Date.now() - roundStartedAt) / 1000;
+    // каждые ~20 сек заметно быстрее, потолок x4
+    return Math.min(4, 1 + t / 20 + spawnCount * 0.02);
+  }
+
+  function spawnIntervalMs() {
+    return Math.max(280, Math.floor(620 / Math.sqrt(difficulty())));
+  }
+
+  function rescheduleSpawn() {
+    clearInterval(spawnId);
+    spawnId = setInterval(function () {
+      spawn();
+      // ускоряем спавн по мере сложности
+      if (spawnCount % 8 === 0) rescheduleSpawn();
+    }, spawnIntervalMs());
+  }
+
+  function pick() {
+    // чуть больше бомб на высокой сложности
+    var bombChance = Math.min(0.28, 0.12 + (difficulty() - 1) * 0.04);
+    if (Math.random() < bombChance) return TYPES[4];
+    var r = Math.random();
+    if (r < 0.42) return TYPES[0];
+    if (r < 0.72) return TYPES[1];
+    if (r < 0.88) return TYPES[2];
+    return TYPES[3];
+  }
+
+  function spawn() {
+    if (!running) return;
+    var t = pick();
+    var el = document.createElement("div");
+    el.className = "fall";
+    el.textContent = t.emoji;
+    var x = 0.1 + Math.random() * 0.8;
+    el.style.left = (x * 100) + "%";
+    el.style.top = "-50px";
+    game.appendChild(el);
+    spawnCount++;
+    var d = difficulty();
+    items.push({
+      el: el, x: x, y: -50,
+      speed: (2.0 + Math.random() * 1.6) * d,
+      key: t.key, amt: t.amt || 0, bad: !!t.bad
+    });
+  }
+
+  function hit(it) {
+    var a = player.getBoundingClientRect();
+    var b = it.el.getBoundingClientRect();
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  }
+
+  function mult(key) {
+    var m = combo >= 5 ? 2 : 1;
+    if (key === "views" && has("camera")) m *= 1.25;
+    if (key === "likes" && has("edit")) m *= 1.25;
+    return m;
+  }
+
+  function flash(text) {
+    var c = document.getElementById("fx");
+    c.textContent = text;
+    c.classList.add("show");
+    setTimeout(function () { c.classList.remove("show"); }, 450);
+  }
+
+  function hud() {
+    document.getElementById("hudRes").textContent = "❤ " + round.likes + "   👁 " + round.views + "   ⭐ " + round.subs;
+    document.getElementById("hudCombo").textContent = combo > 0 ? ("комбо x" + combo + (combo >= 5 ? " 🔥" : "")) : "комбо x0";
+    document.getElementById("hudLives").textContent = lives > 0 ? ("❤".repeat(lives)) : "💀";
+    document.getElementById("hudSpeed").textContent = "скорость x" + difficulty().toFixed(1);
+  }
+
+  function loseLife() {
+    lives--;
+    combo = 0;
+    hud();
+    flash("−1 жизнь");
+    if (lives <= 0) gameOver();
+  }
+
+  function tick() {
+    if (!running) return;
+    var h = game.clientHeight || 400;
+    hud();
+    for (var i = items.length - 1; i >= 0; i--) {
+      var it = items[i];
+      it.y += it.speed;
+      it.el.style.top = it.y + "px";
+      if (hit(it)) {
+        if (it.bad) {
+          loseLife();
+        } else {
+          combo++;
+          var add = Math.max(1, Math.round(it.amt * mult(it.key)));
+          round[it.key] += add;
+          hud();
+          if (combo === 5) flash("COMBO x2!");
+        }
+        it.el.remove();
+        items.splice(i, 1);
+        if (!running) return;
+      } else if (it.y > h + 30) {
+        // пропуск всего полезного = −жизнь; бомба мимо — ок
+        if (!it.bad) loseLife();
+        it.el.remove();
+        items.splice(i, 1);
+        if (!running) return;
+      }
+    }
+    loopId = requestAnimationFrame(tick);
+  }
+
+  function clearItems() {
+    items.forEach(function (it) { it.el.remove(); });
+    items = [];
+  }
+
+  function gameOver() {
+    running = false;
+    dragging = false;
+    cancelAnimationFrame(loopId);
+    clearInterval(spawnId);
+    clearItems();
+    channel.likes += round.likes;
+    channel.views += round.views;
+    channel.subs += round.subs;
+    save();
+    document.getElementById("earn").innerHTML =
+      "<span class='chip'><em>❤</em>+" + round.likes + "</span>" +
+      "<span class='chip'><em>👁</em>+" + round.views + "</span>" +
+      "<span class='chip'><em>⭐</em>+" + round.subs + "</span>";
+    document.getElementById("endMsg").textContent = "На канале теперь " + formatNum(channel.subs) + " подписчиков · " + studioName();
+    document.getElementById("end").classList.add("show");
+    renderHub();
+  }
+
+  function startRound() {
+    refreshEnergy();
+    if (channel.energy < 1) {
+      toast("Энергия кончилась — подожди или зайди позже");
+      renderHub();
+      show("hub");
+      return;
+    }
+    channel.energy -= 1;
+    channel.energyAt = Date.now();
+    save();
+
+    document.getElementById("end").classList.remove("show");
+    show("gameScreen");
+    round = { likes: 0, views: 0, subs: 0 };
+    lives = has("promo") ? 4 : 3;
+    combo = 0;
+    clearItems();
+    hintGone = false;
+    roundStartedAt = Date.now();
+    spawnCount = 0;
+    document.getElementById("touchHint").classList.remove("hide");
+    hud();
+    requestAnimationFrame(function () {
+      setPlayer(0.5);
+      running = true;
+      loopId = requestAnimationFrame(tick);
+      rescheduleSpawn();
+      spawn();
+    });
+  }
+
+  function addFriend() {
+    channel.refActive++;
+    Object.keys(PER).forEach(function (k) { channel[k] += PER[k]; });
+    MILES.forEach(function (m) {
+      if (channel.refActive >= m.n && channel.claimed.indexOf(m.n) < 0) {
+        channel.claimed.push(m.n);
+        Object.keys(m.bonus).forEach(function (k) { channel[k] += m.bonus[k]; });
+        toast("Веха: " + m.title);
+      }
+    });
+    save();
+    renderFriends();
+    renderHub();
+    toast("+30❤ +20👁 +5⭐ за друга");
+  }
+
+  document.getElementById("btnPlay").onclick = startRound;
+  document.getElementById("btnAgain").onclick = startRound;
+  document.getElementById("btnClaim").onclick = claimIdle;
+  document.getElementById("btnSimOffline").onclick = function () {
+    var rates = idleRatesPerMin();
+    channel.pending.likes += Math.floor(rates.likes * 60);
+    channel.pending.views += Math.floor(rates.views * 60);
+    channel.pending.subs += Math.max(1, Math.floor(rates.subs * 60));
+    save();
+    renderHub();
+    toast("Симуляция: +1 час офлайна");
+  };
+  document.getElementById("btnHub").onclick = function () {
+    document.getElementById("end").classList.remove("show");
+    accrueOffline();
+    renderHub();
+    show("hub");
+  };
+  document.getElementById("btnFriends").onclick = function () { renderFriends(); show("friends"); };
+  document.getElementById("btnUp").onclick = function () { renderUps(); show("ups"); };
+  document.getElementById("back1").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("back2").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("btnSim").onclick = addFriend;
+  document.getElementById("btnCopy").onclick = function () {
+    var text = document.getElementById("refLink").textContent;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast("Ссылка скопирована"); }).catch(function () {
+        prompt("Скопируй ссылку:", text);
+      });
+    } else {
+      prompt("Скопируй ссылку:", text);
+    }
+  };
+  document.getElementById("btnReset").onclick = function () {
+    if (!confirm("Сбросить прогресс?")) return;
+    channel = defaultSave();
+    save();
+    renderHub();
+  };
+
+  // старт: начислить офлайн + тик UI
+  accrueOffline();
+  renderHub();
+  setInterval(function () {
+    refreshEnergy();
+    if (document.getElementById("hub").classList.contains("active")) renderHub();
+    else save();
+  }, 1000);
+
+  window.addEventListener("pagehide", save);
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) save();
+    else {
+      accrueOffline();
+      renderHub();
+    }
+  });
+})();
+  
+  </script>
+</body>
+</html>
