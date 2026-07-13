@@ -950,88 +950,127 @@
     }
     #game.bg-hostel {
       background:
-        radial-gradient(circle at 30% 10%, rgba(180,120,70,.2), transparent 45%),
-        linear-gradient(180deg, #4a3426 0%, #2a1c14 50%, #120c08 100%);
+        radial-gradient(circle at 20% 0%, rgba(245,158,11,.35), transparent 42%),
+        radial-gradient(circle at 80% 30%, rgba(120,60,20,.25), transparent 45%),
+        linear-gradient(180deg, #6b452c 0%, #3a2418 48%, #140c08 100%);
     }
     #game.bg-dorm {
       background:
-        radial-gradient(circle at 50% 0%, rgba(100,116,139,.2), transparent 40%),
-        linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
+        radial-gradient(circle at 50% 0%, rgba(148,163,184,.35), transparent 42%),
+        linear-gradient(180deg, #475569 0%, #1e293b 50%, #0b1220 100%);
     }
     #game.bg-edge {
       background:
-        radial-gradient(circle at 70% 20%, rgba(168,132,100,.18), transparent 40%),
-        linear-gradient(180deg, #44403c 0%, #292524 50%, #0c0a09 100%);
+        radial-gradient(circle at 75% 10%, rgba(214,176,128,.3), transparent 42%),
+        linear-gradient(180deg, #78716c 0%, #44403c 48%, #1c1917 100%);
     }
     #game.bg-metro {
       background:
-        radial-gradient(circle at 50% 15%, rgba(56,189,248,.18), transparent 40%),
-        linear-gradient(180deg, #1e3a5f 0%, #0f2744 50%, #061018 100%);
+        radial-gradient(circle at 50% 0%, rgba(56,189,248,.4), transparent 42%),
+        linear-gradient(180deg, #0369a1 0%, #0c4a6e 45%, #082f49 100%);
     }
     #game.bg-patriki {
       background:
-        radial-gradient(circle at 40% 10%, rgba(196,141,255,.2), transparent 40%),
-        linear-gradient(180deg, #4c1d95 0%, #2e1065 45%, #0f0618 100%);
+        radial-gradient(circle at 30% 0%, rgba(216,180,254,.4), transparent 42%),
+        linear-gradient(180deg, #7e22ce 0%, #4c1d95 45%, #1e0b3a 100%);
     }
     #game.bg-city {
       background:
-        radial-gradient(circle at 50% 10%, rgba(34,211,238,.22), transparent 40%),
-        linear-gradient(180deg, #155e75 0%, #0e7490 35%, #082f49 100%);
+        radial-gradient(circle at 50% 0%, rgba(34,211,238,.45), transparent 42%),
+        linear-gradient(180deg, #22d3ee 0%, #0e7490 35%, #0c4a6e 100%);
     }
     #game.bg-pent {
       background:
-        radial-gradient(circle at 50% 0%, rgba(251,191,36,.22), transparent 42%),
-        linear-gradient(180deg, #78350f 0%, #451a03 45%, #1c0f05 100%);
+        radial-gradient(circle at 50% 0%, rgba(251,191,36,.45), transparent 42%),
+        linear-gradient(180deg, #f59e0b 0%, #b45309 40%, #451a03 100%);
     }
     #game.bg-holding {
       background:
-        radial-gradient(circle at 50% 5%, rgba(253,230,138,.28), transparent 40%),
-        linear-gradient(180deg, #a16207 0%, #422006 40%, #0a0703 100%);
+        radial-gradient(circle at 50% 0%, rgba(254,243,199,.5), transparent 40%),
+        linear-gradient(180deg, #facc15 0%, #a16207 35%, #422006 100%);
     }
 
-    /* фон хаба = текущая локация */
-    #hub.hub-bg-hostel {
-      background:
-        radial-gradient(ellipse at 20% 0%, rgba(180,120,70,.28), transparent 50%),
-        radial-gradient(ellipse at 90% 40%, rgba(245,158,11,.1), transparent 45%),
-        linear-gradient(180deg, #3a281c 0%, #120c08 55%, #070504 100%);
+    /* фон приложения = текущая локация (заметный) */
+    html, body {
+      transition: background .45s ease;
     }
-    #hub.hub-bg-dorm {
+    body[data-loc="hostel"], #hub.hub-bg-hostel {
       background:
-        radial-gradient(ellipse at 50% -10%, rgba(100,116,139,.25), transparent 50%),
-        linear-gradient(180deg, #2a3544 0%, #0f172a 55%, #070b12 100%);
+        radial-gradient(ellipse 90% 55% at 15% -5%, rgba(245,158,11,.35), transparent 55%),
+        radial-gradient(ellipse 70% 40% at 100% 30%, rgba(180,83,9,.22), transparent 50%),
+        linear-gradient(180deg, #5c3d28 0%, #2a1a12 42%, #0e0906 100%) !important;
     }
-    #hub.hub-bg-edge {
+    body[data-loc="dorm"], #hub.hub-bg-dorm {
       background:
-        radial-gradient(ellipse at 80% 0%, rgba(168,132,100,.22), transparent 48%),
-        linear-gradient(180deg, #3a332e 0%, #1c1714 55%, #0a0807 100%);
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(148,163,184,.3), transparent 55%),
+        linear-gradient(180deg, #3d4b5c 0%, #1a2330 45%, #0a1018 100%) !important;
     }
-    #hub.hub-bg-metro {
+    body[data-loc="edge"], #hub.hub-bg-edge {
       background:
-        radial-gradient(ellipse at 50% -5%, rgba(56,189,248,.22), transparent 48%),
-        linear-gradient(180deg, #16324f 0%, #0a1624 55%, #050a12 100%);
+        radial-gradient(ellipse 80% 45% at 85% 0%, rgba(214,176,128,.28), transparent 50%),
+        linear-gradient(180deg, #5a4a3c 0%, #2a221c 45%, #0c0a08 100%) !important;
     }
-    #hub.hub-bg-patriki {
+    body[data-loc="metro"], #hub.hub-bg-metro {
       background:
-        radial-gradient(ellipse at 30% 0%, rgba(196,141,255,.22), transparent 50%),
-        linear-gradient(180deg, #3b1d63 0%, #160e28 55%, #08050f 100%);
+        radial-gradient(ellipse 90% 50% at 50% -8%, rgba(56,189,248,.32), transparent 52%),
+        linear-gradient(180deg, #1d4f7a 0%, #0f2740 45%, #061018 100%) !important;
     }
-    #hub.hub-bg-city {
+    body[data-loc="patriki"], #hub.hub-bg-patriki {
       background:
-        radial-gradient(ellipse at 50% -10%, rgba(34,211,238,.25), transparent 48%),
-        linear-gradient(180deg, #0e4a5c 0%, #082433 55%, #040d14 100%);
+        radial-gradient(ellipse 85% 50% at 25% -5%, rgba(216,180,254,.32), transparent 52%),
+        linear-gradient(180deg, #5b2d91 0%, #2a1548 45%, #0d0718 100%) !important;
     }
-    #hub.hub-bg-pent {
+    body[data-loc="city"], #hub.hub-bg-city {
       background:
-        radial-gradient(ellipse at 50% -5%, rgba(251,191,36,.25), transparent 48%),
-        linear-gradient(180deg, #6b3a0f 0%, #1f1206 55%, #0a0703 100%);
+        radial-gradient(ellipse 90% 55% at 50% -10%, rgba(34,211,238,.35), transparent 50%),
+        linear-gradient(180deg, #0e7490 0%, #0c4a6e 40%, #082f49 100%) !important;
     }
-    #hub.hub-bg-holding {
+    body[data-loc="pent"], #hub.hub-bg-pent {
       background:
-        radial-gradient(ellipse at 50% -8%, rgba(253,230,138,.3), transparent 45%),
-        linear-gradient(180deg, #8a5a10 0%, #2a1808 45%, #080503 100%);
+        radial-gradient(ellipse 90% 50% at 50% -8%, rgba(251,191,36,.38), transparent 50%),
+        linear-gradient(180deg, #a16207 0%, #713f12 40%, #1c1005 100%) !important;
+    }
+    body[data-loc="holding"], #hub.hub-bg-holding {
+      background:
+        radial-gradient(ellipse 95% 55% at 50% -10%, rgba(253,230,138,.45), transparent 48%),
+        linear-gradient(180deg, #ca8a04 0%, #854d0e 35%, #1a0f04 100%) !important;
     }
     #hub .hub { background: transparent; }
+    .screen {
+      background: transparent;
+    }
+    .loc-scene {
+      height: 72px;
+      margin: -6px -18px 14px;
+      border-radius: 0;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .loc-scene::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--loc-scene, linear-gradient(135deg, rgba(255,255,255,.08), transparent));
+    }
+    .loc-scene::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 14px; bottom: 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,.55);
+      letter-spacing: -0.01em;
+    }
+    .channel-card.loc-hostel { --loc-scene: linear-gradient(120deg, #8b5e3c 0%, #3f2a1e 45%, #1a100c 100%), repeating-linear-gradient(90deg, transparent 0 18px, rgba(0,0,0,.12) 18px 19px); }
+    .channel-card.loc-dorm { --loc-scene: linear-gradient(120deg, #64748b 0%, #334155 50%, #1e293b 100%); }
+    .channel-card.loc-edge { --loc-scene: linear-gradient(120deg, #a8a29e 0%, #57534e 45%, #292524 100%); }
+    .channel-card.loc-metro { --loc-scene: linear-gradient(120deg, #38bdf8 0%, #1d4ed8 40%, #0f172a 100%); }
+    .channel-card.loc-patriki { --loc-scene: linear-gradient(120deg, #e9d5ff 0%, #a855f7 35%, #4c1d95 100%); }
+    .channel-card.loc-city { --loc-scene: linear-gradient(120deg, #67e8f9 0%, #0891b2 40%, #164e63 100%); }
+    .channel-card.loc-pent { --loc-scene: linear-gradient(120deg, #fde68a 0%, #f59e0b 40%, #78350f 100%); }
+    .channel-card.loc-holding { --loc-scene: linear-gradient(120deg, #fef9c3 0%, #eab308 35%, #713f12 100%); }
 
     .channel-card::after {
       content: "";
@@ -1167,7 +1206,7 @@
     }
   </style>
 </head>
-<body>
+<body data-loc="hostel">
   <div class="screen active" id="hub">
     <div class="topbar">
       <div class="brand">
@@ -1181,6 +1220,7 @@
     </div>
     <div class="hub">
       <div class="channel-card" id="card">
+        <div class="loc-scene" id="locScene" data-label="Москва · Хостел у Казанского"></div>
         <div class="studio-pill"><span id="locEmoji">🛏️</span> <span id="studioBadge">Хостел у Казанского</span></div>
         <div class="avatar-wrap" id="avatarWrap" title="Загрузить свой аватар">
           <div class="avatar" id="avatar">😎</div>
@@ -2597,28 +2637,27 @@
   }
 
   function applyHubBg() {
+    var loc = currentLoc();
+    document.body.setAttribute("data-loc", loc.id);
     var hub = document.getElementById("hub");
     if (!hub) return;
     var classes = hub.className.split(/\s+/).filter(function (c) {
       return c && c.indexOf("hub-bg-") !== 0;
     });
-    classes.push("hub-" + currentLoc().bg);
+    classes.push("hub-" + loc.bg);
     hub.className = classes.join(" ");
+    var scene = document.getElementById("locScene");
+    if (scene) scene.setAttribute("data-label", loc.city + " · " + loc.name);
   }
 
   function applyGameBg() {
+    var loc = currentLoc();
+    document.body.setAttribute("data-loc", loc.id);
     game.className = "";
-    // хаб всегда в теме локации; в раунде — локация, либо купленный фон
-    if (channel.equipped.bg && channel.owned[channel.equipped.bg]) {
-      game.classList.add(channel.equipped.bg.replace("bg_", "bg-"));
-    } else {
-      game.classList.add(currentLoc().bg);
-    }
+    // в раунде — локация (купленный фон магазина не перекрывает ощущение места)
+    game.classList.add(loc.bg);
     var chip = document.getElementById("gameLocChip");
-    if (chip) {
-      var loc = currentLoc();
-      chip.textContent = loc.emoji + " " + loc.short;
-    }
+    if (chip) chip.textContent = loc.emoji + " " + loc.short;
   }
 
   function renderHub() {
