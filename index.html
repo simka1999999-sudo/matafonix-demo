@@ -1491,6 +1491,112 @@
       animation: pulseSoft 1s ease-in-out 3;
       box-shadow: 0 0 0 2px rgba(56,189,248,.45), 0 12px 30px rgba(37,99,235,.25);
     }
+
+    /* social */
+    .friends-tabs { display:flex; gap:6px; margin-bottom:12px; }
+    .friends-tabs .tab { flex:1; }
+    .player-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .player-row.friend { border-color: rgba(52,211,153,.4); }
+    .player-row .av {
+      width: 48px; height: 48px; border-radius: 16px; overflow: hidden;
+      background: rgba(2,6,23,.45); border: 1px solid var(--line);
+      display: grid; place-items: center; font-size: 1.3rem;
+    }
+    .player-row .av img { width:100%; height:100%; object-fit:cover; display:block; }
+    .player-row h3 { font-size: 0.88rem; }
+    .player-row p { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .player-row .ops { display: grid; gap: 5px; }
+    .player-row .ops .btn { padding: 7px 10px; font-size: 0.72rem; }
+    .social-overlay {
+      position: fixed; inset: 0; z-index: 85;
+      display: none; align-items: flex-end; justify-content: center;
+      background: rgba(2,6,23,.78); backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+    .social-overlay.show { display: flex; animation: fadeIn .25s ease; }
+    .social-sheet {
+      width: min(100%, 420px);
+      background: linear-gradient(180deg, #172033, #0b1220);
+      border: 1px solid var(--line);
+      border-radius: 28px 28px 22px 22px;
+      padding: 18px;
+      max-height: min(88dvh, 720px);
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0,0,0,.5);
+    }
+    .social-sheet.profile { text-align: center; }
+    .social-sheet .big-av {
+      width: 96px; height: 96px; margin: 0 auto 10px;
+      border-radius: 28px; overflow: hidden;
+      border: 3px solid rgba(56,189,248,.45);
+      background: #111; display: grid; place-items: center; font-size: 2.4rem;
+    }
+    .social-sheet .big-av img { width:100%; height:100%; object-fit:cover; }
+    .social-sheet .nm { font-family: Rubik, Manrope, sans-serif; font-size: 1.15rem; font-weight: 800; }
+    .social-sheet .meta { font-size: 0.78rem; color: var(--muted); margin: 4px 0 12px; }
+    .social-actions { display: grid; gap: 8px; margin-top: 8px; }
+    .chat-head {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+      margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+    }
+    .chat-head .av {
+      width: 40px; height: 40px; border-radius: 14px; overflow: hidden;
+      display: grid; place-items: center; background: #111; font-size: 1.1rem;
+    }
+    .chat-head .av img { width:100%; height:100%; object-fit:cover; }
+    .chat-log {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      display: flex; flex-direction: column; gap: 8px;
+      min-height: 220px; max-height: 48dvh; padding: 4px 2px 10px;
+    }
+    .bubble {
+      max-width: 82%; padding: 9px 12px; border-radius: 16px;
+      font-size: 0.84rem; line-height: 1.35; word-break: break-word;
+    }
+    .bubble.me {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(37,99,235,.55), rgba(56,189,248,.25));
+      border: 1px solid rgba(56,189,248,.35);
+      border-bottom-right-radius: 6px;
+    }
+    .bubble.them {
+      align-self: flex-start;
+      background: rgba(148,163,184,.12);
+      border: 1px solid var(--line);
+      border-bottom-left-radius: 6px;
+    }
+    .bubble time { display:block; font-size: 0.62rem; color: var(--muted); margin-top: 4px; }
+    .chat-compose {
+      display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;
+      padding-top: 10px; border-top: 1px solid var(--line);
+    }
+    .chat-compose input {
+      width: 100%; border: 1px solid var(--line); border-radius: 14px;
+      background: rgba(2,6,23,.55); color: var(--text);
+      padding: 12px 14px; font: inherit; font-size: 0.88rem; outline: none;
+    }
+    .chat-compose input:focus { border-color: rgba(56,189,248,.5); }
+    .find-box { margin-bottom: 10px; }
+    .find-box input {
+      width: 100%; border: 1px solid var(--line); border-radius: 14px;
+      background: rgba(2,6,23,.55); color: var(--text);
+      padding: 12px 14px; font: inherit; font-size: 0.88rem; outline: none;
+    }
+    .pvp-card .mini-ops {
+      grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 6px;
+    }
+    .pvp-card .mini-ops .btn { font-size: 0.72rem; padding: 8px 6px; }
   </style>
 </head>
 <body data-loc="hostel">
@@ -1667,17 +1773,64 @@
       <span style="width:64px"></span>
     </div>
     <div class="hub">
-      <div class="ref-card">
-        <strong style="font-size:1rem">Приведи друга</strong>
-        <p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Друг играет 1 раунд — бонус вам обоим</p>
-        <div class="ref-link" id="refLink"></div>
-        <button type="button" class="btn" id="btnCopy">Скопировать ссылку</button>
-        <button type="button" class="btn sec" id="btnSim" style="margin-top:8px">Демо: друг сыграл</button>
+      <div class="friends-tabs tabs tabs3">
+        <button type="button" class="tab on" id="tabFrList">Мои</button>
+        <button type="button" class="tab" id="tabFrFind">Найти</button>
+        <button type="button" class="tab" id="tabFrRef">Реферал</button>
       </div>
-      <p style="font-size:0.82rem;margin-bottom:6px">Активных друзей: <strong id="refN">0</strong></p>
-      <div class="bar"><div id="refBar"></div></div>
-      <p class="hint" id="refTxt" style="margin:4px 0 12px;text-align:left">0 / 3 до рамки</p>
-      <div id="miles"></div>
+      <div id="frPanelList">
+        <p class="shop-note">Добавляй игроков, пиши в чат и вызывай на дуэль прямо из списка.</p>
+        <div id="friendsList"></div>
+      </div>
+      <div id="frPanelFind" style="display:none">
+        <div class="find-box"><input id="findInput" type="search" placeholder="Ник, например @kira" autocomplete="off"/></div>
+        <div id="findList"></div>
+      </div>
+      <div id="frPanelRef" style="display:none">
+        <div class="ref-card">
+          <strong style="font-size:1rem">Приведи друга</strong>
+          <p style="font-size:0.78rem;color:var(--muted);margin-top:6px">Друг играет 1 раунд — бонус вам обоим</p>
+          <div class="ref-link" id="refLink"></div>
+          <button type="button" class="btn" id="btnCopy">Скопировать ссылку</button>
+          <button type="button" class="btn sec" id="btnSim" style="margin-top:8px">Демо: друг сыграл</button>
+        </div>
+        <p style="font-size:0.82rem;margin-bottom:6px">По рефералке: <strong id="refN">0</strong></p>
+        <div class="bar"><div id="refBar"></div></div>
+        <p class="hint" id="refTxt" style="margin:4px 0 12px;text-align:left">0 / 3 до рамки</p>
+        <div id="miles"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="social-overlay" id="profileOverlay">
+    <div class="social-sheet profile">
+      <div class="big-av" id="profAv"></div>
+      <div class="nm" id="profName">@player</div>
+      <div class="meta" id="profMeta">—</div>
+      <div class="social-actions">
+        <button type="button" class="btn" id="profAdd">В друзья</button>
+        <button type="button" class="btn sec" id="profMsg">Написать</button>
+        <button type="button" class="btn sec" id="profDuel">Вызов на дуэль</button>
+        <button type="button" class="btn sec" id="profClose">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="social-overlay" id="chatOverlay">
+    <div class="social-sheet">
+      <div class="chat-head">
+        <button type="button" class="btn sm sec" id="chatBack">←</button>
+        <div>
+          <div style="font-weight:800;font-size:0.92rem" id="chatTitle">Чат</div>
+          <div style="font-size:0.68rem;color:var(--muted)" id="chatSub">онлайн</div>
+        </div>
+        <button type="button" class="btn sm" id="chatDuel">Дуэль</button>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-compose">
+        <input id="chatInput" type="text" maxlength="160" placeholder="Напиши сообщение…"/>
+        <button type="button" class="btn sm" id="chatSend">➤</button>
+      </div>
     </div>
   </div>
 
@@ -2070,6 +2223,8 @@
       mmr: 1000,
       unlockedLocs: { hostel: 1 },
       onboarded: false,
+      buddyIds: [],
+      chats: {},
       ac: { strikes: 0, flags: [], sig: "" }
     };
   }
@@ -2240,6 +2395,8 @@
         if (d.bestRound == null) d.bestRound = 0;
         if (d.avatarImg == null) d.avatarImg = "";
         if (d.onboarded == null) d.onboarded = !!(d.bestRound || d.subs || d.likes || d.views);
+        if (!d.buddyIds) d.buddyIds = [];
+        if (!d.chats) d.chats = {};
         if (typeof d.avatarImg === "string" && d.avatarImg.length > 180000) d.avatarImg = "";
         if (d.stars == null) d.stars = 0;
         if (!d.owned) d.owned = {};
@@ -3073,6 +3230,21 @@
       btn.classList.toggle("sec", !!(noMyEnergy || noRivalEnergy || short.length));
       btn.onclick = function () { startPvp(b); };
       div.appendChild(btn);
+      var ops = document.createElement("div");
+      ops.className = "mini-ops";
+      var id = playerId(b);
+      function mk(label, cls, fn) {
+        var x = document.createElement("button");
+        x.type = "button"; x.className = "btn sm " + (cls || "sec");
+        x.textContent = label; x.onclick = fn; return x;
+      }
+      ops.appendChild(mk(isBuddy(id) ? "Друг ✓" : "В друзья", "sec", function () {
+        if (isBuddy(id)) openProfile(id); else addBuddy(id);
+        renderPvp();
+      }));
+      ops.appendChild(mk("Чат", "sec", function () { openChat(id); }));
+      ops.appendChild(mk("Профиль", "sec", function () { openProfile(id); }));
+      div.appendChild(ops);
       list.appendChild(div);
     });
   }
@@ -3328,7 +3500,288 @@
     return String(n);
   }
 
-  function renderFriends() {
+
+  var friendsTab = "list";
+  var activeProfileId = "";
+  var activeChatId = "";
+  var CHAT_REPLIES = [
+    "го дуэль, не сливайся 🔥",
+    "норм ник. давай в друзья",
+    "я щас на съёмке, напиши позже",
+    "о, видел твой ролик — огонь",
+    "ммр у тебя кусается)",
+    "лол, хостел до сих пор? переезжай",
+    "ок, кидай вызов — я готов",
+    "пиши, только без спама",
+    "сегодня фармит энергия, завтра дуэль",
+    "брат, давай коллаб после боя"
+  ];
+
+  function playerId(p) {
+    if (!p) return "";
+    return p.id || ("bot:" + (p.name || ""));
+  }
+
+  function allPlayers() {
+    refreshLiveEnergy();
+    var list = [];
+    LIVE_PLAYERS.forEach(function (p) { list.push(p); });
+    BOTS.forEach(function (b) {
+      list.push(Object.assign({}, b, {
+        id: "bot:" + b.name,
+        live: false,
+        energy: 99,
+        energyMax: 99,
+        online: true,
+        mmr: rivalMmr(b),
+        style: b.style || "бот-дуэлянт"
+      }));
+    });
+    return list;
+  }
+
+  function findPlayer(id) {
+    var all = allPlayers();
+    for (var i = 0; i < all.length; i++) {
+      if (playerId(all[i]) === id) return all[i];
+    }
+    return null;
+  }
+
+  function isBuddy(id) {
+    return (channel.buddyIds || []).indexOf(id) >= 0;
+  }
+
+  function ensureSocial() {
+    if (!channel.buddyIds) channel.buddyIds = [];
+    if (!channel.chats) channel.chats = {};
+  }
+
+  function setPlayerAv(node, p, emojiSize) {
+    if (!node || !p) return;
+    if (p.photo) node.innerHTML = "<img src=\"" + p.photo + "\" alt=\"\">";
+    else node.innerHTML = "<span style=\"font-size:" + (emojiSize || "1.3rem") + "\">" + (p.avatar || "😎") + "</span>";
+  }
+
+  function addBuddy(id) {
+    ensureSocial();
+    var p = findPlayer(id);
+    if (!p) return toast("Игрок не найден");
+    if (isBuddy(id)) return toast("Уже в друзьях");
+    channel.buddyIds.push(id);
+    save();
+    toast("В друзьях: " + p.name);
+    if (activeProfileId === id) renderProfile(id);
+    renderFriends();
+  }
+
+  function removeBuddy(id) {
+    ensureSocial();
+    channel.buddyIds = channel.buddyIds.filter(function (x) { return x !== id; });
+    save();
+    toast("Удалён из друзей");
+    if (activeProfileId === id) renderProfile(id);
+    renderFriends();
+  }
+
+  function openProfile(id) {
+    var p = findPlayer(id);
+    if (!p) return toast("Игрок оффлайн");
+    activeProfileId = id;
+    renderProfile(id);
+    document.getElementById("chatOverlay").classList.remove("show");
+    document.getElementById("profileOverlay").classList.add("show");
+  }
+
+  function closeProfile() {
+    document.getElementById("profileOverlay").classList.remove("show");
+    activeProfileId = "";
+  }
+
+  function renderProfile(id) {
+    var p = findPlayer(id);
+    if (!p) return;
+    setPlayerAv(document.getElementById("profAv"), p, "2.4rem");
+    document.getElementById("profName").textContent = p.name;
+    var en = p.live ? ("⚡ " + (p.energy || 0) + "/" + (p.energyMax || 3)) : "бот";
+    document.getElementById("profMeta").textContent =
+      (p.style || "игрок") + " · MMR " + rivalMmr(p) + " · рекорд " + formatNum(p.best || 0) + " · " + en +
+      (isBuddy(id) ? " · друг" : "");
+    var add = document.getElementById("profAdd");
+    if (isBuddy(id)) {
+      add.textContent = "Удалить из друзей";
+      add.className = "btn sec";
+    } else {
+      add.textContent = "В друзья";
+      add.className = "btn";
+    }
+  }
+
+  function openChat(id) {
+    var p = findPlayer(id);
+    if (!p) return toast("Игрок не найден");
+    ensureSocial();
+    activeChatId = id;
+    if (!channel.chats[id]) channel.chats[id] = [];
+    // welcome message once
+    if (!channel.chats[id].length) {
+      channel.chats[id].push({
+        from: "them",
+        text: "йо, это " + p.name + ". пиши / кидай дуэль",
+        t: Date.now()
+      });
+      save();
+    }
+    closeProfile();
+    document.getElementById("chatTitle").textContent = p.name;
+    document.getElementById("chatSub").textContent = p.live ? ((p.energy || 0) > 0 ? "в сети · можно в дуэль" : "в сети · нет энергии") : "бот · всегда на связи";
+    var av = document.querySelector("#chatOverlay .chat-head .av");
+    if (!av) {
+      // inject av node if missing - we used button layout without av; skip
+    }
+    renderChatLog();
+    document.getElementById("chatOverlay").classList.add("show");
+    document.getElementById("chatInput").value = "";
+    setTimeout(function () {
+      var input = document.getElementById("chatInput");
+      if (input) input.focus();
+    }, 200);
+  }
+
+  function closeChat() {
+    document.getElementById("chatOverlay").classList.remove("show");
+    activeChatId = "";
+  }
+
+  function renderChatLog() {
+    ensureSocial();
+    var log = document.getElementById("chatLog");
+    var msgs = (channel.chats[activeChatId] || []).slice(-50);
+    log.innerHTML = "";
+    msgs.forEach(function (m) {
+      var b = document.createElement("div");
+      b.className = "bubble " + (m.from === "me" ? "me" : "them");
+      var d = new Date(m.t || Date.now());
+      var hh = d.getHours(); var mm = d.getMinutes();
+      b.innerHTML = escapeHtml(m.text) + "<time>" + hh + ":" + (mm < 10 ? "0" : "") + mm + "</time>";
+      log.appendChild(b);
+    });
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function sendChat() {
+    ensureSocial();
+    if (!activeChatId) return;
+    var input = document.getElementById("chatInput");
+    var text = (input.value || "").trim();
+    if (!text) return;
+    if (text.length > 160) text = text.slice(0, 160);
+    if (!channel.chats[activeChatId]) channel.chats[activeChatId] = [];
+    channel.chats[activeChatId].push({ from: "me", text: text, t: Date.now() });
+    if (channel.chats[activeChatId].length > 60) {
+      channel.chats[activeChatId] = channel.chats[activeChatId].slice(-50);
+    }
+    input.value = "";
+    save();
+    renderChatLog();
+    // автоответ «игрока»
+    setTimeout(function () {
+      if (!activeChatId) return;
+      var reply = CHAT_REPLIES[Math.floor(Math.random() * CHAT_REPLIES.length)];
+      if (/дуэл|бой|пвп|вызов/i.test(text)) reply = "го! жми «Дуэль» сверху — я на месте";
+      if (/друг|добав/i.test(text)) reply = isBuddy(activeChatId) ? "мы уже друзья 👍" : "добавляй — я не кусаюсь";
+      channel.chats[activeChatId].push({ from: "them", text: reply, t: Date.now() });
+      save();
+      renderChatLog();
+    }, 600 + Math.random() * 900);
+  }
+
+  function duelWith(id) {
+    var p = findPlayer(id);
+    if (!p) return toast("Игрок не найден");
+    closeChat();
+    closeProfile();
+    show("pvp");
+    startPvp(p);
+  }
+
+  function renderPlayerRow(p, mount) {
+    var id = playerId(p);
+    var div = document.createElement("div");
+    div.className = "player-row" + (isBuddy(id) ? " friend" : "");
+    var av = p.photo
+      ? "<div class='av'><img src='" + p.photo + "' alt=''></div>"
+      : "<div class='av'>" + (p.avatar || "😎") + "</div>";
+    var en = p.live ? ("⚡" + (p.energy || 0) + "/" + (p.energyMax || 3)) : "бот";
+    div.innerHTML =
+      av +
+      "<div><h3>" + p.name + "</h3><p>MMR " + rivalMmr(p) + " · " + (p.style || "") + " · " + en + "</p></div>";
+    var ops = document.createElement("div");
+    ops.className = "ops";
+    function mk(label, cls, fn) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "btn sm " + (cls || "");
+      b.textContent = label; b.onclick = fn; return b;
+    }
+    ops.appendChild(mk("Профиль", "sec", function () { openProfile(id); }));
+    ops.appendChild(mk("Чат", "sec", function () { openChat(id); }));
+    ops.appendChild(mk("Дуэль", "", function () { duelWith(id); }));
+    div.appendChild(ops);
+    mount.appendChild(div);
+  }
+
+  function renderFriendsSocial() {
+    ensureSocial();
+    document.getElementById("tabFrList").classList.toggle("on", friendsTab === "list");
+    document.getElementById("tabFrFind").classList.toggle("on", friendsTab === "find");
+    document.getElementById("tabFrRef").classList.toggle("on", friendsTab === "ref");
+    document.getElementById("frPanelList").style.display = friendsTab === "list" ? "block" : "none";
+    document.getElementById("frPanelFind").style.display = friendsTab === "find" ? "block" : "none";
+    document.getElementById("frPanelRef").style.display = friendsTab === "ref" ? "block" : "none";
+
+    if (friendsTab === "list") {
+      var box = document.getElementById("friendsList");
+      box.innerHTML = "";
+      var ids = channel.buddyIds || [];
+      if (!ids.length) {
+        box.innerHTML = "<p class='shop-note'>Пока пусто. Открой «Найти» или зайди в PvP и добавь соперника.</p>";
+      } else {
+        ids.forEach(function (id) {
+          var p = findPlayer(id);
+          if (p) renderPlayerRow(p, box);
+        });
+      }
+    }
+    if (friendsTab === "find") {
+      renderFindList();
+    }
+    if (friendsTab === "ref") {
+      renderFriendsReferral();
+    }
+  }
+
+  function renderFindList() {
+    var q = ((document.getElementById("findInput") && document.getElementById("findInput").value) || "").trim().toLowerCase();
+    var box = document.getElementById("findList");
+    box.innerHTML = "";
+    var rows = allPlayers().filter(function (p) {
+      if (!q) return true;
+      return (p.name || "").toLowerCase().indexOf(q) >= 0 || (p.style || "").toLowerCase().indexOf(q) >= 0;
+    }).sort(function (a, b) { return rivalMmr(b) - rivalMmr(a); }).slice(0, 24);
+    if (!rows.length) {
+      box.innerHTML = "<p class='shop-note'>Никого не нашли</p>";
+      return;
+    }
+    rows.forEach(function (p) { renderPlayerRow(p, box); });
+  }
+
+  function renderFriendsReferral() {
     document.getElementById("refLink").textContent = "t.me/matafonix_game_bot?start=" + channel.refCode;
     document.getElementById("refN").textContent = channel.refActive;
     var next = MILES.find(function (m) { return channel.refActive < m.n; }) || MILES[MILES.length - 1];
@@ -3349,6 +3802,12 @@
       box.appendChild(div);
     });
   }
+
+
+  function renderFriends() {
+    renderFriendsSocial();
+  }
+
 
   function canBuy(cost) {
     return Object.keys(cost).every(function (k) { return (channel[k] || 0) >= cost[k]; });
@@ -4060,7 +4519,26 @@
     renderHub();
     show("hub");
   };
-  document.getElementById("btnFriends").onclick = function () { renderFriends(); show("friends"); };
+  document.getElementById("btnFriends").onclick = function () { friendsTab = "list"; renderFriends(); show("friends"); };
+  document.getElementById("tabFrList").onclick = function () { friendsTab = "list"; renderFriends(); };
+  document.getElementById("tabFrFind").onclick = function () { friendsTab = "find"; renderFriends(); };
+  document.getElementById("tabFrRef").onclick = function () { friendsTab = "ref"; renderFriends(); };
+  document.getElementById("findInput").oninput = function () { renderFindList(); };
+  document.getElementById("profClose").onclick = closeProfile;
+  document.getElementById("profAdd").onclick = function () {
+    if (!activeProfileId) return;
+    if (isBuddy(activeProfileId)) removeBuddy(activeProfileId);
+    else addBuddy(activeProfileId);
+  };
+  document.getElementById("profMsg").onclick = function () { if (activeProfileId) openChat(activeProfileId); };
+  document.getElementById("profDuel").onclick = function () { if (activeProfileId) duelWith(activeProfileId); };
+  document.getElementById("chatBack").onclick = closeChat;
+  document.getElementById("chatSend").onclick = sendChat;
+  document.getElementById("chatDuel").onclick = function () { if (activeChatId) duelWith(activeChatId); };
+  document.getElementById("chatInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); sendChat(); }
+  });
+
   document.getElementById("btnShop").onclick = function () { shopTab = "res"; renderShop(); show("shop"); };
   document.getElementById("btnStyle").onclick = function () { styleSlot = "look"; renderStyle(); show("style"); };
   document.getElementById("btnLoc").onclick = function () { renderLocs(); show("locs"); };
