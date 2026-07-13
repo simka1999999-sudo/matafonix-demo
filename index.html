@@ -1578,7 +1578,7 @@
       <span style="font-size:0.72rem;color:#fb7185;font-weight:800" id="pvpEloTop">1000 MMR</span>
     </div>
     <div class="hub">
-      <p class="shop-note">Онлайн-игроки и боты. У живых видна энергия — без неё вызов недоступен. VS → ловля → банк победителю.</p>
+      <p class="shop-note">Онлайн и боты. Ставка небольшая (❤/👁/⭐). Если кнопка пишет «Нужно…» — сними ролик и набери ресурсы. У живых ещё нужна их ⚡.</p>
       <div class="shop-bal" id="pvpBal"></div>
       <p style="font-size:0.78rem;margin-bottom:10px">Твой счёт: <strong id="pvpWL">0W · 0L</strong> · MMR <strong id="pvpMmr">1000</strong> · энергия <strong id="pvpMyEnergy">0/3</strong></p>
       <div class="pvp-tabs tabs">
@@ -2018,7 +2018,7 @@
   var LIVE_PLAYERS = (LIVE_SEED.players || []).map(function (p) {
     return Object.assign({}, p, { energyAt: Date.now() - Math.floor(Math.random() * 60000) });
   });
-  var pvpTab = "live";
+  var pvpTab = "all";
 
   var game = document.getElementById("game");
   var player = document.getElementById("player");
@@ -2861,13 +2861,24 @@
   }
 
   function pvpEntryCost(rival) {
-    var base = 25 + Math.floor((rival.mmr || 1000) / 80);
+    // мягкие ставки: новичок после 1–2 роликов уже может вызвать
+    var mmr = (rival && rival.mmr) || 1000;
+    var base = 6 + Math.floor(mmr / 220);
     return {
       likes: base,
-      views: Math.floor(base * 0.8),
-      subs: Math.max(2, Math.floor(base / 12))
+      views: Math.max(3, Math.floor(base * 0.7)),
+      subs: Math.max(1, Math.floor(base / 10))
     };
   }
+
+  function pvpShortage(cost) {
+    var need = [];
+    if ((channel.likes || 0) < cost.likes) need.push("❤" + cost.likes);
+    if ((channel.views || 0) < cost.views) need.push("👁" + cost.views);
+    if ((channel.subs || 0) < cost.subs) need.push("⭐" + cost.subs);
+    return need;
+  }
+
 
   function rivalMmr(b) {
     if (b && b.mmr) return b.mmr | 0;
@@ -2962,18 +2973,23 @@
     var n = 3;
     countEl.textContent = String(n);
     clearInterval(showVsIntro._t);
+    clearTimeout(showVsIntro._safe);
+    var finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      clearInterval(showVsIntro._t);
+      clearTimeout(showVsIntro._safe);
+      overlay.classList.remove("show");
+      try { done(); } catch (e) { console.error(e); toast("Ошибка старта дуэли"); }
+    }
     showVsIntro._t = setInterval(function () {
       n--;
-      if (n > 0) {
-        countEl.textContent = String(n);
-      } else if (n === 0) {
-        countEl.textContent = "БОЙ!";
-      } else {
-        clearInterval(showVsIntro._t);
-        overlay.classList.remove("show");
-        done();
-      }
-    }, 700);
+      if (n > 0) countEl.textContent = String(n);
+      else if (n === 0) countEl.textContent = "БОЙ!";
+      else finish();
+    }, 650);
+    showVsIntro._safe = setTimeout(finish, 4000);
   }
 
   function renderPvp() {
@@ -3031,10 +3047,16 @@
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn sm";
-      var noRivalEnergy = b.live && (b.energy || 0) < 1;
-      btn.textContent = noRivalEnergy ? "Нет энергии" : "Вызов";
       btn.style.gridColumn = "1 / -1";
-      btn.disabled = !canBuy(cost) || channel.energy < 1 || noRivalEnergy;
+      var noRivalEnergy = b.live && (b.energy || 0) < 1;
+      var short = pvpShortage(cost);
+      var noMyEnergy = channel.energy < 1;
+      if (noMyEnergy) btn.textContent = "Нужна твоя ⚡";
+      else if (noRivalEnergy) btn.textContent = "У соперника нет ⚡";
+      else if (short.length) btn.textContent = "Нужно " + short.join(" ");
+      else btn.textContent = "Вызов";
+      // не disabled — иначе непонятно почему нельзя; проверка внутри startPvp
+      btn.classList.toggle("sec", !!(noMyEnergy || noRivalEnergy || short.length));
       btn.onclick = function () { startPvp(b); };
       div.appendChild(btn);
       list.appendChild(div);
@@ -3042,18 +3064,25 @@
   }
 
   function startPvp(rival) {
-    if (running) return toast("Раунд уже идёт");
-    if (pvp) return toast("Дуэль уже начата");
-    if (document.getElementById("vsOverlay").classList.contains("show")) return;
+    if (running) return toast("Раунд уже идёт — сначала доиграй");
+    if (document.getElementById("vsOverlay").classList.contains("show")) {
+      return toast("Дуэль уже запускается…");
+    }
+    // если прошлый VS завис — сбросить
+    if (pvp && !running) {
+      pvp = null;
+    }
     refreshEnergy();
+    if (channel.energy < 1) return toast("Нужна энергия на дуэль");
+    if (rival.live && (rival.energy || 0) < 1) return toast("У соперника нет энергии — выбери другого");
     var mmr = rivalMmr(rival);
     var cost = pvpEntryCost({ mmr: mmr });
-    if (!canBuy(cost)) return toast("Не хватает на ставку");
-    if (channel.energy < 1) return toast("Нужна энергия на дуэль");
+    var short = pvpShortage(cost);
+    if (short.length) return toast("На ставку нужно: " + short.join(" "));
     Object.keys(cost).forEach(function (k) { channel[k] -= cost[k]; });
     var pot = {};
     Object.keys(cost).forEach(function (k) { pot[k] = cost[k] * 2; });
-    var target = Math.max(40, Math.floor(rival.best * (0.85 + Math.random() * 0.35)));
+    var target = Math.max(40, Math.floor((rival.best || 40) * (0.85 + Math.random() * 0.35)));
     pvp = {
       rival: rival,
       pot: pot,
@@ -3068,19 +3097,25 @@
     if (rival.live) {
       rival.energy = Math.max(0, (rival.energy || 0) - 1);
       rival.energyAt = Date.now();
-      if (rival.energy <= 0) rival.online = false;
+      if (rival.energy <= 0) rival.online = Math.random() > 0.4;
     }
     save();
     setupPvpFaces(rival);
+    show("pvp");
     showVsIntro(rival, pot, function () {
       var ok = startRound(true);
       if (!ok) {
         Object.keys(cost).forEach(function (k) { channel[k] += cost[k]; });
+        if (rival.live) {
+          rival.energy = Math.min(rival.energyMax || 3, (rival.energy || 0) + 1);
+          rival.online = true;
+        }
         pvp = null;
         save();
         renderHub();
         renderPvp();
         show("pvp");
+        toast("Не удалось начать дуэль — ставка возвращена");
       }
     });
   }
@@ -3951,6 +3986,10 @@
 
   function finishOnboard(startPlay) {
     channel.onboarded = true;
+    // стартовый запас, чтобы сразу можно было попробовать PvP
+    if ((channel.likes || 0) < 20) channel.likes = Math.max(channel.likes || 0, 20);
+    if ((channel.views || 0) < 15) channel.views = Math.max(channel.views || 0, 15);
+    if ((channel.subs || 0) < 3) channel.subs = Math.max(channel.subs || 0, 3);
     save();
     document.getElementById("onboard").classList.remove("show");
     renderHub();
