@@ -1353,6 +1353,8 @@
     .play-panel {
       background: linear-gradient(160deg, rgba(37,99,235,.28), rgba(22,30,52,.82));
       border-color: rgba(56,189,248,.35);
+      margin-top: 2px;
+      margin-bottom: 12px;
     }
     .play-panel .btn { width: 100%; }
     .pvp-sec-title {
@@ -1426,12 +1428,6 @@
         <p class="passive" id="passiveLine">пассивный доход загружается…</p>
       </div>
 
-      <div class="idle-box hidden" id="idleBox">
-        <h3>Канал работал без тебя</h3>
-        <p id="idleText">—</p>
-        <button type="button" class="btn good" id="btnClaim">Забрать награды</button>
-      </div>
-
       <div class="panel play-panel">
         <div class="energy-head">
           <span>Энергия <strong id="energyLabel">5/5</strong></span>
@@ -1440,6 +1436,12 @@
         <div class="energy-track"><div id="energyFill"></div></div>
         <div class="energy-dots" id="energyDots"></div>
         <button type="button" class="btn" id="btnPlay" style="margin-top:12px"><span>Снять ролик</span><small>1 энергия · ловля</small></button>
+      </div>
+
+      <div class="idle-box hidden" id="idleBox">
+        <h3>Канал работал без тебя</h3>
+        <p id="idleText">—</p>
+        <button type="button" class="btn good" id="btnClaim">Забрать награды</button>
       </div>
 
       <div class="quest-panel" id="questPanel">
