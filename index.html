@@ -179,6 +179,78 @@
       margin: -4px auto 4px 36px;
     }
     .loc-path:last-of-type { display: none; }
+
+    .status-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 4px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(2,6,23,.4);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .quest-panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .quest-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .quest-head strong { font-size: 0.9rem; }
+    .streak {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #fbbf24;
+      background: rgba(245,158,11,.15);
+      border: 1px solid rgba(245,158,11,.35);
+      border-radius: 999px;
+      padding: 5px 9px;
+    }
+    .quest {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 7px;
+    }
+    .quest.done { border-color: rgba(52,211,153,.4); }
+    .quest h4 { font-size: 0.82rem; }
+    .quest p { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .qbar {
+      height: 6px;
+      background: rgba(15,23,42,.7);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+      border: 1px solid var(--line);
+    }
+    .qbar > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #34d399);
+      transition: width .3s ease;
+    }
     .studio-pill {
       display: inline-flex;
       align-items: center;
@@ -832,6 +904,7 @@
       <div class="channel-card" id="card">
         <div class="studio-pill"><span id="locEmoji">🛏️</span> <span id="studioBadge">Хостел у Казанского</span></div>
         <div class="avatar-wrap"><div class="avatar" id="avatar">😎</div></div>
+        <div class="status-row" id="statusRow"></div>
         <div class="name">@мой_канал</div>
         <div class="rank" id="rank">Новичок</div>
         <div class="subs-line" id="subsLine">0 подписчиков</div>
@@ -851,6 +924,14 @@
         <button type="button" class="btn good" id="btnClaim">Забрать награды</button>
       </div>
 
+      <div class="quest-panel" id="questPanel">
+        <div class="quest-head">
+          <strong>Задания на сегодня</strong>
+          <span class="streak" id="streakLabel">стрик 0</span>
+        </div>
+        <div id="questList"></div>
+      </div>
+
       <div class="panel">
         <div class="energy-head">
           <span>Энергия <strong id="energyLabel">5/5</strong></span>
@@ -864,12 +945,13 @@
         <button type="button" class="btn" id="btnPlay"><span>Снять ролик</span><small>1 энергия · ловля</small></button>
         <div class="grid2">
           <button type="button" class="btn sec" id="btnShop">Магазин</button>
-          <button type="button" class="btn sec" id="btnLoc">Локации</button>
+          <button type="button" class="btn sec" id="btnStyle">Стиль</button>
         </div>
         <div class="grid2">
+          <button type="button" class="btn sec" id="btnLoc">Локации</button>
           <button type="button" class="btn sec" id="btnFriends">Друзья</button>
-          <button type="button" class="btn sec" id="btnTop"><span>Топ</span><small id="hubPlace">#—</small></button>
         </div>
+        <button type="button" class="btn sec" id="btnTop"><span>Топ недели</span><small id="hubPlace">#—</small></button>
         <button type="button" class="btn sec" id="btnSimOffline" style="font-size:0.85rem;padding:12px">Демо: +1 час офлайна</button>
       </div>
       <p class="hint">Води пальцем в раунде · лови всё кроме бомб · канал качает офлайн</p>
@@ -903,6 +985,24 @@
         <button type="button" class="btn" id="btnSharePlace"><span>Поделиться местом</span><small>в чат класса / канал</small></button>
       </div>
       <p class="hint">Топ по скиллу и подписчикам канала — без покупки места. За Stars только косметика.</p>
+    </div>
+  </div>
+
+  <div class="screen" id="style">
+    <div class="topbar">
+      <button type="button" class="btn sm sec" id="backStyle">← Назад</button>
+      <h2 style="font-size:1rem">Стиль жизни</h2>
+      <span style="width:64px"></span>
+    </div>
+    <div class="hub">
+      <p class="shop-note">Как в Ламаре: шмот, гаджеты и тачка — сразу видно, что ты вырос. Покупается за ресурсы канала, даёт бонус к idle.</p>
+      <div class="shop-bal" id="styleBal"></div>
+      <div class="tabs tabs3">
+        <button type="button" class="tab on" id="tabLook" data-slot="look">Шмот</button>
+        <button type="button" class="tab" id="tabGadget" data-slot="gadget">Гаджеты</button>
+        <button type="button" class="tab" id="tabRide" data-slot="ride">Тачка</button>
+      </div>
+      <div id="styleList"></div>
     </div>
   </div>
 
@@ -992,10 +1092,29 @@
 (function () {
   "use strict";
 
-  var SAVE = "matafonix_v5";
+  var SAVE = "matafonix_v6";
   var ENERGY_MAX_BASE = 5;
   var ENERGY_REGEN_MS = 45000; // демо: 45 сек на +1 (в проде 20–30 мин)
   var OFFLINE_CAP_SEC = 8 * 3600; // макс 8 часов офлайна
+  var GEAR = [
+    { id: "look_tee", slot: "look", name: "Футболка с дыркой", icon: "👕", desc: "Старт с хостела", cost: { likes: 25 }, idle: 1.03 },
+    { id: "look_hoodie", slot: "look", name: "Худи с района", icon: "🧥", desc: "+idle · заметнее в кадре", cost: { likes: 90, views: 40 }, idle: 1.08 },
+    { id: "look_fit", slot: "look", name: "Fit как у блогера", icon: "✨", desc: "Стиль Патриков", cost: { likes: 280, views: 180, subs: 25 }, idle: 1.14 },
+    { id: "look_brand", slot: "look", name: "Брендовый лук", icon: "🕶️", desc: "Ты — лицо канала", cost: { likes: 800, views: 500, subs: 80 }, idle: 1.22 },
+    { id: "gad_btn", slot: "gadget", name: "Кнопочный", icon: "📞", desc: "Хоть связь есть", cost: { views: 30 }, idle: 1.03 },
+    { id: "gad_phone", slot: "gadget", name: "Смартфон", icon: "📱", desc: "+% к просмотрам в раунде", cost: { views: 100, likes: 50 }, idle: 1.08, viewsMul: 1.1 },
+    { id: "gad_cam", slot: "gadget", name: "Камера 4K", icon: "📷", desc: "+% к просмотрам", cost: { views: 350, likes: 150, subs: 30 }, idle: 1.15, viewsMul: 1.2 },
+    { id: "gad_kit", slot: "gadget", name: "Съёмочный кит", icon: "🎬", desc: "Свет + штатив + кам", cost: { views: 900, likes: 400, subs: 100 }, idle: 1.25, viewsMul: 1.35 },
+    { id: "ride_walk", slot: "ride", name: "Пешком", icon: "👟", desc: "Бесплатно и гордо", cost: null, idle: 1 },
+    { id: "ride_bike", slot: "ride", name: "Самокат", icon: "🛴", desc: "Быстрее на съёмки", cost: { likes: 70, views: 50 }, idle: 1.06 },
+    { id: "ride_car", slot: "ride", name: "Тачка б/у", icon: "🚗", desc: "Едешь на коллабы", cost: { likes: 400, views: 300, subs: 50 }, idle: 1.15 },
+    { id: "ride_lux", slot: "ride", name: "Чёрный каршеринг+", icon: "🏎️", desc: "Статус на максималках", cost: { likes: 1500, views: 1000, subs: 200 }, idle: 1.28 }
+  ];
+  var QUESTS = [
+    { id: "film2", title: "Сними 2 ролика", key: "rounds", target: 2, reward: { likes: 40, views: 30 } },
+    { id: "subs20", title: "Поймай 20 ⭐ за день", key: "subsCaught", target: 20, reward: { likes: 30, subs: 8 } },
+    { id: "claim1", title: "Забери офлайн-награду", key: "claims", target: 1, reward: { views: 50, likes: 20 } }
+  ];
   var LOCATIONS = [
     {
       id: "hostel", name: "Хостел у Казанского", short: "Хостел",
@@ -1110,6 +1229,7 @@
   var roundStartedAt = 0, spawnCount = 0;
   var lbMode = "subs";
   var shopTab = "res";
+  var styleSlot = "look";
   var roundFX = { shield: false, magnet: false, fire: false, revive: false, shieldUsed: false, reviveUsed: false };
 
   var BOTS = [
@@ -1148,13 +1268,18 @@
       boostDay: "",
       boostUsed: {},
       nextBoost: "",
-      location: "hostel"
+      location: "hostel",
+      gearOwned: { ride_walk: 1 },
+      gear: { look: "", gadget: "", ride: "ride_walk" },
+      daily: null,
+      streak: 0,
+      streakLast: ""
     };
   }
 
   function load() {
     try {
-      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v4") || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
+      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v5") || localStorage.getItem("matafonix_v4") || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
       if (raw) {
         var d = JSON.parse(raw);
         if (!d.upgrades) d.upgrades = {};
@@ -1174,6 +1299,13 @@
         if (!d.boostUsed) d.boostUsed = {};
         if (d.nextBoost == null) d.nextBoost = "";
         if (!d.location) d.location = "hostel";
+        if (!d.gearOwned) d.gearOwned = { ride_walk: 1 };
+        if (!d.gear) d.gear = { look: "", gadget: "", ride: "ride_walk" };
+        if (!d.gearOwned.ride_walk) d.gearOwned.ride_walk = 1;
+        if (!d.gear.ride) d.gear.ride = "ride_walk";
+        if (d.streak == null) d.streak = 0;
+        if (!d.streakLast) d.streakLast = "";
+        if (!d.daily) d.daily = null;
         return d;
       }
     } catch (e) {}
@@ -1225,6 +1357,10 @@
     likes *= loc.idle;
     views *= loc.idle;
     subs *= loc.idle;
+    var gm = gearIdleMul();
+    likes *= gm;
+    views *= gm;
+    subs *= gm;
     return { likes: likes, views: views, subs: subs };
   }
 
@@ -1255,6 +1391,7 @@
     channel.subs += channel.pending.subs || 0;
     toast("Забрано: ❤" + channel.pending.likes + " 👁" + channel.pending.views + " ⭐" + channel.pending.subs);
     channel.pending = { likes: 0, views: 0, subs: 0 };
+    bumpQuest("claims", 1);
     save();
     renderHub();
   }
@@ -1274,7 +1411,7 @@
   }
 
   function show(id) {
-    ["hub", "friends", "shop", "top", "locs", "gameScreen"].forEach(function (s) {
+    ["hub", "friends", "shop", "top", "locs", "style", "gameScreen"].forEach(function (s) {
       document.getElementById(s).classList.toggle("active", s === id);
     });
   }
@@ -1424,6 +1561,173 @@
   }
 
   function has(id) { return !!channel.upgrades[id]; }
+
+  function gearById(id) {
+    for (var i = 0; i < GEAR.length; i++) if (GEAR[i].id === id) return GEAR[i];
+    return null;
+  }
+
+  function gearIdleMul() {
+    var m = 1;
+    ["look", "gadget", "ride"].forEach(function (slot) {
+      var id = channel.gear && channel.gear[slot];
+      var g = id && gearById(id);
+      if (g && channel.gearOwned[id]) m *= g.idle || 1;
+    });
+    return m;
+  }
+
+  function gearViewsMul() {
+    var m = 1;
+    var id = channel.gear && channel.gear.gadget;
+    var g = id && gearById(id);
+    if (g && g.viewsMul && channel.gearOwned[id]) m *= g.viewsMul;
+    return m;
+  }
+
+  function ensureDaily() {
+    var day = todayKey();
+    if (!channel.daily || channel.daily.day !== day) {
+      channel.daily = {
+        day: day,
+        progress: { rounds: 0, subsCaught: 0, claims: 0 },
+        claimed: []
+      };
+    }
+  }
+
+  function yesterdayKey() {
+    var d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  }
+
+  function bumpQuest(key, amt) {
+    ensureDaily();
+    channel.daily.progress[key] = (channel.daily.progress[key] || 0) + (amt || 1);
+    save();
+  }
+
+  function markStreakOnClaim() {
+    var day = todayKey();
+    if (channel.streakLast === day) return;
+    if (channel.streakLast === yesterdayKey()) channel.streak = (channel.streak || 0) + 1;
+    else channel.streak = 1;
+    channel.streakLast = day;
+  }
+
+  function claimQuest(id) {
+    ensureDaily();
+    var q = null;
+    for (var i = 0; i < QUESTS.length; i++) if (QUESTS[i].id === id) q = QUESTS[i];
+    if (!q) return;
+    if (channel.daily.claimed.indexOf(id) >= 0) return;
+    var prog = channel.daily.progress[q.key] || 0;
+    if (prog < q.target) return toast("Ещё не выполнено");
+    Object.keys(q.reward).forEach(function (k) { channel[k] = (channel[k] || 0) + q.reward[k]; });
+    channel.daily.claimed.push(id);
+    markStreakOnClaim();
+    save();
+    renderHub();
+    toast("Награда за задание получена");
+  }
+
+  function renderQuests() {
+    ensureDaily();
+    document.getElementById("streakLabel").textContent = "стрик " + (channel.streak || 0);
+    var box = document.getElementById("questList");
+    box.innerHTML = "";
+    QUESTS.forEach(function (q) {
+      var prog = channel.daily.progress[q.key] || 0;
+      var done = channel.daily.claimed.indexOf(q.id) >= 0;
+      var ready = !done && prog >= q.target;
+      var pct = Math.min(100, Math.round((prog / q.target) * 100));
+      var div = document.createElement("div");
+      div.className = "quest" + (done || ready ? " done" : "");
+      var reward = costLabel(q.reward).replace(/(\d+)/g, "+$1");
+      div.innerHTML =
+        "<div><h4>" + q.title + "</h4>" +
+        "<p>" + Math.min(prog, q.target) + " / " + q.target + " · " + reward + "</p>" +
+        "<div class='qbar'><div style='width:" + pct + "%'></div></div></div>";
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn sm" + (ready ? " good" : " sec");
+      b.textContent = done ? "✓" : ready ? "Забрать" : "…";
+      b.disabled = done || !ready;
+      b.onclick = function () { claimQuest(q.id); };
+      div.appendChild(b);
+      box.appendChild(div);
+    });
+  }
+
+  function renderStatusRow() {
+    var row = document.getElementById("statusRow");
+    row.innerHTML = "";
+    ["look", "gadget", "ride"].forEach(function (slot) {
+      var id = channel.gear && channel.gear[slot];
+      var g = id && channel.gearOwned[id] ? gearById(id) : null;
+      var pill = document.createElement("span");
+      pill.className = "status-pill";
+      if (g) pill.textContent = g.icon + " " + g.name;
+      else pill.textContent = slot === "look" ? "👕 без лука" : slot === "gadget" ? "📱 без гаджета" : "👟 пешком";
+      row.appendChild(pill);
+    });
+  }
+
+  function renderStyle() {
+    document.getElementById("styleBal").innerHTML =
+      "<span>❤ " + formatNum(channel.likes) + "</span>" +
+      "<span>👁 " + formatNum(channel.views) + "</span>" +
+      "<span>⭐ " + formatNum(channel.subs) + "</span>";
+    document.getElementById("tabLook").classList.toggle("on", styleSlot === "look");
+    document.getElementById("tabGadget").classList.toggle("on", styleSlot === "gadget");
+    document.getElementById("tabRide").classList.toggle("on", styleSlot === "ride");
+    var list = document.getElementById("styleList");
+    list.innerHTML = "";
+    GEAR.filter(function (g) { return g.slot === styleSlot; }).forEach(function (g) {
+      var owned = !!channel.gearOwned[g.id];
+      var eq = channel.gear[g.slot] === g.id;
+      var free = !g.cost;
+      var div = document.createElement("div");
+      div.className = "shop-item" + (owned ? " owned" : "") + (eq ? " eq" : "");
+      div.innerHTML =
+        "<div class='shop-ico'>" + g.icon + "</div>" +
+        "<div><h3>" + g.name + "</h3><p>" + g.desc + " · idle x" + (g.idle || 1).toFixed(2) + "</p>" +
+        (owned || free ? "" : "<div class='cost'>" + costLabel(g.cost) + "</div>") + "</div>";
+      var side = document.createElement("div");
+      side.className = "side";
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn sm";
+      if (!owned && !free) {
+        b.textContent = "Купить";
+        b.disabled = !canBuy(g.cost);
+        b.onclick = function () {
+          if (!canBuy(g.cost)) return;
+          Object.keys(g.cost).forEach(function (k) { channel[k] -= g.cost[k]; });
+          channel.gearOwned[g.id] = 1;
+          channel.gear[g.slot] = g.id;
+          save();
+          renderHub();
+          renderStyle();
+          toast("Куплено: " + g.name);
+        };
+      } else {
+        if (free && !owned) channel.gearOwned[g.id] = 1;
+        b.textContent = eq ? "Надето" : "Надеть";
+        b.disabled = eq;
+        b.onclick = function () {
+          channel.gear[g.slot] = g.id;
+          save();
+          renderHub();
+          renderStyle();
+        };
+      }
+      side.appendChild(b);
+      div.appendChild(side);
+      list.appendChild(div);
+    });
+  }
 
   function currentLoc() {
     for (var i = 0; i < LOCATIONS.length; i++) {
@@ -1590,7 +1894,9 @@
 
     var place = myPlace("subs");
     document.getElementById("hubPlace").textContent =
-      "#" + place + " по подписчикам · рекорд " + formatNum(channel.bestRound || 0);
+      "#" + place + " · рекорд " + formatNum(channel.bestRound || 0);
+    renderStatusRow();
+    renderQuests();
   }
 
   function formatNum(n) {
@@ -1921,6 +2227,7 @@
     if (key === "subs" && has("trend")) m *= 1.3;
     if (has("mic")) m *= 1.2;
     if (roundFX.fire) m *= 1.5;
+    if (key === "views") m *= gearViewsMul();
     return m;
   }
 
@@ -2008,6 +2315,8 @@
     channel.subs += round.subs;
     var score = roundScore(round);
     if (score > (channel.bestRound || 0)) channel.bestRound = score;
+    bumpQuest("rounds", 1);
+    if (round.subs > 0) bumpQuest("subsCaught", round.subs);
     save();
     document.getElementById("earn").innerHTML =
       "<span class='chip'><em>❤</em>+" + round.likes + "</span>" +
@@ -2114,12 +2423,17 @@
   };
   document.getElementById("btnFriends").onclick = function () { renderFriends(); show("friends"); };
   document.getElementById("btnShop").onclick = function () { shopTab = "res"; renderShop(); show("shop"); };
+  document.getElementById("btnStyle").onclick = function () { styleSlot = "look"; renderStyle(); show("style"); };
   document.getElementById("btnLoc").onclick = function () { renderLocs(); show("locs"); };
   document.getElementById("btnTop").onclick = function () { renderTop(); show("top"); };
   document.getElementById("back1").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backShop").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backTop").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backLoc").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("backStyle").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("tabLook").onclick = function () { styleSlot = "look"; renderStyle(); };
+  document.getElementById("tabGadget").onclick = function () { styleSlot = "gadget"; renderStyle(); };
+  document.getElementById("tabRide").onclick = function () { styleSlot = "ride"; renderStyle(); };
   document.getElementById("tabSubs").onclick = function () { lbMode = "subs"; renderTop(); };
   document.getElementById("tabBest").onclick = function () { lbMode = "best"; renderTop(); };
   document.getElementById("tabRes").onclick = function () { shopTab = "res"; renderShop(); };
