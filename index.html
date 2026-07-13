@@ -988,6 +988,43 @@
         radial-gradient(circle at 50% 5%, rgba(253,230,138,.28), transparent 40%),
         linear-gradient(180deg, #a16207 0%, #422006 40%, #0a0703 100%);
     }
+    .pvp-card {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .pvp-card h3 { font-size: 0.88rem; }
+    .pvp-card p { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .pvp-elo {
+      font-family: Rubik, sans-serif;
+      font-weight: 800;
+      color: #fb7185;
+      font-size: 0.95rem;
+      text-align: right;
+    }
+    .pvp-elo span { display: block; font-size: 0.62rem; font-weight: 600; color: var(--muted); font-family: Manrope, sans-serif; }
+    .pvp-hud {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 0 12px 8px;
+    }
+    .pvp-hud.show { display: grid; }
+    .pvp-hud span {
+      background: rgba(190,24,93,.22);
+      border: 1px solid rgba(244,114,182,.35);
+      border-radius: 12px;
+      padding: 7px 8px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -1053,10 +1090,27 @@
           <button type="button" class="btn sec" id="btnLoc">Локации</button>
           <button type="button" class="btn sec" id="btnFriends">Друзья</button>
         </div>
-        <button type="button" class="btn sec" id="btnTop"><span>Топ недели</span><small id="hubPlace">#—</small></button>
+        <div class="grid2">
+          <button type="button" class="btn sec" id="btnPvp"><span>PvP дуэль</span><small id="pvpRecord">0W · 0L</small></button>
+          <button type="button" class="btn sec" id="btnTop"><span>Топ</span><small id="hubPlace">#—</small></button>
+        </div>
         <button type="button" class="btn sec" id="btnSimOffline" style="font-size:0.85rem;padding:12px">Демо: +1 час офлайна</button>
       </div>
-      <p class="hint">Води пальцем в раунде · лови всё кроме бомб · канал качает офлайн</p>
+      <p class="hint">Хардкор: мало энергии · дорогой прогресс · 2 жизни · PvP на ресурсы</p>
+    </div>
+  </div>
+
+  <div class="screen" id="pvp">
+    <div class="topbar">
+      <button type="button" class="btn sm sec" id="backPvp">← Назад</button>
+      <h2 style="font-size:1rem">PvP дуэль</h2>
+      <span style="font-size:0.72rem;color:#fb7185;font-weight:800" id="pvpEloTop">1000 MMR</span>
+    </div>
+    <div class="hub">
+      <p class="shop-note">Вызов соперника: ставка ресурсами → раунд ловли → кто набрал больше очков, забирает банк. Бусты в PvP не работают — чистый скилл.</p>
+      <div class="shop-bal" id="pvpBal"></div>
+      <p style="font-size:0.78rem;margin-bottom:10px">Твой счёт: <strong id="pvpWL">0W · 0L</strong> · MMR <strong id="pvpMmr">1000</strong></p>
+      <div id="pvpList"></div>
     </div>
   </div>
 
@@ -1163,8 +1217,12 @@
     <div class="hud">
       <span id="hudRes">❤ 0</span>
       <span id="hudCombo">комбо x0</span>
-      <span id="hudLives">❤❤❤</span>
+      <span id="hudLives">❤❤</span>
       <span id="hudSpeed">скорость x1.0</span>
+    </div>
+    <div class="pvp-hud" id="pvpHud">
+      <span id="pvpYouHud">Ты · 0</span>
+      <span id="pvpRivalHud">Соперник · 0</span>
     </div>
     <div id="game">
       <div class="blog-bubble" id="blogBubble">лови!</div>
@@ -1202,85 +1260,85 @@
 (function () {
   "use strict";
 
-  var SAVE = "matafonix_v6";
-  var ENERGY_MAX_BASE = 5;
-  var ENERGY_REGEN_MS = 45000; // демо: 45 сек на +1 (в проде 20–30 мин)
-  var OFFLINE_CAP_SEC = 8 * 3600; // макс 8 часов офлайна
+  var SAVE = "matafonix_v7";
+  var ENERGY_MAX_BASE = 3;
+  var ENERGY_REGEN_MS = 90000; // хардкор-демо: 90 сек на +1 (в проде 25–40 мин)
+  var OFFLINE_CAP_SEC = 4 * 3600; // хардкор: макс 4 часа офлайна
   var GEAR = [
-    { id: "look_tee", slot: "look", name: "Футболка с дыркой", icon: "👕", desc: "Старт с хостела", cost: { likes: 25 }, idle: 1.03 },
-    { id: "look_hoodie", slot: "look", name: "Худи с района", icon: "🧥", desc: "+idle · заметнее в кадре", cost: { likes: 90, views: 40 }, idle: 1.08 },
-    { id: "look_fit", slot: "look", name: "Fit как у блогера", icon: "✨", desc: "Стиль Патриков", cost: { likes: 280, views: 180, subs: 25 }, idle: 1.14 },
-    { id: "look_brand", slot: "look", name: "Брендовый лук", icon: "🕶️", desc: "Ты — лицо канала", cost: { likes: 800, views: 500, subs: 80 }, idle: 1.22 },
-    { id: "gad_btn", slot: "gadget", name: "Кнопочный", icon: "📞", desc: "Хоть связь есть", cost: { views: 30 }, idle: 1.03 },
-    { id: "gad_phone", slot: "gadget", name: "Смартфон", icon: "📱", desc: "+% к просмотрам в раунде", cost: { views: 100, likes: 50 }, idle: 1.08, viewsMul: 1.1 },
-    { id: "gad_cam", slot: "gadget", name: "Камера 4K", icon: "📷", desc: "+% к просмотрам", cost: { views: 350, likes: 150, subs: 30 }, idle: 1.15, viewsMul: 1.2 },
-    { id: "gad_kit", slot: "gadget", name: "Съёмочный кит", icon: "🎬", desc: "Свет + штатив + кам", cost: { views: 900, likes: 400, subs: 100 }, idle: 1.25, viewsMul: 1.35 },
-    { id: "ride_walk", slot: "ride", name: "Пешком", icon: "👟", desc: "Бесплатно и гордо", cost: null, idle: 1 },
-    { id: "ride_bike", slot: "ride", name: "Самокат", icon: "🛴", desc: "Быстрее на съёмки", cost: { likes: 70, views: 50 }, idle: 1.06 },
-    { id: "ride_car", slot: "ride", name: "Тачка б/у", icon: "🚗", desc: "Едешь на коллабы", cost: { likes: 400, views: 300, subs: 50 }, idle: 1.15 },
-    { id: "ride_lux", slot: "ride", name: "Чёрный каршеринг+", icon: "🏎️", desc: "Статус на максималках", cost: { likes: 1500, views: 1000, subs: 200 }, idle: 1.28 }
+    { id: "look_tee", slot: "look", name: "Футболка с дыркой", icon: "👕", desc: "Старт с хостела", cost: { likes: 70 }, idle: 1.02 },
+    { id: "look_hoodie", slot: "look", name: "Худи с района", icon: "🧥", desc: "+idle · заметнее в кадре", cost: { likes: 252, views: 112 }, idle: 1.04 },
+    { id: "look_fit", slot: "look", name: "Fit как у блогера", icon: "✨", desc: "Стиль Патриков", cost: { likes: 784, views: 504, subs: 70 }, idle: 1.07 },
+    { id: "look_brand", slot: "look", name: "Брендовый лук", icon: "🕶️", desc: "Ты — лицо канала", cost: { likes: 2240, views: 1400, subs: 224 }, idle: 1.11 },
+    { id: "gad_btn", slot: "gadget", name: "Кнопочный", icon: "📞", desc: "Хоть связь есть", cost: { views: 84 }, idle: 1.02 },
+    { id: "gad_phone", slot: "gadget", name: "Смартфон", icon: "📱", desc: "+% к просмотрам в раунде", cost: { views: 280, likes: 140 }, idle: 1.04, viewsMul: 1.06 },
+    { id: "gad_cam", slot: "gadget", name: "Камера 4K", icon: "📷", desc: "+% к просмотрам", cost: { views: 980, likes: 420, subs: 84 }, idle: 1.07, viewsMul: 1.11 },
+    { id: "gad_kit", slot: "gadget", name: "Съёмочный кит", icon: "🎬", desc: "Свет + штатив + кам", cost: { views: 2520, likes: 1120, subs: 280 }, idle: 1.12, viewsMul: 1.19 },
+    { id: "ride_walk", slot: "ride", name: "Пешком", icon: "👟", desc: "Бесплатно и гордо", cost: null, idle: 1.0 },
+    { id: "ride_bike", slot: "ride", name: "Самокат", icon: "🛴", desc: "Быстрее на съёмки", cost: { likes: 196, views: 140 }, idle: 1.03 },
+    { id: "ride_car", slot: "ride", name: "Тачка б/у", icon: "🚗", desc: "Едешь на коллабы", cost: { likes: 1120, views: 840, subs: 140 }, idle: 1.07 },
+    { id: "ride_lux", slot: "ride", name: "Чёрный каршеринг+", icon: "🏎️", desc: "Статус на максималках", cost: { likes: 4200, views: 2800, subs: 560 }, idle: 1.14 }
   ];
   var QUESTS = [
-    { id: "film2", title: "Сними 2 ролика", key: "rounds", target: 2, reward: { likes: 40, views: 30 } },
-    { id: "subs20", title: "Поймай 20 ⭐ за день", key: "subsCaught", target: 20, reward: { likes: 30, subs: 8 } },
-    { id: "claim1", title: "Забери офлайн-награду", key: "claims", target: 1, reward: { views: 50, likes: 20 } }
+    { id: "film2", title: "Сними 3 ролика", key: "rounds", target: 3, reward: { likes: 18, views: 12 } },
+    { id: "subs20", title: "Поймай 35 ⭐ за день", key: "subsCaught", target: 35, reward: { likes: 14, subs: 3 } },
+    { id: "claim1", title: "Забери офлайн-награду", key: "claims", target: 1, reward: { views: 18, likes: 8 } }
   ];
   var LOCATIONS = [
     {
       id: "hostel", name: "Хостел у Казанского", short: "Хостел",
       city: "Москва · у вокзала", emoji: "🛏️",
       flavor: "8 человек в комнате, Wi‑Fi от соседа, свет с улицы",
-      minSubs: 0, idle: 1, className: "loc-hostel", bg: "bg-hostel",
+      minSubs: 0, idle: 1.0, className: "loc-hostel", bg: "bg-hostel",
       cost: null
     },
     {
       id: "dorm", name: "Койка в общаге", short: "Общага",
       city: "Москва · ЮВАО", emoji: "🏫",
       flavor: "Общий душ, микроволновка на этаже, монтаж ночью",
-      minSubs: 40, idle: 1.15, className: "loc-dorm", bg: "bg-dorm",
-      cost: { likes: 50, views: 30 }
+      minSubs: 56, idle: 1.08, className: "loc-dorm", bg: "bg-dorm",
+      cost: { likes: 140, views: 84 }
     },
     {
       id: "edge", name: "Однушка в Бирюлёво", short: "Однушка",
       city: "Москва · окраина", emoji: "🏢",
       flavor: "Свои стены, шум за окном, первая «студия» на столе",
-      minSubs: 120, idle: 1.3, className: "loc-edge", bg: "bg-edge",
-      cost: { likes: 120, views: 90, subs: 15 }
+      minSubs: 168, idle: 1.17, className: "loc-edge", bg: "bg-edge",
+      cost: { likes: 336, views: 252, subs: 42 }
     },
     {
       id: "metro", name: "Квартира у метро", short: "У метро",
       city: "Москва · кольцевая", emoji: "🚇",
       flavor: "До центра 20 минут, софтбокс в углу, коллабы ближе",
-      minSubs: 350, idle: 1.5, className: "loc-metro", bg: "bg-metro",
-      cost: { likes: 280, views: 200, subs: 40 }
+      minSubs: 490, idle: 1.27, className: "loc-metro", bg: "bg-metro",
+      cost: { likes: 784, views: 560, subs: 112 }
     },
     {
       id: "patriki", name: "Студия на Патриках", short: "Патрики",
       city: "Москва · Патриаршие", emoji: "☕",
       flavor: "Кофейни вокруг, фон для рилсов, тебя уже узнают",
-      minSubs: 800, idle: 1.75, className: "loc-patriki", bg: "bg-patriki",
-      cost: { likes: 500, views: 400, subs: 80 }
+      minSubs: 1120, idle: 1.41, className: "loc-patriki", bg: "bg-patriki",
+      cost: { likes: 1400, views: 1120, subs: 224 }
     },
     {
       id: "city", name: "Лофт с видом на Сити", short: "Сити",
       city: "Москва · Пресненская", emoji: "🏙️",
       flavor: "Панорамные окна, свет весь день, команда на кухне",
-      minSubs: 2000, idle: 2.1, className: "loc-city", bg: "bg-city",
-      cost: { likes: 900, views: 700, subs: 150 }
+      minSubs: 2800, idle: 1.6, className: "loc-city", bg: "bg-city",
+      cost: { likes: 2520, views: 1960, subs: 420 }
     },
     {
       id: "pent", name: "Пентхаус на Пресне", short: "Пентхаус",
       city: "Москва · Пресня", emoji: "🥂",
       flavor: "Съёмка на крыше, гримёрка, бренд уже стучится",
-      minSubs: 5000, idle: 2.5, className: "loc-pent", bg: "bg-pent",
-      cost: { likes: 1800, views: 1400, subs: 300 }
+      minSubs: 7000, idle: 1.83, className: "loc-pent", bg: "bg-pent",
+      cost: { likes: 5040, views: 3920, subs: 840 }
     },
     {
       id: "holding", name: "Медиахолдинг · Рублёвка", short: "Холдинг",
       city: "Москва · Рублёвка", emoji: "🏰",
       flavor: "Свой дом + студия, агенты, топ Москвы. Ты — бренд",
-      minSubs: 12000, idle: 3.2, className: "loc-holding", bg: "bg-holding",
-      cost: { likes: 4000, views: 3000, subs: 800 }
+      minSubs: 16800, idle: 2.21, className: "loc-holding", bg: "bg-holding",
+      cost: { likes: 11200, views: 8400, subs: 2240 }
     }
   ];
   var MILES = [
@@ -1291,13 +1349,13 @@
   ];
   var PER = { likes: 30, views: 20, subs: 5 };
   var UPS = [
-    { id: "camera", name: "Камера", desc: "+25% просмотров в раунде и idle", cost: { views: 80 } },
-    { id: "edit", name: "Монтаж", desc: "+25% лайков в раунде и idle", cost: { likes: 60 } },
-    { id: "cover", name: "Обложка", desc: "Рамка +10% ко всему idle", cost: { likes: 120, views: 40 } },
-    { id: "mic", name: "Микрофон", desc: "+20% ко всем ресурсам раунда", cost: { likes: 90, subs: 25 } },
-    { id: "trend", name: "Тренды", desc: "+30% подписчиков в раунде и idle", cost: { views: 120, subs: 40 } },
-    { id: "promo", name: "Продвижение", desc: "+1 жизнь и +1 макс. энергия", cost: { likes: 250, views: 150, subs: 20 } },
-    { id: "collab", name: "Коллаб", desc: "пассив +0.35 ⭐/мин", cost: { subs: 80 } }
+    { id: "camera", name: "Камера", desc: "+25% просмотров в раунде и idle", cost: { views: 224 } },
+    { id: "edit", name: "Монтаж", desc: "+25% лайков в раунде и idle", cost: { likes: 168 } },
+    { id: "cover", name: "Обложка", desc: "Рамка +10% ко всему idle", cost: { likes: 336, views: 112 } },
+    { id: "mic", name: "Микрофон", desc: "+20% ко всем ресурсам раунда", cost: { likes: 252, subs: 70 } },
+    { id: "trend", name: "Тренды", desc: "+30% подписчиков в раунде и idle", cost: { views: 336, subs: 112 } },
+    { id: "promo", name: "Продвижение", desc: "+1 жизнь и +1 макс. энергия", cost: { likes: 700, views: 420, subs: 56 } },
+    { id: "collab", name: "Коллаб", desc: "пассив +0.35 ⭐/мин", cost: { subs: 224 } }
   ];
   var STAR_PACKS = [
     { id: "p50", stars: 50, rub: 99, label: "Старт" },
@@ -1341,6 +1399,7 @@
   var shopTab = "res";
   var styleSlot = "look";
   var roundFX = { shield: false, magnet: false, fire: false, revive: false, shieldUsed: false, reviveUsed: false };
+  var pvp = null; // { rival, pot, rivalScore, rivalRate }
 
   var BOTS = [
     { name: "@kira_clips", avatar: "🦊", subs: 2140, best: 186 },
@@ -1402,13 +1461,16 @@
       gear: { look: "", gadget: "", ride: "ride_walk" },
       daily: null,
       streak: 0,
-      streakLast: ""
+      streakLast: "",
+      pvpWins: 0,
+      pvpLosses: 0,
+      mmr: 1000
     };
   }
 
   function load() {
     try {
-      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v5") || localStorage.getItem("matafonix_v4") || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
+      var raw = localStorage.getItem(SAVE) || localStorage.getItem("matafonix_v6") || localStorage.getItem("matafonix_v5") || localStorage.getItem("matafonix_v4") || localStorage.getItem("matafonix_v3") || localStorage.getItem("matafonix_v2");
       if (raw) {
         var d = JSON.parse(raw);
         if (!d.upgrades) d.upgrades = {};
@@ -1435,6 +1497,9 @@
         if (d.streak == null) d.streak = 0;
         if (!d.streakLast) d.streakLast = "";
         if (!d.daily) d.daily = null;
+        if (d.pvpWins == null) d.pvpWins = 0;
+        if (d.pvpLosses == null) d.pvpLosses = 0;
+        if (d.mmr == null) d.mmr = 1000;
         return d;
       }
     } catch (e) {}
@@ -1467,21 +1532,21 @@
   }
 
   function idleRatesPerMin() {
-    var likes = 2;
-    var views = 3;
-    var subs = 0.15;
-    if (has("edit")) likes *= 1.25;
-    if (has("camera")) views *= 1.25;
+    var likes = 0.9;
+    var views = 1.2;
+    var subs = 0.05;
+    if (has("edit")) likes *= 1.12;
+    if (has("camera")) views *= 1.12;
     if (has("cover")) {
-      likes *= 1.1;
-      views *= 1.1;
-      subs *= 1.1;
+      likes *= 1.05;
+      views *= 1.05;
+      subs *= 1.05;
     }
-    if (has("trend")) subs *= 1.3;
-    if (has("collab")) subs += 0.35;
-    likes += Math.min(8, channel.subs / 200);
-    views += Math.min(10, channel.subs / 150);
-    subs += Math.min(1.5, channel.subs / 800);
+    if (has("trend")) subs *= 1.15;
+    if (has("collab")) subs += 0.12;
+    likes += Math.min(3, channel.subs / 500);
+    views += Math.min(4, channel.subs / 400);
+    subs += Math.min(0.5, channel.subs / 2000);
     var loc = currentLoc();
     likes *= loc.idle;
     views *= loc.idle;
@@ -1540,7 +1605,7 @@
   }
 
   function show(id) {
-    ["hub", "friends", "shop", "top", "locs", "style", "gameScreen"].forEach(function (s) {
+    ["hub", "friends", "shop", "top", "locs", "style", "pvp", "gameScreen"].forEach(function (s) {
       document.getElementById(s).classList.toggle("active", s === id);
     });
   }
@@ -1890,6 +1955,101 @@
     toast("Переезд: " + loc.name);
   }
 
+  function pvpEntryCost(rival) {
+    var base = 25 + Math.floor((rival.mmr || 1000) / 80);
+    return {
+      likes: base,
+      views: Math.floor(base * 0.8),
+      subs: Math.max(2, Math.floor(base / 12))
+    };
+  }
+
+  function rivalMmr(b) {
+    return 850 + Math.floor(b.best * 2.2) + Math.floor(b.subs / 8);
+  }
+
+  function renderPvp() {
+    document.getElementById("pvpBal").innerHTML =
+      "<span>❤ " + formatNum(channel.likes) + "</span>" +
+      "<span>👁 " + formatNum(channel.views) + "</span>" +
+      "<span>⭐ " + formatNum(channel.subs) + "</span>";
+    document.getElementById("pvpWL").textContent = (channel.pvpWins || 0) + "W · " + (channel.pvpLosses || 0) + "L";
+    document.getElementById("pvpMmr").textContent = String(channel.mmr || 1000);
+    document.getElementById("pvpEloTop").textContent = (channel.mmr || 1000) + " MMR";
+    var list = document.getElementById("pvpList");
+    list.innerHTML = "";
+    BOTS.slice().sort(function (a, b) { return rivalMmr(b) - rivalMmr(a); }).forEach(function (b) {
+      var mmr = rivalMmr(b);
+      var cost = pvpEntryCost({ mmr: mmr });
+      var div = document.createElement("div");
+      div.className = "pvp-card";
+      div.innerHTML =
+        "<div class='lb-av'>" + b.avatar + "</div>" +
+        "<div><h3>" + b.name + "</h3><p>рекорд " + formatNum(b.best) + " · ставка " + costLabel(cost) + "</p></div>" +
+        "<div class='pvp-elo'>" + mmr + "<span>MMR</span></div>";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn sm";
+      btn.textContent = "Вызов";
+      btn.style.gridColumn = "1 / -1";
+      btn.disabled = !canBuy(cost) || channel.energy < 1;
+      btn.onclick = function () { startPvp(b); };
+      div.appendChild(btn);
+      list.appendChild(div);
+    });
+  }
+
+  function startPvp(rival) {
+    var mmr = rivalMmr(rival);
+    var cost = pvpEntryCost({ mmr: mmr });
+    if (!canBuy(cost)) return toast("Не хватает на ставку");
+    if (channel.energy < 1) return toast("Нужна энергия на дуэль");
+    Object.keys(cost).forEach(function (k) { channel[k] -= cost[k]; });
+    // pot = твоя ставка + зеркало соперника
+    var pot = {};
+    Object.keys(cost).forEach(function (k) { pot[k] = cost[k] * 2; });
+    var target = Math.max(40, Math.floor(rival.best * (0.85 + Math.random() * 0.35)));
+    pvp = {
+      rival: rival,
+      pot: pot,
+      rivalScore: 0,
+      rivalTarget: target,
+      rivalMmr: mmr,
+      startedAt: Date.now()
+    };
+    save();
+    toast("Дуэль vs " + rival.name);
+    startRound(true);
+  }
+
+  function finishPvp(myScore) {
+    if (!pvp) return "";
+    var rivalFinal = Math.max(pvp.rivalScore, Math.floor(pvp.rivalTarget * (0.7 + Math.random() * 0.25)));
+    // sync displayed
+    pvp.rivalScore = rivalFinal;
+    var won = myScore > rivalFinal;
+    var draw = myScore === rivalFinal;
+    var msg = "";
+    if (draw) {
+      // return stake
+      Object.keys(pvp.pot).forEach(function (k) { channel[k] += Math.floor(pvp.pot[k] / 2); });
+      msg = "Ничья " + myScore + ":" + rivalFinal + " · ставка возвращена";
+    } else if (won) {
+      Object.keys(pvp.pot).forEach(function (k) { channel[k] += pvp.pot[k]; });
+      channel.pvpWins = (channel.pvpWins || 0) + 1;
+      var gain = Math.max(8, Math.round((pvp.rivalMmr - (channel.mmr || 1000)) * 0.04 + 18));
+      channel.mmr = (channel.mmr || 1000) + gain;
+      msg = "Победа " + myScore + ":" + rivalFinal + " · банк твой · +" + gain + " MMR";
+    } else {
+      channel.pvpLosses = (channel.pvpLosses || 0) + 1;
+      var loss = Math.max(8, Math.round(((channel.mmr || 1000) - pvp.rivalMmr) * 0.03 + 14));
+      channel.mmr = Math.max(600, (channel.mmr || 1000) - loss);
+      msg = "Поражение " + myScore + ":" + rivalFinal + " · −" + loss + " MMR";
+    }
+    pvp = null;
+    return msg;
+  }
+
   function renderLocs() {
     var list = document.getElementById("locList");
     list.innerHTML = "";
@@ -2024,6 +2184,8 @@
     var place = myPlace("subs");
     document.getElementById("hubPlace").textContent =
       "#" + place + " · рекорд " + formatNum(channel.bestRound || 0);
+    document.getElementById("pvpRecord").textContent =
+      (channel.pvpWins || 0) + "W · " + (channel.pvpLosses || 0) + "L · " + (channel.mmr || 1000);
     renderStatusRow();
     renderQuests();
   }
@@ -2290,8 +2452,8 @@
   function difficulty() {
     if (!roundStartedAt) return 1;
     var t = (Date.now() - roundStartedAt) / 1000;
-    // каждые ~20 сек заметно быстрее, потолок x4
-    return Math.min(4, 1 + t / 20 + spawnCount * 0.02);
+    // хардкор: быстрее растёт, потолок x5
+    return Math.min(5, 1.15 + t / 14 + spawnCount * 0.03);
   }
 
   function spawnIntervalMs() {
@@ -2308,7 +2470,7 @@
   }
 
   function pick() {
-    var bombChance = Math.min(0.28, 0.12 + (difficulty() - 1) * 0.04);
+    var bombChance = Math.min(0.38, 0.18 + (difficulty() - 1) * 0.05);
     if (Math.random() < bombChance) return TYPES[4];
     var r = Math.random();
     if (roundFX.rain) {
@@ -2382,12 +2544,12 @@
   }
 
   function mult(key) {
-    var m = combo >= 5 ? 2 : 1;
-    if (key === "views" && has("camera")) m *= 1.25;
-    if (key === "likes" && has("edit")) m *= 1.25;
-    if (key === "subs" && has("trend")) m *= 1.3;
-    if (has("mic")) m *= 1.2;
-    if (roundFX.fire) m *= 1.5;
+    var m = combo >= 5 ? 1.5 : 1;
+    if (key === "views" && has("camera")) m *= 1.12;
+    if (key === "likes" && has("edit")) m *= 1.12;
+    if (key === "subs" && has("trend")) m *= 1.15;
+    if (has("mic")) m *= 1.1;
+    if (roundFX.fire) m *= 1.35;
     if (key === "views") m *= gearViewsMul();
     return m;
   }
@@ -2404,6 +2566,13 @@
     document.getElementById("hudCombo").textContent = combo > 0 ? ("комбо x" + combo + (combo >= 5 ? " 🔥" : "")) : "комбо x0";
     document.getElementById("hudLives").textContent = lives > 0 ? ("❤".repeat(lives)) : "💀";
     document.getElementById("hudSpeed").textContent = "скорость x" + difficulty().toFixed(1);
+    if (pvp) {
+      var my = roundScore(round);
+      var elapsed = (Date.now() - pvp.startedAt) / 1000;
+      pvp.rivalScore = Math.min(pvp.rivalTarget, Math.floor(pvp.rivalTarget * Math.min(1, elapsed / 55)));
+      document.getElementById("pvpYouHud").textContent = "Ты · " + my;
+      document.getElementById("pvpRivalHud").textContent = pvp.rival.name + " · " + pvp.rivalScore;
+    }
   }
 
   function loseLife() {
@@ -2471,13 +2640,23 @@
     cancelAnimationFrame(loopId);
     clearInterval(spawnId);
     clearItems();
-    channel.likes += round.likes;
-    channel.views += round.views;
-    channel.subs += round.subs;
+    var wasPvp = !!pvp;
     var score = roundScore(round);
+    var pvpMsg = "";
+    if (wasPvp) {
+      pvpMsg = finishPvp(score);
+      // в PvP на канал идёт меньше — хардкор
+      channel.likes += Math.floor(round.likes * 0.5);
+      channel.views += Math.floor(round.views * 0.5);
+      channel.subs += Math.floor(round.subs * 0.5);
+    } else {
+      channel.likes += round.likes;
+      channel.views += round.views;
+      channel.subs += round.subs;
+      bumpQuest("rounds", 1);
+      if (round.subs > 0) bumpQuest("subsCaught", round.subs);
+    }
     if (score > (channel.bestRound || 0)) channel.bestRound = score;
-    bumpQuest("rounds", 1);
-    if (round.subs > 0) bumpQuest("subsCaught", round.subs);
     save();
     document.getElementById("earn").innerHTML =
       "<span class='chip'><em>❤</em>+" + round.likes + "</span>" +
@@ -2485,23 +2664,29 @@
       "<span class='chip'><em>⭐</em>+" + round.subs + "</span>";
     var place = myPlace("subs");
     var loc = currentLoc();
-    document.getElementById("endMsg").textContent =
-      loc.name + " · " + formatNum(channel.subs) + " подп. · #" + place + " в топе · рекорд " + formatNum(channel.bestRound);
+    document.getElementById("endMsg").textContent = pvpMsg ||
+      (loc.name + " · " + formatNum(channel.subs) + " подп. · #" + place + " · рекорд " + formatNum(channel.bestRound));
     document.getElementById("end").classList.add("show");
+    document.getElementById("pvpHud").classList.remove("show");
     renderHub();
-    for (var i = 0; i < LOCATIONS.length; i++) {
-      var L = LOCATIONS[i];
-      if (L.id !== channel.location && locUnlocked(L) && channel.subs - round.subs < L.minSubs) {
-        toast("Доступен переезд: " + L.name);
-        break;
+    if (!wasPvp) {
+      for (var i = 0; i < LOCATIONS.length; i++) {
+        var L = LOCATIONS[i];
+        if (L.id !== channel.location && locUnlocked(L) && channel.subs - round.subs < L.minSubs) {
+          toast("Доступен переезд: " + L.name);
+          break;
+        }
       }
+    } else if (pvpMsg) {
+      toast(pvpMsg);
     }
   }
 
-  function startRound() {
+  function startRound(fromPvp) {
     refreshEnergy();
     if (channel.energy < 1) {
       toast("Энергия кончилась — подожди или зайди позже");
+      pvp = null;
       renderHub();
       show("hub");
       return;
@@ -2510,7 +2695,7 @@
     channel.energyAt = Date.now();
 
     roundFX = { shield: false, magnet: false, fire: false, revive: false, rain: false, shieldUsed: false, reviveUsed: false };
-    if (channel.nextBoost && (channel.boosts[channel.nextBoost] || 0) > 0) {
+    if (!fromPvp && channel.nextBoost && (channel.boosts[channel.nextBoost] || 0) > 0) {
       var usedBoost = channel.nextBoost;
       roundFX[usedBoost] = true;
       channel.boosts[usedBoost] -= 1;
@@ -2529,7 +2714,7 @@
     document.getElementById("end").classList.remove("show");
     show("gameScreen");
     round = { likes: 0, views: 0, subs: 0 };
-    lives = has("promo") ? 4 : 3;
+    lives = has("promo") ? 3 : 2;
     combo = 0;
     clearItems();
     hintGone = false;
@@ -2538,6 +2723,11 @@
     player.textContent = equippedSkin();
     applyGameBg();
     document.getElementById("touchHint").classList.remove("hide");
+    document.getElementById("touchHint").innerHTML = fromPvp
+      ? "PvP · чистый скилл без бустов<br>Набери больше очков, чем соперник"
+      : "Матафоникс кидает лайки и просмотры<br>Води пальцем · лови всё, кроме 💣";
+    document.getElementById("pvpHud").classList.toggle("show", !!fromPvp);
+    if (pvp) pvp.startedAt = Date.now();
     blogger.style.transform = "translateX(0)";
     blogger.style.setProperty("--bx", "0px");
     sayBlog(true);
@@ -2567,8 +2757,12 @@
     toast("+30❤ +20👁 +5⭐ за друга");
   }
 
-  document.getElementById("btnPlay").onclick = startRound;
-  document.getElementById("btnAgain").onclick = startRound;
+  document.getElementById("btnPlay").onclick = function () { pvp = null; startRound(false); };
+  document.getElementById("btnAgain").onclick = function () {
+    pvp = null;
+    document.getElementById("pvpHud").classList.remove("show");
+    startRound(false);
+  };
   document.getElementById("btnClaim").onclick = claimIdle;
   document.getElementById("btnSimOffline").onclick = function () {
     var rates = idleRatesPerMin();
@@ -2589,12 +2783,14 @@
   document.getElementById("btnShop").onclick = function () { shopTab = "res"; renderShop(); show("shop"); };
   document.getElementById("btnStyle").onclick = function () { styleSlot = "look"; renderStyle(); show("style"); };
   document.getElementById("btnLoc").onclick = function () { renderLocs(); show("locs"); };
+  document.getElementById("btnPvp").onclick = function () { renderPvp(); show("pvp"); };
   document.getElementById("btnTop").onclick = function () { renderTop(); show("top"); };
   document.getElementById("back1").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backShop").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backTop").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backLoc").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backStyle").onclick = function () { renderHub(); show("hub"); };
+  document.getElementById("backPvp").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("tabLook").onclick = function () { styleSlot = "look"; renderStyle(); };
   document.getElementById("tabGadget").onclick = function () { styleSlot = "gadget"; renderStyle(); };
   document.getElementById("tabRide").onclick = function () { styleSlot = "ride"; renderStyle(); };
