@@ -495,12 +495,13 @@
       position: absolute;
       top: 6px;
       left: 50%;
-      width: 118px;
-      margin-left: -59px;
+      width: 108px;
+      margin-left: -54px;
       z-index: 5;
       pointer-events: none;
       transition: transform .28s ease;
       filter: drop-shadow(0 10px 18px rgba(0,0,0,.4));
+      text-align: center;
     }
     .blogger.throw {
       animation: blogThrow .35s ease;
@@ -516,36 +517,56 @@
       text-align: center;
       font-size: 0.62rem;
       font-weight: 800;
-      color: #fde68a;
-      background: rgba(2,6,23,.65);
-      border: 1px solid rgba(245,158,11,.4);
+      color: #fce7f3;
+      background: rgba(190, 24, 93, .55);
+      border: 1px solid rgba(244, 114, 182, .55);
       border-radius: 999px;
       padding: 3px 8px;
-      margin: 0 auto 4px;
+      margin: 0 auto 6px;
       width: fit-content;
       letter-spacing: -0.02em;
     }
-    .blogger-svg {
-      width: 118px;
-      height: 108px;
+    .blogger-photo {
+      width: 84px;
+      height: 84px;
+      margin: 0 auto;
+      border-radius: 28px;
+      object-fit: cover;
+      object-position: center top;
       display: block;
+      border: 3px solid #f472b6;
+      box-shadow:
+        0 0 0 4px rgba(244, 114, 182, .25),
+        0 12px 28px rgba(0,0,0,.45);
+      background: #1e1030;
     }
-    .blogger .arm {
-      transform-origin: 78px 58px;
-      transition: transform .15s ease;
+    .blogger-hand {
+      position: absolute;
+      right: 2px;
+      bottom: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #fb7185, #db2777);
+      border: 2px solid #fff;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      box-shadow: 0 6px 14px rgba(0,0,0,.35);
+      transform-origin: 30% 30%;
     }
-    .blogger.throw .arm {
+    .blogger.throw .blogger-hand {
       animation: armToss .35s ease;
     }
     @keyframes armToss {
-      0% { transform: rotate(0deg); }
-      40% { transform: rotate(-40deg); }
-      70% { transform: rotate(25deg); }
-      100% { transform: rotate(0deg); }
+      0% { transform: rotate(0deg) scale(1); }
+      40% { transform: rotate(-28deg) scale(1.08); }
+      70% { transform: rotate(18deg) scale(1.05); }
+      100% { transform: rotate(0deg) scale(1); }
     }
     .blog-bubble {
       position: absolute;
-      top: 8px;
+      top: 10px;
       left: 58%;
       min-width: 72px;
       max-width: 120px;
@@ -1149,46 +1170,10 @@
       <div class="blog-bubble" id="blogBubble">лови!</div>
       <div class="blogger" id="blogger">
         <span class="blogger-tag">@matafonixx</span>
-        <svg class="blogger-svg" viewBox="0 0 118 108" aria-hidden="true">
-          <defs>
-            <linearGradient id="hood" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#38bdf8"/>
-              <stop offset="100%" stop-color="#1d4ed8"/>
-            </linearGradient>
-            <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f8d5b8"/>
-              <stop offset="100%" stop-color="#e8b98f"/>
-            </linearGradient>
-          </defs>
-          <!-- body / hoodie -->
-          <path d="M34 70c2 18 18 30 25 30s23-12 25-30c-8-4-16-6-25-6s-17 2-25 6z" fill="url(#hood)"/>
-          <path d="M40 72c6-3 14-4 19-4s13 1 19 4l-3 14c-5 2-11 3-16 3s-11-1-16-3l-3-14z" fill="#0f172a" opacity=".18"/>
-          <!-- head -->
-          <ellipse cx="59" cy="42" rx="22" ry="24" fill="url(#skin)"/>
-          <!-- hair -->
-          <path d="M38 38c2-16 14-24 21-24 8 0 19 7 21 22-5-4-12-6-21-6-8 0-15 2-21 8z" fill="#1e293b"/>
-          <path d="M37 40c0-6 3-12 8-15-6 4-9 11-8 15z" fill="#0f172a"/>
-          <!-- face -->
-          <circle cx="51" cy="42" r="2.2" fill="#0f172a"/>
-          <circle cx="67" cy="42" r="2.2" fill="#0f172a"/>
-          <path d="M54 50c2 3 7 3 10 0" stroke="#b45309" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-          <!-- brows -->
-          <path d="M46 36h10" stroke="#0f172a" stroke-width="1.8" stroke-linecap="round"/>
-          <path d="M62 36h10" stroke="#0f172a" stroke-width="1.8" stroke-linecap="round"/>
-          <!-- phone in left hand -->
-          <g transform="translate(28 62)">
-            <rect x="0" y="0" width="14" height="22" rx="3" fill="#0f172a"/>
-            <rect x="2" y="3" width="10" height="14" rx="1.5" fill="#38bdf8"/>
-            <circle cx="7" cy="19.5" r="1.2" fill="#94a3b8"/>
-          </g>
-          <!-- throwing arm -->
-          <g class="arm">
-            <path d="M78 58c10 2 18 8 22 16" stroke="url(#skin)" stroke-width="9" stroke-linecap="round" fill="none"/>
-            <circle cx="100" cy="74" r="7" fill="url(#skin)"/>
-          </g>
-          <!-- hoodie hood rim -->
-          <path d="M40 28c6-8 14-11 19-11s13 3 19 11c-6-2-12-3-19-3s-13 1-19 3z" fill="#1e40af" opacity=".55"/>
-        </svg>
+        <div style="position:relative;display:inline-block">
+          <img class="blogger-photo" id="bloggerPhoto" src="assets/matafonix-author.png" alt="@matafonixx" width="84" height="84"/>
+          <div class="blogger-hand" aria-hidden="true">❤</div>
+        </div>
       </div>
       <div class="player" id="player">😎</div>
       <div class="combo-fx" id="fx"></div>
