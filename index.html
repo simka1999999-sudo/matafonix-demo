@@ -1264,7 +1264,12 @@
   var ENERGY_MAX_BASE = 3;
   var ENERGY_REGEN_MS = 90000; // хардкор-демо: 90 сек на +1 (в проде 25–40 мин)
   var OFFLINE_CAP_SEC = 4 * 3600; // хардкор: макс 4 часа офлайна
-  var AC_SALT = "mtx_ac_9f2a_" + String((typeof location !== "undefined" && location.host) || "local");
+  // соль без host — иначе local ↔ GitHub Pages ломает подпись и штрафует честный сейв
+  var AC_SALT = "mtx_ac_9f2a_v2";
+  var AC_LEGACY_SALTS = (function () {
+    var host = (typeof location !== "undefined" && location.host) || "local";
+    return ["mtx_ac_9f2a_" + host, "mtx_ac_9f2a_local", "mtx_ac_9f2a_simka1999999-sudo.github.io"];
+  })();
   var AC_MAX_STRIKES = 3;
   var AC_HARD = {
     likes: 250000,
@@ -1494,7 +1499,7 @@
     return (h >>> 0).toString(36);
   }
 
-  function acFingerprint(ch) {
+  function acFingerprint(ch, salt) {
     var ups = Object.keys(ch.upgrades || {}).sort().join(",");
     var owned = Object.keys(ch.owned || {}).sort().join(",");
     var gear = Object.keys(ch.gearOwned || {}).sort().join(",");
@@ -1507,7 +1512,7 @@
       (ch.pending && ch.pending.likes) | 0,
       (ch.pending && ch.pending.views) | 0,
       (ch.pending && ch.pending.subs) | 0
-    ].join("|") + "|" + AC_SALT;
+    ].join("|") + "|" + (salt || AC_SALT);
   }
 
   function acSign(ch) {
@@ -1518,7 +1523,12 @@
 
   function acVerify(ch) {
     if (!ch || !ch.ac || !ch.ac.sig) return false;
-    return ch.ac.sig === acHash(acFingerprint(ch));
+    if (ch.ac.sig === acHash(acFingerprint(ch))) return true;
+    // миграция со старых host-солей без штрафа
+    for (var i = 0; i < AC_LEGACY_SALTS.length; i++) {
+      if (ch.ac.sig === acHash(acFingerprint(ch, AC_LEGACY_SALTS[i]))) return true;
+    }
+    return false;
   }
 
   function acFlag(reason, ch) {
@@ -2184,6 +2194,7 @@
   }
 
   function renderPvp() {
+    refreshEnergy();
     document.getElementById("pvpBal").innerHTML =
       "<span>❤ " + formatNum(channel.likes) + "</span>" +
       "<span>👁 " + formatNum(channel.views) + "</span>" +
@@ -2250,12 +2261,10 @@
 
   function finishPvp(myScore) {
     if (!pvp) return "";
-    // финальный счёт соперника ≈ то, что видел игрок (± небольшой разброс)
-    var rivalFinal = Math.max(
-      0,
-      Math.round(pvp.rivalScore + (Math.random() * 10 - 4))
-    );
-    rivalFinal = Math.min(pvp.rivalTarget, Math.max(rivalFinal, Math.floor(pvp.rivalTarget * 0.55)));
+    // финал = то, что было на HUD (±1), без пола 55% — иначе победа на экране превращалась в поражение
+    var rivalFinal = Math.max(0, Math.min(pvp.rivalTarget, Math.round(pvp.rivalScore + (Math.random() * 2 - 1))));
+    if (myScore > pvp.rivalScore && rivalFinal >= myScore) rivalFinal = Math.max(0, myScore - 1);
+    if (myScore < pvp.rivalScore && rivalFinal <= myScore) rivalFinal = Math.min(pvp.rivalTarget, myScore + 1);
     pvp.rivalScore = rivalFinal;
     var won = myScore > rivalFinal;
     var draw = myScore === rivalFinal;
@@ -2787,7 +2796,7 @@
     if (key === "likes" && has("edit")) m *= 1.12;
     if (key === "subs" && has("trend")) m *= 1.15;
     if (has("mic")) m *= 1.1;
-    if (roundFX.fire) m *= 1.35;
+    if (roundFX.fire) m *= 1.5;
     if (key === "views") m *= gearViewsMul();
     return m;
   }
@@ -2878,14 +2887,13 @@
   }
 
   function gameOver() {
-    if (!running) return;
+    if (!running || roundMeta.settled) return;
+    roundMeta.settled = true;
     running = false;
     dragging = false;
     cancelAnimationFrame(loopId);
     clearInterval(spawnId);
     clearItems();
-    if (roundMeta.settled) return;
-    roundMeta.settled = true;
 
     var durSec = Math.max(0.5, (Date.now() - roundStartedAt) / 1000);
     round = acValidateRound(round, durSec, roundMeta);
@@ -2893,11 +2901,15 @@
     var wasPvp = !!pvp;
     var score = roundScore(round);
     var pvpMsg = "";
+    var credit = { likes: round.likes, views: round.views, subs: round.subs };
     if (wasPvp) {
       pvpMsg = finishPvp(score);
-      channel.likes += Math.floor(round.likes * 0.5);
-      channel.views += Math.floor(round.views * 0.5);
-      channel.subs += Math.floor(round.subs * 0.5);
+      credit.likes = Math.floor(round.likes * 0.5);
+      credit.views = Math.floor(round.views * 0.5);
+      credit.subs = Math.floor(round.subs * 0.5);
+      channel.likes += credit.likes;
+      channel.views += credit.views;
+      channel.subs += credit.subs;
     } else {
       channel.likes += round.likes;
       channel.views += round.views;
@@ -2917,9 +2929,9 @@
     }
     save();
     document.getElementById("earn").innerHTML =
-      "<span class='chip'><em>❤</em>+" + round.likes + "</span>" +
-      "<span class='chip'><em>👁</em>+" + round.views + "</span>" +
-      "<span class='chip'><em>⭐</em>+" + round.subs + "</span>";
+      "<span class='chip'><em>❤</em>+" + credit.likes + "</span>" +
+      "<span class='chip'><em>👁</em>+" + credit.views + "</span>" +
+      "<span class='chip'><em>⭐</em>+" + credit.subs + "</span>";
     var place = myPlace("subs");
     var loc = currentLoc();
     document.getElementById("endMsg").textContent = pvpMsg ||
@@ -3038,6 +3050,7 @@
   document.getElementById("btnHub").onclick = function () {
     document.getElementById("end").classList.remove("show");
     accrueOffline();
+    save();
     renderHub();
     show("hub");
   };
@@ -3090,6 +3103,7 @@
     refreshEnergy();
     if (!acWatchdog(false)) return;
     if (document.getElementById("hub").classList.contains("active")) renderHub();
+    else if (document.getElementById("pvp").classList.contains("active")) renderPvp();
     else save();
   }, 1000);
 
