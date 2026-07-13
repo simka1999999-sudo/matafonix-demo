@@ -1350,6 +1350,45 @@
     .duel-result .faces img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .duel-result .faces .vs { font-weight: 800; color: #fb7185; }
 
+    .play-panel {
+      background: linear-gradient(160deg, rgba(37,99,235,.28), rgba(22,30,52,.82));
+      border-color: rgba(56,189,248,.35);
+    }
+    .play-panel .btn { width: 100%; }
+    .pvp-sec-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--muted);
+      margin: 14px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .pvp-card.live { border-color: rgba(52,211,153,.45); background: linear-gradient(135deg, rgba(16,185,129,.12), rgba(15,23,42,.55)); }
+    .pvp-card .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: #6ee7b7;
+      margin-top: 4px;
+    }
+    .pvp-card .live-badge i {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 8px #34d399;
+      display: inline-block;
+      animation: pulseSoft 1.4s ease-in-out infinite;
+    }
+    .pvp-energy {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #fbbf24;
+      margin-top: 3px;
+    }
+    .pvp-tabs { display:flex; gap:6px; margin-bottom:10px; }
+    .pvp-tabs .tab { flex:1; }
   </style>
 </head>
 <body data-loc="hostel">
@@ -1393,6 +1432,16 @@
         <button type="button" class="btn good" id="btnClaim">Забрать награды</button>
       </div>
 
+      <div class="panel play-panel">
+        <div class="energy-head">
+          <span>Энергия <strong id="energyLabel">5/5</strong></span>
+          <span id="energyTimer">полная</span>
+        </div>
+        <div class="energy-track"><div id="energyFill"></div></div>
+        <div class="energy-dots" id="energyDots"></div>
+        <button type="button" class="btn" id="btnPlay" style="margin-top:12px"><span>Снять ролик</span><small>1 энергия · ловля</small></button>
+      </div>
+
       <div class="quest-panel" id="questPanel">
         <div class="quest-head">
           <strong>Задания на сегодня</strong>
@@ -1401,17 +1450,7 @@
         <div id="questList"></div>
       </div>
 
-      <div class="panel">
-        <div class="energy-head">
-          <span>Энергия <strong id="energyLabel">5/5</strong></span>
-          <span id="energyTimer">полная</span>
-        </div>
-        <div class="energy-track"><div id="energyFill"></div></div>
-        <div class="energy-dots" id="energyDots"></div>
-      </div>
-
       <div class="actions">
-        <button type="button" class="btn" id="btnPlay"><span>Снять ролик</span><small>1 энергия · ловля</small></button>
         <div class="grid2">
           <button type="button" class="btn sec" id="btnShop">Магазин</button>
           <button type="button" class="btn sec" id="btnStyle">Стиль</button>
@@ -1437,9 +1476,13 @@
       <span style="font-size:0.72rem;color:#fb7185;font-weight:800" id="pvpEloTop">1000 MMR</span>
     </div>
     <div class="hub">
-      <p class="shop-note">Выбери соперника с аватаром → VS-раунд → ловите контент друг против друга. Кто наберёт больше очков, забирает банк. Бусты в PvP выключены.</p>
+      <p class="shop-note">Онлайн-игроки и боты. У живых видна энергия — без неё вызов недоступен. VS → ловля → банк победителю.</p>
       <div class="shop-bal" id="pvpBal"></div>
-      <p style="font-size:0.78rem;margin-bottom:10px">Твой счёт: <strong id="pvpWL">0W · 0L</strong> · MMR <strong id="pvpMmr">1000</strong></p>
+      <p style="font-size:0.78rem;margin-bottom:10px">Твой счёт: <strong id="pvpWL">0W · 0L</strong> · MMR <strong id="pvpMmr">1000</strong> · энергия <strong id="pvpMyEnergy">0/3</strong></p>
+      <div class="pvp-tabs tabs">
+        <button type="button" class="tab on" id="tabPvpLive">Онлайн</button>
+        <button type="button" class="tab" id="tabPvpAll">Все</button>
+      </div>
       <div id="pvpList"></div>
     </div>
   </div>
@@ -1824,6 +1867,12 @@
     { name: "@vika_mini", avatar: "🌙", photo: "assets/pvp-vika.jpg", style: "Ночной стрим", subs: 62, best: 51 },
     { name: "@roma_zero", avatar: "🧩", photo: "assets/pvp-roma.jpg", style: "Старт с нуля", subs: 28, best: 39 }
   ];
+
+  var LIVE_SEED = {"version":1,"generatedAt":"2026-07-13","energyRegenMs":90000,"players":[{"id":"live_00","name":"@kostya_reel","avatar":"😎","photo":"assets/live/player-00.jpg","style":"Рилс-шторм","subs":693,"best":107,"mmr":925,"energy":2,"energyMax":4,"energyAt":0,"live":true,"online":true},{"id":"live_01","name":"@artem_drop","avatar":"😎","photo":"assets/live/player-01.jpg","style":"Чил-вайб","subs":1434,"best":134,"mmr":1417,"energy":2,"energyMax":4,"energyAt":0,"live":true,"online":true},{"id":"live_02","name":"@mark_zero","avatar":"😎","photo":"assets/live/player-02.jpg","style":"Топ-клип","subs":1031,"best":112,"mmr":1152,"energy":3,"energyMax":3,"energyAt":0,"live":true,"online":true},{"id":"live_03","name":"@nikita_rush","avatar":"😎","photo":"assets/live/player-03.jpg","style":"Хайп-дроп","subs":440,"best":81,"mmr":853,"energy":4,"energyMax":5,"energyAt":0,"live":true,"online":true},{"id":"live_04","name":"@alina_hype","avatar":"😎","photo":"assets/live/player-04.jpg","style":"Байт-челлендж","subs":467,"best":94,"mmr":883,"energy":0,"energyMax":4,"energyAt":0,"live":true,"online":false},{"id":"live_05","name":"@ivan_clip","avatar":"😎","photo":"assets/live/player-05.jpg","style":"Топ-клип","subs":707,"best":98,"mmr":935,"energy":3,"energyMax":3,"energyAt":0,"live":true,"online":true},{"id":"live_06","name":"@olesya_neon","avatar":"😎","photo":"assets/live/player-06.jpg","style":"Ночной стрим","subs":216,"best":114,"mmr":946,"energy":0,"energyMax":3,"energyAt":0,"live":true,"online":false},{"id":"live_07","name":"@mira_roll","avatar":"😎","photo":"assets/live/player-07.jpg","style":"Флекс-режим","subs":637,"best":165,"mmr":1258,"energy":3,"energyMax":3,"energyAt":0,"live":true,"online":true},{"id":"live_08","name":"@roma_spark","avatar":"😎","photo":"assets/live/player-08.jpg","style":"Ночной стрим","subs":218,"best":117,"mmr":812,"energy":0,"energyMax":3,"energyAt":0,"live":true,"online":true},{"id":"live_09","name":"@sasha_cut","avatar":"😎","photo":"assets/live/player-09.jpg","style":"Топ-клип","subs":780,"best":137,"mmr":1013,"energy":2,"energyMax":4,"energyAt":0,"live":true,"online":true},{"id":"live_10","name":"@yana_pulse","avatar":"😎","photo":"assets/live/player-10.jpg","style":"Ночной стрим","subs":884,"best":118,"mmr":1045,"energy":3,"energyMax":3,"energyAt":0,"live":true,"online":true},{"id":"live_11","name":"@kate_wave","avatar":"😎","photo":"assets/live/player-11.jpg","style":"Мем-атака","subs":304,"best":148,"mmr":1103,"energy":2,"energyMax":3,"energyAt":0,"live":true,"online":true},{"id":"live_12","name":"@lina_glow","avatar":"😎","photo":"assets/live/player-12.jpg","style":"Хайп-дроп","subs":723,"best":124,"mmr":1181,"energy":2,"energyMax":3,"energyAt":0,"live":true,"online":true},{"id":"live_13","name":"@nasty_beat","avatar":"😎","photo":"assets/live/player-13.jpg","style":"Чил-вайб","subs":302,"best":98,"mmr":1113,"energy":5,"energyMax":5,"energyAt":0,"live":true,"online":true},{"id":"live_14","name":"@pasha_frame","avatar":"😎","photo":"assets/live/player-14.jpg","style":"Топ-клип","subs":708,"best":147,"mmr":1082,"energy":4,"energyMax":4,"energyAt":0,"live":true,"online":true},{"id":"live_15","name":"@vera_soft","avatar":"😎","photo":"assets/live/player-15.jpg","style":"Байт-челлендж","subs":629,"best":136,"mmr":1082,"energy":0,"energyMax":3,"energyAt":0,"live":true,"online":true}]};
+  var LIVE_PLAYERS = (LIVE_SEED.players || []).map(function (p) {
+    return Object.assign({}, p, { energyAt: Date.now() - Math.floor(Math.random() * 60000) });
+  });
+  var pvpTab = "live";
 
   var game = document.getElementById("game");
   var player = document.getElementById("player");
@@ -2673,8 +2722,41 @@
   }
 
   function rivalMmr(b) {
+    if (b && b.mmr) return b.mmr | 0;
     return 850 + Math.floor(b.best * 2.2) + Math.floor(b.subs / 8);
   }
+
+  function refreshLiveEnergy() {
+    var regen = (LIVE_SEED && LIVE_SEED.energyRegenMs) || ENERGY_REGEN_MS;
+    var now = Date.now();
+    LIVE_PLAYERS.forEach(function (p) {
+      if (!p.live) return;
+      var max = p.energyMax || 3;
+      if ((p.energy || 0) >= max) {
+        p.energy = max;
+        p.energyAt = now;
+        return;
+      }
+      var gained = Math.floor((now - (p.energyAt || now)) / regen);
+      if (gained > 0) {
+        p.energy = Math.min(max, (p.energy || 0) + gained);
+        p.energyAt = (p.energyAt || now) + gained * regen;
+        if (p.energy >= max) p.energyAt = now;
+      }
+      p.online = (p.energy || 0) > 0 || Math.random() > 0.85;
+    });
+  }
+
+  function pvpRoster() {
+    refreshLiveEnergy();
+    var live = LIVE_PLAYERS.filter(function (p) { return p.online || (p.energy || 0) > 0; });
+    var bots = BOTS.map(function (b) {
+      return Object.assign({}, b, { live: false, energy: 99, energyMax: 99, online: true });
+    });
+    if (pvpTab === "live") return live.slice().sort(function (a, b) { return rivalMmr(b) - rivalMmr(a); });
+    return live.concat(bots).sort(function (a, b) { return rivalMmr(b) - rivalMmr(a); });
+  }
+
 
   function myAvatarSrc() {
     if (hasCustomAvatar()) return channel.avatarImg;
@@ -2755,27 +2837,56 @@
     document.getElementById("pvpWL").textContent = (channel.pvpWins || 0) + "W · " + (channel.pvpLosses || 0) + "L";
     document.getElementById("pvpMmr").textContent = String(channel.mmr || 1000);
     document.getElementById("pvpEloTop").textContent = (channel.mmr || 1000) + " MMR";
+    document.getElementById("pvpMyEnergy").textContent = channel.energy + "/" + energyMax();
+    document.getElementById("tabPvpLive").classList.toggle("on", pvpTab === "live");
+    document.getElementById("tabPvpAll").classList.toggle("on", pvpTab === "all");
     var list = document.getElementById("pvpList");
     list.innerHTML = "";
-    BOTS.slice().sort(function (a, b) { return rivalMmr(b) - rivalMmr(a); }).forEach(function (b) {
+    var roster = pvpRoster();
+    if (!roster.length) {
+      list.innerHTML = "<p class='shop-note'>Сейчас никто не в сети — загляни во вкладку «Все» или подожди.</p>";
+      return;
+    }
+    var secLive = false, secBots = false;
+    roster.forEach(function (b) {
+      if (pvpTab === "all") {
+        if (b.live && !secLive) {
+          secLive = true;
+          var t1 = document.createElement("div");
+          t1.className = "pvp-sec-title";
+          t1.textContent = "Онлайн-игроки";
+          list.appendChild(t1);
+        }
+        if (!b.live && !secBots) {
+          secBots = true;
+          var t2 = document.createElement("div");
+          t2.className = "pvp-sec-title";
+          t2.textContent = "Боты · тренировка";
+          list.appendChild(t2);
+        }
+      }
       var mmr = rivalMmr(b);
       var cost = pvpEntryCost({ mmr: mmr });
       var div = document.createElement("div");
-      div.className = "pvp-card";
+      div.className = "pvp-card" + (b.live ? " live" : "");
       var av = b.photo
         ? ("<div class='lb-av'><img src='" + b.photo + "' alt=''></div>")
         : ("<div class='lb-av' style='font-size:1.3rem;display:grid;place-items:center'>" + b.avatar + "</div>");
+      var liveLine = b.live
+        ? ("<div class='live-badge'><i></i>в сети</div><div class='pvp-energy'>⚡ " + (b.energy || 0) + "/" + (b.energyMax || 3) + "</div>")
+        : ("<span class='style-tag'>бот</span>");
       div.innerHTML =
         av +
         "<div><h3>" + b.name + "</h3><p>рекорд " + formatNum(b.best) + " · ставка " + costLabel(cost) + "</p>" +
-        "<span class='style-tag'>" + (b.style || "дуэль") + "</span></div>" +
+        "<span class='style-tag'>" + (b.style || "дуэль") + "</span>" + liveLine + "</div>" +
         "<div class='pvp-elo'>" + mmr + "<span>MMR</span></div>";
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn sm";
-      btn.textContent = "Вызов";
+      var noRivalEnergy = b.live && (b.energy || 0) < 1;
+      btn.textContent = noRivalEnergy ? "Нет энергии" : "Вызов";
       btn.style.gridColumn = "1 / -1";
-      btn.disabled = !canBuy(cost) || channel.energy < 1;
+      btn.disabled = !canBuy(cost) || channel.energy < 1 || noRivalEnergy;
       btn.onclick = function () { startPvp(b); };
       div.appendChild(btn);
       list.appendChild(div);
@@ -2806,6 +2917,11 @@
       lastRivalScore: 0,
       lastMyScore: 0
     };
+    if (rival.live) {
+      rival.energy = Math.max(0, (rival.energy || 0) - 1);
+      rival.energyAt = Date.now();
+      if (rival.energy <= 0) rival.online = false;
+    }
     save();
     setupPvpFaces(rival);
     showVsIntro(rival, pot, function () {
@@ -3668,6 +3784,8 @@
   document.getElementById("btnStyle").onclick = function () { styleSlot = "look"; renderStyle(); show("style"); };
   document.getElementById("btnLoc").onclick = function () { renderLocs(); show("locs"); };
   document.getElementById("btnPvp").onclick = function () { renderPvp(); show("pvp"); };
+  document.getElementById("tabPvpLive").onclick = function () { pvpTab = "live"; renderPvp(); };
+  document.getElementById("tabPvpAll").onclick = function () { pvpTab = "all"; renderPvp(); };
   document.getElementById("btnTop").onclick = function () { renderTop(); show("top"); };
   document.getElementById("back1").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backShop").onclick = function () { renderHub(); show("hub"); };
