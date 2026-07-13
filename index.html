@@ -1349,13 +1349,13 @@
   ];
   var PER = { likes: 30, views: 20, subs: 5 };
   var UPS = [
-    { id: "camera", name: "Камера", desc: "+25% просмотров в раунде и idle", cost: { views: 224 } },
-    { id: "edit", name: "Монтаж", desc: "+25% лайков в раунде и idle", cost: { likes: 168 } },
-    { id: "cover", name: "Обложка", desc: "Рамка +10% ко всему idle", cost: { likes: 336, views: 112 } },
-    { id: "mic", name: "Микрофон", desc: "+20% ко всем ресурсам раунда", cost: { likes: 252, subs: 70 } },
-    { id: "trend", name: "Тренды", desc: "+30% подписчиков в раунде и idle", cost: { views: 336, subs: 112 } },
+    { id: "camera", name: "Камера", desc: "+12% просмотров в раунде и idle", cost: { views: 224 } },
+    { id: "edit", name: "Монтаж", desc: "+12% лайков в раунде и idle", cost: { likes: 168 } },
+    { id: "cover", name: "Обложка", desc: "Рамка +5% ко всему idle", cost: { likes: 336, views: 112 } },
+    { id: "mic", name: "Микрофон", desc: "+10% ко всем ресурсам раунда", cost: { likes: 252, subs: 70 } },
+    { id: "trend", name: "Тренды", desc: "+15% подписчиков в раунде и idle", cost: { views: 336, subs: 112 } },
     { id: "promo", name: "Продвижение", desc: "+1 жизнь и +1 макс. энергия", cost: { likes: 700, views: 420, subs: 56 } },
-    { id: "collab", name: "Коллаб", desc: "пассив +0.35 ⭐/мин", cost: { subs: 224 } }
+    { id: "collab", name: "Коллаб", desc: "пассив +0.12 ⭐/мин", cost: { subs: 224 } }
   ];
   var STAR_PACKS = [
     { id: "p50", stars: 50, rub: 99, label: "Старт" },
@@ -1383,9 +1383,9 @@
   ];
   var TYPES = [
     { emoji: "❤", key: "likes", amt: 1 },
-    { emoji: "👁", key: "views", amt: 2 },
+    { emoji: "👁", key: "views", amt: 1 },
     { emoji: "⭐", key: "subs", amt: 1 },
-    { emoji: "🔥", key: "likes", amt: 3 },
+    { emoji: "🔥", key: "likes", amt: 2 },
     { emoji: "💣", bad: true }
   ];
 
@@ -1464,7 +1464,8 @@
       streakLast: "",
       pvpWins: 0,
       pvpLosses: 0,
-      mmr: 1000
+      mmr: 1000,
+      unlockedLocs: { hostel: 1 }
     };
   }
 
@@ -1500,6 +1501,8 @@
         if (d.pvpWins == null) d.pvpWins = 0;
         if (d.pvpLosses == null) d.pvpLosses = 0;
         if (d.mmr == null) d.mmr = 1000;
+        if (!d.unlockedLocs) d.unlockedLocs = { hostel: 1 };
+        if (d.location && !d.unlockedLocs[d.location]) d.unlockedLocs[d.location] = 1;
         return d;
       }
     } catch (e) {}
@@ -1946,13 +1949,15 @@
     if (!loc) return;
     if (channel.location === id) return toast("Ты уже здесь");
     if (!locUnlocked(loc)) return toast("Нужно " + formatNum(loc.minSubs) + " подписчиков");
-    if (loc.cost && !canBuy(loc.cost)) return toast("Не хватает ресурсов на переезд");
-    if (loc.cost) Object.keys(loc.cost).forEach(function (k) { channel[k] -= loc.cost[k]; });
+    var firstTime = !channel.unlockedLocs[id];
+    if (firstTime && loc.cost && !canBuy(loc.cost)) return toast("Не хватает ресурсов на переезд");
+    if (firstTime && loc.cost) Object.keys(loc.cost).forEach(function (k) { channel[k] -= loc.cost[k]; });
+    channel.unlockedLocs[id] = 1;
     channel.location = id;
     save();
     renderHub();
     renderLocs();
-    toast("Переезд: " + loc.name);
+    toast(firstTime ? ("Переезд: " + loc.name) : ("Вернулись: " + loc.name));
   }
 
   function pvpEntryCost(rival) {
@@ -2000,18 +2005,21 @@
   }
 
   function startPvp(rival) {
+    if (running) return toast("Раунд уже идёт");
+    if (pvp) return toast("Дуэль уже начата");
+    refreshEnergy();
     var mmr = rivalMmr(rival);
     var cost = pvpEntryCost({ mmr: mmr });
     if (!canBuy(cost)) return toast("Не хватает на ставку");
     if (channel.energy < 1) return toast("Нужна энергия на дуэль");
     Object.keys(cost).forEach(function (k) { channel[k] -= cost[k]; });
-    // pot = твоя ставка + зеркало соперника
     var pot = {};
     Object.keys(cost).forEach(function (k) { pot[k] = cost[k] * 2; });
     var target = Math.max(40, Math.floor(rival.best * (0.85 + Math.random() * 0.35)));
     pvp = {
       rival: rival,
       pot: pot,
+      stake: cost,
       rivalScore: 0,
       rivalTarget: target,
       rivalMmr: mmr,
@@ -2019,20 +2027,31 @@
     };
     save();
     toast("Дуэль vs " + rival.name);
-    startRound(true);
+    var ok = startRound(true);
+    if (!ok) {
+      // вернуть ставку, если раунд не стартовал
+      Object.keys(cost).forEach(function (k) { channel[k] += cost[k]; });
+      pvp = null;
+      save();
+      renderHub();
+      renderPvp();
+    }
   }
 
   function finishPvp(myScore) {
     if (!pvp) return "";
-    var rivalFinal = Math.max(pvp.rivalScore, Math.floor(pvp.rivalTarget * (0.7 + Math.random() * 0.25)));
-    // sync displayed
+    // финальный счёт соперника ≈ то, что видел игрок (± небольшой разброс)
+    var rivalFinal = Math.max(
+      0,
+      Math.round(pvp.rivalScore + (Math.random() * 10 - 4))
+    );
+    rivalFinal = Math.min(pvp.rivalTarget, Math.max(rivalFinal, Math.floor(pvp.rivalTarget * 0.55)));
     pvp.rivalScore = rivalFinal;
     var won = myScore > rivalFinal;
     var draw = myScore === rivalFinal;
     var msg = "";
     if (draw) {
-      // return stake
-      Object.keys(pvp.pot).forEach(function (k) { channel[k] += Math.floor(pvp.pot[k] / 2); });
+      Object.keys(pvp.stake).forEach(function (k) { channel[k] += pvp.stake[k]; });
       msg = "Ничья " + myScore + ":" + rivalFinal + " · ставка возвращена";
     } else if (won) {
       Object.keys(pvp.pot).forEach(function (k) { channel[k] += pvp.pot[k]; });
@@ -2063,9 +2082,11 @@
       var open = locUnlocked(loc);
       var div = document.createElement("div");
       div.className = "loc-card" + (here ? " here" : "") + (!open ? " locked" : here ? "" : " open");
-      var need = open
-        ? (loc.cost ? ("переезд · " + costLabel(loc.cost)) : "старт · бесплатно")
-        : ("с " + formatNum(loc.minSubs) + " подп.");
+      var need = !open
+        ? ("с " + formatNum(loc.minSubs) + " подп.")
+        : (channel.unlockedLocs[loc.id]
+          ? (here ? "ты здесь" : "переезд бесплатно")
+          : (loc.cost ? ("первый переезд · " + costLabel(loc.cost)) : "старт · бесплатно"));
       div.innerHTML =
         "<div class='loc-ico'>" + loc.emoji + "</div>" +
         "<div><h3>" + loc.name + (here ? " · ты тут" : "") + "</h3>" +
@@ -2080,8 +2101,9 @@
         var b = document.createElement("button");
         b.type = "button";
         b.className = "btn sm";
-        b.textContent = "Переехать";
-        b.disabled = !!(loc.cost && !canBuy(loc.cost));
+        var firstTime = !channel.unlockedLocs[loc.id];
+        b.textContent = firstTime ? "Переехать" : "Вернуться";
+        b.disabled = !!(firstTime && loc.cost && !canBuy(loc.cost));
         b.onclick = function () { moveToLoc(loc.id); };
         side.appendChild(b);
       }
@@ -2576,6 +2598,7 @@
   }
 
   function loseLife() {
+    if (!running) return;
     if (roundFX.shield && !roundFX.shieldUsed) {
       roundFX.shieldUsed = true;
       flash("Щит!");
@@ -2613,7 +2636,7 @@
           var add = Math.max(1, Math.round(it.amt * mult(it.key)));
           round[it.key] += add;
           hud();
-          if (combo === 5) flash("COMBO x2!");
+          if (combo === 5) flash("COMBO x1.5!");
         }
         it.el.remove();
         items.splice(i, 1);
@@ -2635,6 +2658,7 @@
   }
 
   function gameOver() {
+    if (!running) return;
     running = false;
     dragging = false;
     cancelAnimationFrame(loopId);
@@ -2645,7 +2669,6 @@
     var pvpMsg = "";
     if (wasPvp) {
       pvpMsg = finishPvp(score);
-      // в PvP на канал идёт меньше — хардкор
       channel.likes += Math.floor(round.likes * 0.5);
       channel.views += Math.floor(round.views * 0.5);
       channel.subs += Math.floor(round.subs * 0.5);
@@ -2683,16 +2706,18 @@
   }
 
   function startRound(fromPvp) {
+    if (running) return false;
     refreshEnergy();
     if (channel.energy < 1) {
       toast("Энергия кончилась — подожди или зайди позже");
-      pvp = null;
+      if (!fromPvp) pvp = null;
       renderHub();
-      show("hub");
-      return;
+      show(fromPvp ? "pvp" : "hub");
+      return false;
     }
     channel.energy -= 1;
     channel.energyAt = Date.now();
+    running = true; // блокируем повторный старт до rAF
 
     roundFX = { shield: false, magnet: false, fire: false, revive: false, rain: false, shieldUsed: false, reviveUsed: false };
     if (!fromPvp && channel.nextBoost && (channel.boosts[channel.nextBoost] || 0) > 0) {
@@ -2733,12 +2758,13 @@
     sayBlog(true);
     hud();
     requestAnimationFrame(function () {
+      if (!running) return;
       setPlayer(0.5);
-      running = true;
       loopId = requestAnimationFrame(tick);
       rescheduleSpawn();
       spawn();
     });
+    return true;
   }
 
   function addFriend() {
