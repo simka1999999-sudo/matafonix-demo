@@ -1498,9 +1498,10 @@
     var ups = Object.keys(ch.upgrades || {}).sort().join(",");
     var owned = Object.keys(ch.owned || {}).sort().join(",");
     var gear = Object.keys(ch.gearOwned || {}).sort().join(",");
+    // energy / energyAt / lastSeen не входят — они меняются легитимно каждую секунду
     return [
       ch.likes | 0, ch.views | 0, ch.subs | 0, ch.stars | 0,
-      ch.bestRound | 0, ch.energy | 0, ch.mmr | 0,
+      ch.bestRound | 0, ch.mmr | 0,
       ch.pvpWins | 0, ch.pvpLosses | 0, ch.refActive | 0,
       ch.location || "", ups, owned, gear,
       (ch.pending && ch.pending.likes) | 0,
@@ -1520,12 +1521,14 @@
     return ch.ac.sig === acHash(acFingerprint(ch));
   }
 
-  function acFlag(reason) {
-    if (!channel.ac) channel.ac = { strikes: 0, flags: [], sig: "" };
-    channel.ac.flags = (channel.ac.flags || []).slice(-20);
-    channel.ac.flags.push({ t: Date.now(), r: reason });
-    channel.ac.strikes = (channel.ac.strikes || 0) + 1;
-    console.warn("[anti-cheat]", reason, "strikes=", channel.ac.strikes);
+  function acFlag(reason, ch) {
+    ch = ch || channel;
+    if (!ch) return;
+    if (!ch.ac) ch.ac = { strikes: 0, flags: [], sig: "" };
+    ch.ac.flags = (ch.ac.flags || []).slice(-20);
+    ch.ac.flags.push({ t: Date.now(), r: reason });
+    ch.ac.strikes = (ch.ac.strikes || 0) + 1;
+    console.warn("[anti-cheat]", reason, "strikes=", ch.ac.strikes);
   }
 
   function acPunish(reason) {
@@ -1590,7 +1593,7 @@
       if (!validGear[k]) delete ch.gearOwned[k];
     });
     if (!ch.gearOwned.ride_walk) ch.gearOwned.ride_walk = 1;
-    if (opts.tampered) acFlag("save_tamper");
+    if (opts.tampered) acFlag("save_tamper", ch);
     return ch;
   }
 
@@ -1697,15 +1700,18 @@
     try { localStorage.setItem(SAVE, JSON.stringify(channel)); } catch (e) {}
   }
 
-  function acWatchdog() {
-    if (!acVerify(channel)) {
-      acPunish("runtime_tamper");
+  function acWatchdog(strict) {
+    // жёсткие потолки — всегда
+    if ((channel.likes | 0) > AC_HARD.likes || (channel.views | 0) > AC_HARD.views ||
+        (channel.subs | 0) > AC_HARD.subs || (channel.stars | 0) > AC_HARD.stars ||
+        (channel.bestRound | 0) > AC_HARD.bestRound) {
+      acPunish("cap_overflow");
       renderHub();
       return false;
     }
-    // невозможные значения в рантайме
-    if ((channel.likes | 0) > AC_HARD.likes || (channel.stars | 0) > AC_HARD.stars || (channel.bestRound | 0) > AC_HARD.bestRound) {
-      acPunish("cap_overflow");
+    // подпись сейва — только по явному запросу (load / visibility), не после легитимных мутаций
+    if (strict && channel.ac && channel.ac.sig && !acVerify(channel)) {
+      acPunish("runtime_tamper");
       renderHub();
       return false;
     }
@@ -2909,7 +2915,6 @@
       }
       channel.bestRound = Math.min(AC_HARD.bestRound, Math.max(channel.bestRound || 0, score));
     }
-    acWatchdog();
     save();
     document.getElementById("earn").innerHTML =
       "<span class='chip'><em>❤</em>+" + round.likes + "</span>" +
@@ -3078,11 +3083,12 @@
 
   // старт: начислить офлайн + тик UI
   accrueOffline();
-  acWatchdog();
+  save(); // переподписать pending после офлайна
+  acWatchdog(true);
   renderHub();
   setInterval(function () {
     refreshEnergy();
-    if (!acWatchdog()) return;
+    if (!acWatchdog(false)) return;
     if (document.getElementById("hub").classList.contains("active")) renderHub();
     else save();
   }, 1000);
@@ -3092,6 +3098,8 @@
     if (document.hidden) save();
     else {
       accrueOffline();
+      save();
+      acWatchdog(true);
       renderHub();
     }
   });
