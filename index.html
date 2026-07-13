@@ -1101,15 +1101,255 @@
       padding: 0 12px 8px;
     }
     .pvp-hud.show { display: grid; }
-    .pvp-hud span {
-      background: rgba(190,24,93,.22);
-      border: 1px solid rgba(244,114,182,.35);
-      border-radius: 12px;
-      padding: 7px 8px;
-      font-size: 0.7rem;
+    /* legacy pvp-hud span styles removed */
+
+    /* PvP duel arena */
+    .pvp-card .lb-av {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      overflow: hidden;
+      padding: 0;
+      font-size: 0;
+      border: 2px solid rgba(244,114,182,.45);
+    }
+    .pvp-card .lb-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pvp-card .style-tag {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #fda4af;
+      background: rgba(190,24,93,.2);
+      border: 1px solid rgba(244,114,182,.25);
+      border-radius: 999px;
+      padding: 2px 7px;
+    }
+    .pvp-hud {
+      display: none;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 0 12px 8px;
+    }
+    .pvp-hud.show { display: grid; }
+    .pvp-fighter-hud {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 8px;
+      align-items: center;
+      background: rgba(2,6,23,.55);
+      border: 1px solid rgba(244,114,182,.3);
+      border-radius: 14px;
+      padding: 6px 8px;
+    }
+    .pvp-fighter-hud.you { border-color: rgba(56,189,248,.4); }
+    .pvp-fighter-hud.rival { border-color: rgba(251,113,133,.45); direction: rtl; }
+    .pvp-fighter-hud.rival .pvp-meta { text-align: left; direction: ltr; }
+    .pvp-face {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.25);
+      background: #111;
+    }
+    .pvp-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pvp-face.emoji {
+      display: grid; place-items: center;
+      font-size: 1.4rem;
+    }
+    .pvp-meta { min-width: 0; }
+    .pvp-meta b {
+      display: block;
+      font-size: 0.68rem;
       font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pvp-meta span { font-size: 0.62rem; color: var(--muted); font-weight: 700; }
+    .pvp-bar {
+      height: 7px;
+      margin-top: 4px;
+      background: rgba(15,23,42,.8);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .pvp-bar > i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+    .pvp-fighter-hud.you .pvp-bar > i { background: linear-gradient(90deg, #38bdf8, #34d399); }
+    .pvp-fighter-hud.rival .pvp-bar > i { background: linear-gradient(90deg, #fb7185, #f59e0b); }
+    .pvp-vs-badge {
+      font-family: Rubik, sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #fecdd3;
+      text-shadow: 0 0 12px rgba(244,63,94,.6);
+      animation: vsPulse 1.2s ease-in-out infinite;
+    }
+    @keyframes vsPulse {
+      0%,100% { transform: scale(1); opacity: .85; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+    .duel-arena {
+      display: none;
+      position: absolute;
+      left: 10px; right: 10px;
+      top: 52%;
+      z-index: 4;
+      pointer-events: none;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .duel-arena.show { display: flex; }
+    .duel-champ {
+      width: 64px; height: 64px;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 3px solid rgba(56,189,248,.55);
+      box-shadow: 0 10px 24px rgba(0,0,0,.45);
+      background: #0b1220;
+      transition: transform .2s ease, filter .2s ease;
+    }
+    .duel-champ.rival {
+      border-color: rgba(251,113,133,.65);
+    }
+    .duel-champ img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .duel-champ.hit {
+      animation: duelHit .35s ease;
+    }
+    .duel-champ.rival.hit {
+      animation: duelHitRival .35s ease;
+    }
+    @keyframes duelHit {
+      0% { transform: translateX(0) scale(1); }
+      35% { transform: translateX(10px) scale(1.08); filter: brightness(1.25); }
+      100% { transform: translateX(0) scale(1); }
+    }
+    @keyframes duelHitRival {
+      0% { transform: translateX(0) scale(1); }
+      35% { transform: translateX(-10px) scale(1.08); filter: brightness(1.25); }
+      100% { transform: translateX(0) scale(1); }
+    }
+    .duel-beam {
+      position: absolute;
+      left: 20%; right: 20%;
+      bottom: 28px;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38bdf8, #fb7185);
+      opacity: .55;
+      box-shadow: 0 0 16px rgba(244,114,182,.45);
+      animation: beamPulse 1s ease-in-out infinite;
+    }
+    @keyframes beamPulse {
+      0%,100% { opacity: .35; transform: scaleX(.92); }
+      50% { opacity: .8; transform: scaleX(1); }
+    }
+    .vs-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2,6,23,.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 24px;
+    }
+    .vs-overlay.show { display: flex; animation: fadeIn .25s ease; }
+    .vs-sheet {
+      width: min(400px, 100%);
       text-align: center;
     }
+    .vs-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .vs-side { text-align: center; }
+    .vs-side .face {
+      width: 96px; height: 96px;
+      margin: 0 auto 8px;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 3px solid rgba(56,189,248,.55);
+      box-shadow: 0 12px 30px rgba(0,0,0,.45);
+      background: #111;
+      animation: vsIn .45s ease both;
+    }
+    .vs-side.rival .face {
+      border-color: rgba(251,113,133,.65);
+      animation-delay: .08s;
+    }
+    .vs-side .face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .vs-side .nm {
+      font-family: Rubik, sans-serif;
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+    .vs-side .st { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .vs-mid {
+      font-family: Rubik, sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fb7185;
+      text-shadow: 0 0 22px rgba(244,63,94,.55);
+      animation: vsPulse .9s ease-in-out infinite;
+    }
+    @keyframes vsIn {
+      from { opacity: 0; transform: scale(.7) translateY(12px); }
+      to { opacity: 1; transform: none; }
+    }
+    .vs-count {
+      font-family: Rubik, sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #fff;
+      min-height: 1.2em;
+      text-shadow: 0 8px 30px rgba(0,0,0,.5);
+    }
+    .vs-pot {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: #fde68a;
+      font-weight: 700;
+    }
+    .duel-result {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(2,6,23,.45);
+      border: 1px solid rgba(244,114,182,.3);
+    }
+    .duel-result.show { display: block; animation: claimIn .35s ease; }
+    .duel-result .faces {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .duel-result .faces .face {
+      width: 56px; height: 56px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.25);
+    }
+    .duel-result .faces .face.win { border-color: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.25); }
+    .duel-result .faces .face.lose { opacity: .55; filter: grayscale(.4); }
+    .duel-result .faces img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .duel-result .faces .vs { font-weight: 800; color: #fb7185; }
+
   </style>
 </head>
 <body data-loc="hostel">
@@ -1197,7 +1437,7 @@
       <span style="font-size:0.72rem;color:#fb7185;font-weight:800" id="pvpEloTop">1000 MMR</span>
     </div>
     <div class="hub">
-      <p class="shop-note">Вызов соперника: ставка ресурсами → раунд ловли → кто набрал больше очков, забирает банк. Бусты в PvP не работают — чистый скилл.</p>
+      <p class="shop-note">Выбери соперника с аватаром → VS-раунд → ловите контент друг против друга. Кто наберёт больше очков, забирает банк. Бусты в PvP выключены.</p>
       <div class="shop-bal" id="pvpBal"></div>
       <p style="font-size:0.78rem;margin-bottom:10px">Твой счёт: <strong id="pvpWL">0W · 0L</strong> · MMR <strong id="pvpMmr">1000</strong></p>
       <div id="pvpList"></div>
@@ -1322,8 +1562,21 @@
       <span id="hudSpeed">скорость x1.0</span>
     </div>
     <div class="pvp-hud" id="pvpHud">
-      <span id="pvpYouHud">Ты · 0</span>
-      <span id="pvpRivalHud">Соперник · 0</span>
+      <div class="pvp-fighter-hud you">
+        <div class="pvp-face" id="pvpYouFace"></div>
+        <div class="pvp-meta">
+          <b id="pvpYouHud">Ты · 0</b>
+          <div class="pvp-bar"><i id="pvpYouBar"></i></div>
+        </div>
+      </div>
+      <div class="pvp-vs-badge">VS</div>
+      <div class="pvp-fighter-hud rival">
+        <div class="pvp-face" id="pvpRivalFace"></div>
+        <div class="pvp-meta">
+          <b id="pvpRivalHud">Соперник · 0</b>
+          <div class="pvp-bar"><i id="pvpRivalBar"></i></div>
+        </div>
+      </div>
     </div>
     <div id="game">
       <div class="loc-chip-game" id="gameLocChip">🛏️ Хостел</div>
@@ -1336,10 +1589,35 @@
         </div>
       </div>
       <div class="player" id="player">😎</div>
+      <div class="duel-arena" id="duelArena">
+        <div class="duel-champ you" id="duelYou"><img alt="" id="duelYouImg"/></div>
+        <div class="duel-beam"></div>
+        <div class="duel-champ rival" id="duelRival"><img alt="" id="duelRivalImg"/></div>
+      </div>
       <div class="combo-fx" id="fx"></div>
       <div class="touch-hint" id="touchHint">Матафоникс кидает лайки и просмотры<br>Води пальцем · лови всё, кроме 💣</div>
     </div>
     <p class="foot">Матафоникс скидывает контент · пропуск = −жизнь · скорость растёт</p>
+  </div>
+
+  <div class="vs-overlay" id="vsOverlay">
+    <div class="vs-sheet">
+      <div class="vs-row">
+        <div class="vs-side you">
+          <div class="face" id="vsYouFace"></div>
+          <div class="nm" id="vsYouName">Ты</div>
+          <div class="st">твой канал</div>
+        </div>
+        <div class="vs-mid">VS</div>
+        <div class="vs-side rival">
+          <div class="face" id="vsRivalFace"></div>
+          <div class="nm" id="vsRivalName">Соперник</div>
+          <div class="st" id="vsRivalStyle">стиль</div>
+        </div>
+      </div>
+      <div class="vs-count" id="vsCount">3</div>
+      <div class="vs-pot" id="vsPot">банк дуэли</div>
+    </div>
   </div>
 
   <div class="overlay" id="end">
@@ -1348,6 +1626,14 @@
       <p>Матафоникс скинул на канал:</p>
       <div class="earn" id="earn"></div>
       <p id="endMsg"></p>
+      <div class="duel-result" id="duelResult">
+        <div class="faces">
+          <div class="face" id="endYouFace"></div>
+          <div class="vs">VS</div>
+          <div class="face" id="endRivalFace"></div>
+        </div>
+        <div id="duelResultTxt" style="font-size:0.82rem;font-weight:800"></div>
+      </div>
       <div class="actions" style="margin-top:8px">
         <button type="button" class="btn" id="btnAgain"><span>Ещё раунд</span><small>если есть энергия</small></button>
         <button type="button" class="btn sec" id="btnHub">На канал</button>
@@ -1525,18 +1811,18 @@
   var roundMeta = { catches: 0, bombs: 0, flagged: false };
 
   var BOTS = [
-    { name: "@kira_clips", avatar: "🦊", subs: 2140, best: 186 },
-    { name: "@den_likes", avatar: "🧢", subs: 1680, best: 154 },
-    { name: "@masha_cut", avatar: "🐰", subs: 1320, best: 171 },
-    { name: "@tim_byte", avatar: "🤖", subs: 980, best: 129 },
-    { name: "@anya_glow", avatar: "✨", subs: 760, best: 142 },
-    { name: "@leo_frame", avatar: "🎥", subs: 540, best: 118 },
-    { name: "@nika_wave", avatar: "🌊", subs: 410, best: 97 },
-    { name: "@max_drop", avatar: "🚀", subs: 290, best: 88 },
-    { name: "@sofia_lab", avatar: "🧪", subs: 180, best: 76 },
-    { name: "@art_pulse", avatar: "🎧", subs: 95, best: 64 },
-    { name: "@vika_mini", avatar: "🌙", subs: 62, best: 51 },
-    { name: "@roma_zero", avatar: "🧩", subs: 28, best: 39 }
+    { name: "@kira_clips", avatar: "🦊", photo: "assets/pvp-kira.jpg", style: "Агрессивный монтаж", subs: 2140, best: 186 },
+    { name: "@den_likes", avatar: "🧢", photo: "assets/pvp-den.jpg", style: "Лайк-шторм", subs: 1680, best: 154 },
+    { name: "@masha_cut", avatar: "🐰", photo: "assets/pvp-masha.jpg", style: "Милый контент", subs: 1320, best: 171 },
+    { name: "@tim_byte", avatar: "🤖", photo: "assets/pvp-tim.jpg", style: "Техно-ритм", subs: 980, best: 129 },
+    { name: "@anya_glow", avatar: "✨", photo: "assets/pvp-anya.jpg", style: "Блеск и хайп", subs: 760, best: 142 },
+    { name: "@leo_frame", avatar: "🎥", photo: "assets/pvp-leo.jpg", style: "Кино-кадр", subs: 540, best: 118 },
+    { name: "@nika_wave", avatar: "🌊", photo: "assets/pvp-nika.jpg", style: "Вайб-волна", subs: 410, best: 97 },
+    { name: "@max_drop", avatar: "🚀", photo: "assets/pvp-max.jpg", style: "Дроп-атака", subs: 290, best: 88 },
+    { name: "@sofia_lab", avatar: "🧪", photo: "assets/pvp-sofia.jpg", style: "Эксперимент", subs: 180, best: 76 },
+    { name: "@art_pulse", avatar: "🎧", photo: "assets/pvp-art.jpg", style: "Бит-пульс", subs: 95, best: 64 },
+    { name: "@vika_mini", avatar: "🌙", photo: "assets/pvp-vika.jpg", style: "Ночной стрим", subs: 62, best: 51 },
+    { name: "@roma_zero", avatar: "🧩", photo: "assets/pvp-roma.jpg", style: "Старт с нуля", subs: 28, best: 39 }
   ];
 
   var game = document.getElementById("game");
@@ -2390,6 +2676,76 @@
     return 850 + Math.floor(b.best * 2.2) + Math.floor(b.subs / 8);
   }
 
+  function myAvatarSrc() {
+    if (hasCustomAvatar()) return channel.avatarImg;
+    return "";
+  }
+
+  function setFace(el, src, emojiFallback) {
+    if (!el) return;
+    el.classList.remove("emoji");
+    if (src) {
+      el.innerHTML = "<img src=\"" + src + "\" alt=\"\">";
+    } else {
+      el.classList.add("emoji");
+      el.textContent = emojiFallback || "😎";
+    }
+  }
+
+  function pulseDuel(side) {
+    var el = document.getElementById(side === "you" ? "duelYou" : "duelRival");
+    if (!el) return;
+    el.classList.remove("hit");
+    void el.offsetWidth;
+    el.classList.add("hit");
+  }
+
+  function setupPvpFaces(rival) {
+    var meSrc = myAvatarSrc();
+    var meEmoji = equippedSkin();
+    setFace(document.getElementById("pvpYouFace"), meSrc, meEmoji);
+    setFace(document.getElementById("pvpRivalFace"), rival.photo, rival.avatar);
+    setFace(document.getElementById("vsYouFace"), meSrc, meEmoji);
+    setFace(document.getElementById("vsRivalFace"), rival.photo, rival.avatar);
+    var duelYou = document.getElementById("duelYou");
+    var duelRival = document.getElementById("duelRival");
+    if (duelYou) {
+      if (meSrc) duelYou.innerHTML = "<img src=\"" + meSrc + "\" alt=\"\" id=\"duelYouImg\">";
+      else duelYou.innerHTML = "<div style=\"width:100%;height:100%;display:grid;place-items:center;font-size:2rem\">" + meEmoji + "</div>";
+    }
+    if (duelRival) {
+      if (rival.photo) duelRival.innerHTML = "<img src=\"" + rival.photo + "\" alt=\"\" id=\"duelRivalImg\">";
+      else duelRival.innerHTML = "<div style=\"width:100%;height:100%;display:grid;place-items:center;font-size:2rem\">" + (rival.avatar || "😎") + "</div>";
+    }
+    document.getElementById("vsYouName").textContent = "@мой_канал";
+    document.getElementById("vsRivalName").textContent = rival.name;
+    document.getElementById("vsRivalStyle").textContent = rival.style || "дуэлянт";
+  }
+
+  function showVsIntro(rival, pot, done) {
+    setupPvpFaces(rival);
+    document.getElementById("vsPot").textContent =
+      "Банк: ❤" + pot.likes + " · 👁" + pot.views + " · ⭐" + pot.subs;
+    var overlay = document.getElementById("vsOverlay");
+    var countEl = document.getElementById("vsCount");
+    overlay.classList.add("show");
+    var n = 3;
+    countEl.textContent = String(n);
+    clearInterval(showVsIntro._t);
+    showVsIntro._t = setInterval(function () {
+      n--;
+      if (n > 0) {
+        countEl.textContent = String(n);
+      } else if (n === 0) {
+        countEl.textContent = "БОЙ!";
+      } else {
+        clearInterval(showVsIntro._t);
+        overlay.classList.remove("show");
+        done();
+      }
+    }, 700);
+  }
+
   function renderPvp() {
     refreshEnergy();
     document.getElementById("pvpBal").innerHTML =
@@ -2406,9 +2762,13 @@
       var cost = pvpEntryCost({ mmr: mmr });
       var div = document.createElement("div");
       div.className = "pvp-card";
+      var av = b.photo
+        ? ("<div class='lb-av'><img src='" + b.photo + "' alt=''></div>")
+        : ("<div class='lb-av' style='font-size:1.3rem;display:grid;place-items:center'>" + b.avatar + "</div>");
       div.innerHTML =
-        "<div class='lb-av'>" + b.avatar + "</div>" +
-        "<div><h3>" + b.name + "</h3><p>рекорд " + formatNum(b.best) + " · ставка " + costLabel(cost) + "</p></div>" +
+        av +
+        "<div><h3>" + b.name + "</h3><p>рекорд " + formatNum(b.best) + " · ставка " + costLabel(cost) + "</p>" +
+        "<span class='style-tag'>" + (b.style || "дуэль") + "</span></div>" +
         "<div class='pvp-elo'>" + mmr + "<span>MMR</span></div>";
       var btn = document.createElement("button");
       btn.type = "button";
@@ -2425,6 +2785,7 @@
   function startPvp(rival) {
     if (running) return toast("Раунд уже идёт");
     if (pvp) return toast("Дуэль уже начата");
+    if (document.getElementById("vsOverlay").classList.contains("show")) return;
     refreshEnergy();
     var mmr = rivalMmr(rival);
     var cost = pvpEntryCost({ mmr: mmr });
@@ -2441,19 +2802,23 @@
       rivalScore: 0,
       rivalTarget: target,
       rivalMmr: mmr,
-      startedAt: Date.now()
+      startedAt: Date.now(),
+      lastRivalScore: 0,
+      lastMyScore: 0
     };
     save();
-    toast("Дуэль vs " + rival.name);
-    var ok = startRound(true);
-    if (!ok) {
-      // вернуть ставку, если раунд не стартовал
-      Object.keys(cost).forEach(function (k) { channel[k] += cost[k]; });
-      pvp = null;
-      save();
-      renderHub();
-      renderPvp();
-    }
+    setupPvpFaces(rival);
+    showVsIntro(rival, pot, function () {
+      var ok = startRound(true);
+      if (!ok) {
+        Object.keys(cost).forEach(function (k) { channel[k] += cost[k]; });
+        pvp = null;
+        save();
+        renderHub();
+        renderPvp();
+        show("pvp");
+      }
+    });
   }
 
   function finishPvp(myScore) {
@@ -3029,7 +3394,14 @@
       var elapsed = (Date.now() - pvp.startedAt) / 1000;
       pvp.rivalScore = Math.min(pvp.rivalTarget, Math.floor(pvp.rivalTarget * Math.min(1, elapsed / 55)));
       document.getElementById("pvpYouHud").textContent = "Ты · " + my;
-      document.getElementById("pvpRivalHud").textContent = pvp.rival.name + " · " + pvp.rivalScore;
+      document.getElementById("pvpRivalHud").textContent = pvp.rival.name.replace("@","") + " · " + pvp.rivalScore;
+      var cap = Math.max(pvp.rivalTarget, my, 1);
+      document.getElementById("pvpYouBar").style.width = Math.min(100, Math.round(my / cap * 100)) + "%";
+      document.getElementById("pvpRivalBar").style.width = Math.min(100, Math.round(pvp.rivalScore / cap * 100)) + "%";
+      if (my > (pvp.lastMyScore || 0)) pulseDuel("you");
+      if (pvp.rivalScore > (pvp.lastRivalScore || 0)) pulseDuel("rival");
+      pvp.lastMyScore = my;
+      pvp.lastRivalScore = pvp.rivalScore;
     }
   }
 
@@ -3110,6 +3482,7 @@
     round = acValidateRound(round, durSec, roundMeta);
 
     var wasPvp = !!pvp;
+    var lastRival = wasPvp ? pvp.rival : null;
     var score = roundScore(round);
     var pvpMsg = "";
     var credit = { likes: round.likes, views: round.views, subs: round.subs };
@@ -3149,6 +3522,24 @@
       (loc.name + " · " + formatNum(channel.subs) + " подп. · #" + place + " · рекорд " + formatNum(channel.bestRound));
     document.getElementById("end").classList.add("show");
     document.getElementById("pvpHud").classList.remove("show");
+    document.getElementById("duelArena").classList.remove("show");
+    var duelBox = document.getElementById("duelResult");
+    if (wasPvp && pvpMsg && lastRival) {
+      duelBox.classList.add("show");
+      var youF = document.getElementById("endYouFace");
+      var rivF = document.getElementById("endRivalFace");
+      setFace(youF, myAvatarSrc(), equippedSkin());
+      setFace(rivF, lastRival.photo, lastRival.avatar);
+      var won = pvpMsg.indexOf("Победа") === 0;
+      var draw = pvpMsg.indexOf("Ничья") === 0;
+      youF.classList.toggle("win", won || draw);
+      youF.classList.toggle("lose", !won && !draw);
+      rivF.classList.toggle("win", (!won && !draw) || draw);
+      rivF.classList.toggle("lose", won);
+      document.getElementById("duelResultTxt").textContent = pvpMsg;
+    } else {
+      duelBox.classList.remove("show");
+    }
     renderHub();
     if (!wasPvp) {
       for (var i = 0; i < LOCATIONS.length; i++) {
@@ -3196,6 +3587,7 @@
     save();
 
     document.getElementById("end").classList.remove("show");
+    document.getElementById("duelResult").classList.remove("show");
     show("gameScreen");
     round = { likes: 0, views: 0, subs: 0 };
     lives = has("promo") ? 3 : 2;
@@ -3211,7 +3603,13 @@
       ? "PvP · чистый скилл без бустов<br>Набери больше очков, чем соперник"
       : "Матафоникс кидает лайки и просмотры<br>Води пальцем · лови всё, кроме 💣";
     document.getElementById("pvpHud").classList.toggle("show", !!fromPvp);
-    if (pvp) pvp.startedAt = Date.now();
+    document.getElementById("duelArena").classList.toggle("show", !!fromPvp);
+    if (fromPvp && pvp) {
+      setupPvpFaces(pvp.rival);
+      pvp.startedAt = Date.now();
+      pvp.lastMyScore = 0;
+      pvp.lastRivalScore = 0;
+    }
     blogger.style.transform = "translateX(0)";
     blogger.style.setProperty("--bx", "0px");
     sayBlog(true);
@@ -3321,6 +3719,10 @@
   ["hostel","dorm","edge","metro","patriki","city","pent","holding"].forEach(function (id) {
     var img = new Image();
     img.src = "assets/loc-" + id + ".jpg";
+  });
+  ["kira","den","masha","tim","anya","leo","nika","max","sofia","art","vika","roma"].forEach(function (id) {
+    var img = new Image();
+    img.src = "assets/pvp-" + id + ".jpg";
   });
 
   // старт: начислить офлайн + тик UI
