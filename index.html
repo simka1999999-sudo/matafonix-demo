@@ -4,7 +4,9 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="telegram-web-app-capable" content="yes"/>
   <title>Матафоникс Ловит</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="preload" as="image" href="assets/loc-hostel.jpg"/>
   <link rel="preload" as="image" href="assets/loc-dorm.jpg"/>
   <link rel="preload" as="image" href="assets/loc-edge.jpg"/>
@@ -40,6 +42,12 @@
       color: var(--text);
       overflow: hidden;
     }
+    body.tg-mini {
+      overscroll-behavior: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body.tg-mini #btnReset { display: none; }
     .screen {
       display: none;
       flex-direction: column;
@@ -1722,7 +1730,7 @@
         </div>
         <input type="file" id="avatarFile" accept="image/*" hidden/>
         <div class="status-row" id="statusRow"></div>
-        <div class="name">@мой_канал</div>
+        <div class="name" id="hubChannelName">@мой_канал</div>
         <div class="rank" id="rank">Новичок</div>
         <div class="subs-line" id="subsLine">0 подписчиков</div>
         <p class="passive" id="locFlavor" style="margin-top:0;margin-bottom:10px;border-style:solid">Москва · старт с нуля</p>
@@ -2128,7 +2136,44 @@
 (function () {
   "use strict";
 
-  var SAVE = "matafonix_v8";
+  var TG = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  var TG_USER = (TG && TG.initDataUnsafe && TG.initDataUnsafe.user) || null;
+  var BOT_USERNAME = "matafonix_game_bot";
+  var MINI_APP_URL = "https://simka1999999-sudo.github.io/matafonix-demo/";
+
+  function initTelegramMiniApp() {
+    if (!TG) return;
+    try {
+      TG.ready();
+      TG.expand();
+      if (typeof TG.disableVerticalSwipes === "function") TG.disableVerticalSwipes();
+      if (typeof TG.setHeaderColor === "function") TG.setHeaderColor("#070b16");
+      if (typeof TG.setBackgroundColor === "function") TG.setBackgroundColor("#070b16");
+      if (TG.themeParams && TG.themeParams.bg_color) {
+        document.documentElement.style.setProperty("--tg-bg", TG.themeParams.bg_color);
+      }
+    } catch (e) {}
+    document.documentElement.classList.add("tg-mini");
+    document.body.classList.add("tg-mini");
+  }
+  initTelegramMiniApp();
+
+  function tgHaptic(type) {
+    try {
+      if (!TG || !TG.HapticFeedback) return;
+      if (type === "success") TG.HapticFeedback.notificationOccurred("success");
+      else if (type === "error") TG.HapticFeedback.notificationOccurred("error");
+      else TG.HapticFeedback.impactOccurred(type || "light");
+    } catch (e) {}
+  }
+
+  function myChannelHandle() {
+    if (TG_USER && TG_USER.username) return "@" + TG_USER.username;
+    if (TG_USER && TG_USER.first_name) return "@" + String(TG_USER.first_name).toLowerCase().replace(/\s+/g, "_");
+    return "@мой_канал";
+  }
+
+  var SAVE = "matafonix_v8" + (TG_USER && TG_USER.id ? ("_tg" + TG_USER.id) : "");
   var ENERGY_MAX_BASE = 3;
   var ENERGY_REGEN_MS = 90000; // хардкор-демо: 90 сек на +1 (в проде 25–40 мин)
   var OFFLINE_CAP_SEC = 4 * 3600; // хардкор: макс 4 часа офлайна
@@ -2779,6 +2824,7 @@
     t.textContent = msg;
     t.classList.add("show");
     setTimeout(function () { t.classList.remove("show"); }, 2000);
+    tgHaptic("light");
   }
 
   function show(id) {
@@ -2813,7 +2859,7 @@
   function meEntry() {
     ensureSeason();
     return {
-      name: "@мой_канал",
+      name: myChannelHandle(),
       avatar: equippedSkin(),
       photo: hasCustomAvatar() ? channel.avatarImg : "",
       subs: channel.subs || 0,
@@ -3187,7 +3233,17 @@
     var place = myPlace(lbMode);
     var modeLabel = lbMode === "best" ? "лучший раунд" : lbMode === "season" ? "XP сезона" : "подписчики";
     var value = lbMode === "best" ? (channel.bestRound || 0) : lbMode === "season" ? ((channel.season && channel.season.xp) || 0) : (channel.subs || 0);
-    var text = "Я #" + place + " в «Матафоникс Ловит» (" + modeLabel + ": " + formatNum(value) + "). Обойдёшь? 😎";
+    var text = "Я #" + place + " в «Матафоникс Ловит» (" + modeLabel + ": " + formatNum(value) + "). Обойдёшь? 😎\n" + MINI_APP_URL;
+    if (TG && typeof TG.openTelegramLink === "function") {
+      try {
+        TG.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(MINI_APP_URL) + "&text=" + encodeURIComponent(text));
+        return;
+      } catch (e) {}
+    }
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(function () {});
+      return;
+    }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () { toast("Текст скопирован"); }).catch(function () {
         prompt("Скопируй:", text);
@@ -3617,7 +3673,7 @@
       if (rival.photo) duelRival.innerHTML = "<img src=\"" + rival.photo + "\" alt=\"\" id=\"duelRivalImg\">";
       else duelRival.innerHTML = "<div style=\"width:100%;height:100%;display:grid;place-items:center;font-size:2rem\">" + (rival.avatar || "😎") + "</div>";
     }
-    document.getElementById("vsYouName").textContent = "@мой_канал";
+    document.getElementById("vsYouName").textContent = myChannelHandle();
     document.getElementById("vsRivalName").textContent = rival.name;
     document.getElementById("vsRivalStyle").textContent = rival.style || "дуэлянт";
   }
@@ -3916,6 +3972,11 @@
 
   function renderHub() {
     refreshEnergy();
+    var handle = myChannelHandle();
+    var nameEl = document.getElementById("hubChannelName");
+    if (nameEl) nameEl.textContent = handle;
+    var vsYou = document.getElementById("vsYouName");
+    if (vsYou) vsYou.textContent = handle;
     document.getElementById("sSubs").textContent = formatNum(channel.subs);
     document.getElementById("sLikes").textContent = formatNum(channel.likes);
     document.getElementById("sViews").textContent = formatNum(channel.views);
@@ -4285,7 +4346,7 @@
   }
 
   function renderFriendsReferral() {
-    document.getElementById("refLink").textContent = "t.me/matafonix_game_bot?start=" + channel.refCode;
+    document.getElementById("refLink").textContent = "t.me/" + BOT_USERNAME + "?start=" + channel.refCode;
     document.getElementById("refN").textContent = channel.refActive;
     var next = MILES.find(function (m) { return channel.refActive < m.n; }) || MILES[MILES.length - 1];
     var prev = 0;
