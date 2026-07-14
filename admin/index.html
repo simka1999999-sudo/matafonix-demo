@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Matafonix Admin</title>
+  <style>
+    :root {
+      --bg: #ece9e4;
+      --panel: #f7f5f1;
+      --ink: #1c1917;
+      --muted: #78716c;
+      --line: #c4b8a8;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --danger: #b91c1c;
+      --danger-soft: #fecaca;
+      --warn: #b45309;
+      --warn-soft: #fde68a;
+      --ok: #15803d;
+      --ok-soft: #bbf7d0;
+      --font: "IBM Plex Sans", "Segoe UI", sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, #d8efe9 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, #f3e7d3 0%, transparent 50%),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    a { color: var(--accent); }
+    .login-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .login-card {
+      width: min(400px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 28px 24px;
+    }
+    .login-card h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .login-card p { color: var(--muted); margin-bottom: 20px; font-size: 13px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px 12px;
+      font: inherit;
+      margin-bottom: 14px;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .btn {
+      border: 1px solid var(--ink);
+      background: #fff;
+      padding: 9px 14px;
+      font: inherit;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn:hover { background: #f5f5f4; }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.primary:hover { filter: brightness(1.05); }
+    .btn.danger { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .err { color: var(--danger); font-size: 13px; margin-bottom: 10px; min-height: 1.2em; }
+    .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+    .sidebar {
+      background: #1c1917;
+      color: #e7e5e4;
+      padding: 20px 0;
+    }
+    .sidebar .logo { padding: 0 18px 18px; border-bottom: 1px solid #44403c; margin-bottom: 12px; }
+    .sidebar .logo strong { display: block; font-size: 15px; }
+    .sidebar .logo small { color: #a8a29e; font-size: 11px; }
+    .nav a {
+      display: block;
+      padding: 10px 18px;
+      color: #d6d3d1;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      font-size: 13px;
+    }
+    .nav a:hover { background: #292524; }
+    .nav a.active { background: #292524; border-left-color: #2dd4bf; color: #fff; font-weight: 600; }
+    .nav .section {
+      padding: 14px 18px 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #78716c;
+    }
+    .main { padding: 22px 28px; overflow: auto; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar h1 { font-size: 20px; letter-spacing: -0.02em; }
+    .user { color: var(--muted); font-size: 13px; }
+    .user strong { color: var(--ink); }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 14px 16px;
+    }
+    .stat .num { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .stat .lbl { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .stat.alert { border-color: var(--warn); background: #fffbeb; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .panel h2 {
+      font-size: 14px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .row-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+    .search { display: flex; gap: 8px; margin-bottom: 14px; }
+    .search input { margin: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 9px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover td { background: #fff; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 11px;
+      border: 1px solid var(--line);
+      background: #eee;
+    }
+    .badge.new { background: var(--warn-soft); border-color: var(--warn); }
+    .badge.ok { background: var(--ok-soft); border-color: var(--ok); }
+    .badge.warn { background: var(--danger-soft); border-color: var(--danger); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .kv { display: grid; grid-template-columns: 120px 1fr; gap: 6px 10px; margin: 10px 0; font-size: 13px; }
+    .kv dt { color: var(--muted); }
+    .hidden { display: none !important; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .ticket {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .ticket .meta { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .config-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: #1c1917;
+      color: #fff;
+      padding: 10px 14px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .grid-4, .row-2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .grid-4, .row-2 { grid-template-columns: 1fr; }
+      .main { padding: 16px; }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div id="login" class="login-wrap">
+    <form class="login-card" id="loginForm">
+      <h1>Matafonix Admin</h1>
+      <p>Кабинет техподдержки и конфигурации</p>
+      <div class="err" id="loginErr"></div>
+      <label for="email">Логин</label>
+      <input id="email" name="email" autocomplete="username" required placeholder="admin"/>
+      <label for="password">Пароль</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required/>
+      <button class="btn primary" type="submit" style="width:100%">Войти</button>
+    </form>
+  </div>
+
+  <div id="app" class="layout hidden">
+    <aside class="sidebar">
+      <div class="logo">
+        <strong>Matafonix Admin</strong>
+        <small id="roleLabel">—</small>
+      </div>
+      <nav class="nav">
+        <div class="section">Главное</div>
+        <a href="#" class="nav-link active" data-screen="dashboard">Дашборд</a>
+        <a href="#" class="nav-link" data-screen="players">Игроки</a>
+        <a href="#" class="nav-link" data-screen="tickets">Тикеты <span class="badge new" id="ticketBadge">0</span></a>
+        <div class="section">Система</div>
+        <a href="#" class="nav-link" data-screen="config">Конфиг</a>
+        <a href="#" class="nav-link" data-screen="audit">Аудит</a>
+        <div class="section">Ссылки</div>
+        <a href="../" target="_blank" rel="noopener">Открыть игру</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <h1 id="pageTitle">Дашборд</h1>
+        <div class="user">
+          <strong id="userName">—</strong>
+          · <button class="btn" type="button" id="logoutBtn">Выйти</button>
+        </div>
+      </div>
+
+      <section class="screen active" id="screen-dashboard">
+        <div class="grid-4" id="dashStats"></div>
+        <div class="row-2">
+          <div class="panel">
+            <h2>Топ игроков (сердца)</h2>
+            <table>
+              <thead><tr><th>#</th><th>Игрок</th><th>❤</th><th>👁</th><th>★</th><th>Статус</th></tr></thead>
+              <tbody id="topBody"></tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h2>Статус сервиса</h2>
+            <div id="serviceStatus"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-players">
+        <div class="search">
+          <input id="playerQ" placeholder="Telegram ID, @username, player_id"/>
+          <button class="btn primary" type="button" id="playerSearchBtn">Найти</button>
+        </div>
+        <div class="row-2">
+          <div class="panel">
+            <h2>Список</h2>
+            <table>
+              <thead><tr><th>Username</th><th>TG</th><th>★</th><th>Статус</th></tr></thead>
+              <tbody id="playersBody"></tbody>
+            </table>
+          </div>
+          <div class="panel" id="playerCard">
+            <h2>Карточка игрока</h2>
+            <p style="color:var(--muted)">Выберите игрока слева</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-tickets">
+        <div class="panel" id="ticketsList"></div>
+      </section>
+
+      <section class="screen" id="screen-config">
+        <div class="panel" id="configPanel"></div>
+      </section>
+
+      <section class="screen" id="screen-audit">
+        <div class="panel">
+          <h2>Последние действия</h2>
+          <table>
+            <thead><tr><th>Время</th><th>Админ</th><th>Действие</th><th>Игрок</th><th>Детали</th></tr></thead>
+            <tbody id="auditBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = (location.pathname.includes("/matafonix") ? "/matafonix" : "") + "/api";
+    const TITLES = {
+      dashboard: "Дашборд",
+      players: "Игроки",
+      tickets: "Тикеты",
+      config: "Конфиг",
+      audit: "Аудит",
+    };
+
+    async function api(path, opts = {}) {
+      const res = await fetch(API + path, {
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+        ...opts,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      return data;
+    }
+
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    function badgeStatus(status) {
+      if (status === "banned") return '<span class="badge warn">banned</span>';
+      if (status === "new") return '<span class="badge new">new</span>';
+      if (status === "resolved" || status === "closed" || status === "active") return `<span class="badge ok">${status}</span>`;
+      return `<span class="badge">${status}</span>`;
+    }
+
+    function showApp(me) {
+      document.getElementById("login").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      document.getElementById("userName").textContent = me.name || me.email;
+      document.getElementById("roleLabel").textContent = me.role + " · " + me.email;
+    }
+
+    function showLogin() {
+      document.getElementById("app").classList.add("hidden");
+      document.getElementById("login").classList.remove("hidden");
+    }
+
+    async function boot() {
+      try {
+        const me = await api("/me");
+        showApp(me);
+        await loadScreen("dashboard");
+      } catch {
+        showLogin();
+      }
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const err = document.getElementById("loginErr");
+      err.textContent = "";
+      try {
+        const data = await api("/login", {
+          method: "POST",
+          body: JSON.stringify({
+            email: document.getElementById("email").value.trim(),
+            password: document.getElementById("password").value,
+          }),
+        });
+        showApp(data.admin);
+        await loadScreen("dashboard");
+      } catch (ex) {
+        err.textContent = ex.message || "Ошибка входа";
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await api("/logout", { method: "POST", body: "{}" });
+      showLogin();
+    });
+
+    document.querySelectorAll(".nav-link[data-screen]").forEach((a) => {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        loadScreen(a.dataset.screen);
+      });
+    });
+
+    async function loadScreen(name) {
+      document.querySelectorAll(".nav-link").forEach((a) => a.classList.toggle("active", a.dataset.screen === name));
+      document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === "screen-" + name));
+      document.getElementById("pageTitle").textContent = TITLES[name] || name;
+      if (name === "dashboard") await loadDashboard();
+      if (name === "players") await loadPlayers();
+      if (name === "tickets") await loadTickets();
+      if (name === "config") await loadConfig();
+      if (name === "audit") await loadAudit();
+    }
+
+    async function loadDashboard() {
+      const d = await api("/dashboard");
+      document.getElementById("ticketBadge").textContent = String(d.open_tickets);
+      document.getElementById("dashStats").innerHTML = [
+        ["DAU (оценка)", d.dau],
+        ["Игроков", d.mau],
+        ["Раундов сегодня", d.rounds_today],
+        ["Открытых тикетов", d.open_tickets, d.open_tickets > 10],
+      ].map(([lbl, num, alert]) => `
+        <div class="stat ${alert ? "alert" : ""}">
+          <div class="num">${num}</div>
+          <div class="lbl">${lbl}</div>
+        </div>`).join("");
+      document.getElementById("topBody").innerHTML = d.top.map((p, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>@${p.username}</td>
+          <td>${p.hearts}</td>
+          <td>${p.views}</td>
+          <td>${p.stars}</td>
+          <td>${badgeStatus(p.status)}</td>
+        </tr>`).join("");
+      document.getElementById("serviceStatus").innerHTML = `
+        <div class="kv">
+          <dt>Maintenance</dt><dd>${d.maintenance ? '<span class="badge warn">ON</span>' : '<span class="badge ok">OFF</span>'}</dd>
+          <dt>★ у игроков</dt><dd>${d.stars_period}</dd>
+          <dt>Баны</dt><dd>${d.banned}</dd>
+        </div>`;
+    }
+
+    async function loadPlayers(q = "") {
+      const data = await api("/players" + (q ? "?q=" + encodeURIComponent(q) : ""));
+      const body = document.getElementById("playersBody");
+      body.innerHTML = data.players.map((p) => `
+        <tr class="clickable" data-id="${p.player_id}">
+          <td>@${p.username}</td>
+          <td>${p.tg_id || "—"}</td>
+          <td>${p.stars}</td>
+          <td>${badgeStatus(p.status)}</td>
+        </tr>`).join("") || `<tr><td colspan="4">Никого не найдено</td></tr>`;
+      body.querySelectorAll("tr[data-id]").forEach((tr) => {
+        tr.addEventListener("click", () => openPlayer(tr.dataset.id));
+      });
+    }
+
+    document.getElementById("playerSearchBtn").addEventListener("click", () => {
+      loadPlayers(document.getElementById("playerQ").value.trim());
+    });
+    document.getElementById("playerQ").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") loadPlayers(e.target.value.trim());
+    });
+
+    async function openPlayer(id) {
+      const data = await api("/players/" + encodeURIComponent(id));
+      const p = data.player;
+      const card = document.getElementById("playerCard");
+      card.innerHTML = `
+        <h2>@${p.username} · ${p.display_name || ""}</h2>
+        <div class="kv">
+          <dt>player_id</dt><dd><code>${p.player_id}</code></dd>
+          <dt>TG ID</dt><dd>${p.tg_id || "—"}</dd>
+          <dt>Канал</dt><dd>★ ${p.stars} · ❤ ${p.hearts} · 👁 ${p.views}</dd>
+          <dt>Инвентарь</dt><dd>${(p.inventory || []).join(", ") || "пусто"}</dd>
+          <dt>Статус</dt><dd>${badgeStatus(p.status)} ${p.ban_reason ? "· " + p.ban_reason : ""}</dd>
+          <dt>Стрик</dt><dd>${p.streak}</dd>
+        </div>
+        <div class="actions">
+          <button class="btn primary" type="button" data-act="grant">Выдать предмет</button>
+          <button class="btn" type="button" data-act="comp">Компенсация ★</button>
+          ${p.status === "banned"
+            ? `<button class="btn" type="button" data-act="unban">Разбан</button>`
+            : `<button class="btn danger" type="button" data-act="ban">Бан</button>`}
+        </div>
+        <h2 style="margin-top:16px">Тикеты игрока</h2>
+        ${(data.tickets || []).map((t) => `<div class="ticket"><div class="meta">#${t.id} ${badgeStatus(t.status)}</div><strong>${t.subject}</strong><div>${t.body}</div></div>`).join("") || "<p style='color:var(--muted)'>Нет тикетов</p>"}
+      `;
+      card.querySelectorAll("[data-act]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const act = btn.dataset.act;
+          try {
+            if (act === "grant") {
+              const item = prompt("Код предмета (например skin_circle):");
+              if (!item) return;
+              const reason = prompt("Причина:");
+              if (!reason) return;
+              await api("/players/grant", { method: "POST", body: JSON.stringify({ player_id: p.player_id, item, reason }) });
+              toast("Предмет выдан");
+            }
+            if (act === "comp") {
+              const stars = Number(prompt("Сколько Stars вернуть?", "50"));
+              if (!stars) return;
+              const reason = prompt("Причина:");
+              if (!reason) return;
+              await api("/players/compensate", { method: "POST", body: JSON.stringify({ player_id: p.player_id, stars, reason }) });
+              toast("Stars начислены");
+            }
+            if (act === "ban") {
+              const reason = prompt("Причина бана:");
+              if (!reason) return;
+              const days = Number(prompt("Дней (0 = перманент)", "7"));
+              await api("/players/ban", { method: "POST", body: JSON.stringify({ player_id: p.player_id, reason, days }) });
+              toast("Игрок забанен");
+            }
+            if (act === "unban") {
+              await api("/players/unban", { method: "POST", body: JSON.stringify({ player_id: p.player_id, reason: "Разбан из админки" }) });
+              toast("Разбан");
+            }
+            await openPlayer(p.player_id);
+            await loadPlayers(document.getElementById("playerQ").value.trim());
+          } catch (ex) {
+            alert(ex.message);
+          }
+        });
+      });
+    }
+
+    async function loadTickets() {
+      const data = await api("/tickets");
+      document.getElementById("ticketBadge").textContent = String(
+        data.tickets.filter((t) => ["new", "in_progress", "waiting_player"].includes(t.status)).length
+      );
+      const templates = [
+        "Скин выдан в инвентарь, перезайди в игру",
+        "Покупка обработана, Stars вернутся в течение 24 ч",
+        "Раунд аннулирован из-за сбоя сервера",
+      ];
+      document.getElementById("ticketsList").innerHTML = `
+        <h2>Очередь тикетов</h2>
+        ${data.tickets.map((t) => `
+          <div class="ticket" data-id="${t.id}">
+            <div class="meta">#${t.id} · ${t.player_id || "—"} · ${badgeStatus(t.status)} · ${t.assignee || "не назначен"}</div>
+            <strong>${t.subject}</strong>
+            <div style="margin:6px 0">${t.body}</div>
+            ${t.reply ? `<div style="color:var(--muted);font-size:12px">Ответ: ${t.reply}</div>` : ""}
+            <div class="actions">
+              <select data-status>
+                ${["new","in_progress","waiting_player","resolved","closed"].map((s) => `<option value="${s}" ${s===t.status?"selected":""}>${s}</option>`).join("")}
+              </select>
+              <select data-tpl>
+                <option value="">Шаблон ответа…</option>
+                ${templates.map((x) => `<option>${x}</option>`).join("")}
+              </select>
+              <button class="btn primary" type="button" data-save>Сохранить</button>
+            </div>
+            <textarea data-reply placeholder="Ответ игроку">${t.reply || ""}</textarea>
+          </div>`).join("")}`;
+      document.querySelectorAll(".ticket[data-id]").forEach((el) => {
+        const id = el.dataset.id;
+        el.querySelector("[data-tpl]").addEventListener("change", (e) => {
+          if (e.target.value) el.querySelector("[data-reply]").value = e.target.value;
+        });
+        el.querySelector("[data-save]").addEventListener("click", async () => {
+          await api("/tickets/" + id, {
+            method: "PATCH",
+            body: JSON.stringify({
+              status: el.querySelector("[data-status]").value,
+              reply: el.querySelector("[data-reply]").value,
+            }),
+          });
+          toast("Тикет обновлён");
+          await loadTickets();
+        });
+      });
+    }
+
+    async function loadConfig() {
+      const data = await api("/config");
+      const c = data.config;
+      const panel = document.getElementById("configPanel");
+      panel.innerHTML = `
+        <h2>Игра и конфиг</h2>
+        <div class="config-row">
+          <div><strong>Maintenance mode</strong><div style="color:var(--muted);font-size:12px">${c.maintenance_text || ""}</div></div>
+          <label><input type="checkbox" id="cfgMaint" ${c.maintenance_mode === "1" ? "checked" : ""}/> Вкл</label>
+        </div>
+        <div class="config-row">
+          <div><strong>Ивент</strong><div style="color:var(--muted);font-size:12px">${c.event_name || ""}</div></div>
+          <label><input type="checkbox" id="cfgEvent" ${c.event_active === "1" ? "checked" : ""}/> Вкл</label>
+        </div>
+        <label>Текст техработ</label>
+        <input id="cfgMaintText" value="${escapeAttr(c.maintenance_text || "")}"/>
+        <label>Spawn rate</label>
+        <input id="cfgSpawn" value="${escapeAttr(c.spawn_rate || "1.0")}"/>
+        <label>Min app version</label>
+        <input id="cfgVer" value="${escapeAttr(c.min_app_version || "")}"/>
+        <div class="actions"><button class="btn primary" type="button" id="cfgSave">Сохранить</button></div>
+      `;
+      document.getElementById("cfgSave").addEventListener("click", async () => {
+        await api("/config", {
+          method: "POST",
+          body: JSON.stringify({
+            maintenance_mode: document.getElementById("cfgMaint").checked ? "1" : "0",
+            event_active: document.getElementById("cfgEvent").checked ? "1" : "0",
+            maintenance_text: document.getElementById("cfgMaintText").value,
+            spawn_rate: document.getElementById("cfgSpawn").value,
+            min_app_version: document.getElementById("cfgVer").value,
+          }),
+        });
+        toast("Конфиг сохранён");
+      });
+    }
+
+    function escapeAttr(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    }
+
+    async function loadAudit() {
+      const data = await api("/audit");
+      document.getElementById("auditBody").innerHTML = data.audit.map((a) => `
+        <tr>
+          <td>${new Date(a.created_at).toLocaleString("ru-RU")}</td>
+          <td>${a.admin_email || a.admin_id}</td>
+          <td>${a.action}</td>
+          <td>${a.target_player_id || "—"}</td>
+          <td><code style="font-size:11px">${a.payload || ""}</code></td>
+        </tr>`).join("") || `<tr><td colspan="5">Пусто</td></tr>`;
+    }
+
+    boot();
+  </script>
+</body>
+</html>
