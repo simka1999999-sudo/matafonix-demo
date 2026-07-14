@@ -2138,7 +2138,7 @@
 
   var TG = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   var TG_USER = (TG && TG.initDataUnsafe && TG.initDataUnsafe.user) || null;
-  var BOT_USERNAME = "matafonix_game_bot";
+  var BOT_USERNAME = "apoor_bloger_game_bot";
   var MINI_APP_URL = "https://simka1999999-sudo.github.io/matafonix-demo/";
 
   function initTelegramMiniApp() {
@@ -2371,6 +2371,14 @@
   ];
 
   var channel = load();
+  if (TG_USER) {
+    channel.tgId = TG_USER.id;
+    channel.tgUsername = TG_USER.username || "";
+    channel.tgName = [TG_USER.first_name, TG_USER.last_name].filter(Boolean).join(" ");
+    if (TG_USER.photo_url && !channel.avatarImg) {
+      // фото TG не всегда доступно в Mini App без download — оставляем эмодзи/кастом
+    }
+  }
   var px = 0.5;
   var round = { likes: 0, views: 0, subs: 0 };
   var lives = 3, combo = 0, items = [], running = false;
