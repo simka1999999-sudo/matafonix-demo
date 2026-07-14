@@ -1668,6 +1668,35 @@
     }
     .season-reward h3 { font-size: 0.88rem; }
     .season-reward p { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+    .season-prize {
+      display: grid; gap: 6px;
+      background: rgba(15,23,42,.55);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .season-prize.gold { border-color: rgba(251,191,36,.55); background: linear-gradient(135deg, rgba(251,191,36,.16), rgba(15,23,42,.7)); }
+    .season-prize.silver { border-color: rgba(148,163,184,.5); }
+    .season-prize.bronze { border-color: rgba(217,119,6,.45); }
+    .season-prize h3 { font-size: 0.9rem; }
+    .season-prize .game { font-size: 0.78rem; color: #86efac; font-weight: 700; }
+    .season-prize .real { font-size: 0.74rem; color: #fde68a; line-height: 1.35; margin-top: 2px; }
+    .season-prize .place-tag {
+      display: inline-block; font-size: 0.65rem; font-weight: 800;
+      color: #fda4af; background: rgba(244,63,94,.18);
+      border: 1px solid rgba(244,114,182,.3);
+      border-radius: 999px; padding: 3px 8px; margin-bottom: 6px;
+    }
+    .winner-banner {
+      display: none;
+      background: linear-gradient(135deg, rgba(251,191,36,.22), rgba(244,63,94,.18));
+      border: 1px solid rgba(251,191,36,.5);
+      border-radius: 18px; padding: 14px; margin-bottom: 12px;
+    }
+    .winner-banner.show { display: block; animation: claimIn .35s ease; }
+    .winner-banner h3 { font-size: 0.95rem; margin-bottom: 6px; }
+    .winner-banner p { font-size: 0.78rem; color: #e2e8f0; line-height: 1.4; margin-bottom: 10px; }
   </style>
 </head>
 <body data-loc="hostel">
@@ -1789,8 +1818,17 @@
         <div class="stat"><div class="v" id="seasonWins">0</div><div class="l">побед PvP</div></div>
         <div class="stat"><div class="v" id="seasonBest">0</div><div class="l">лучший раунд</div></div>
       </div>
-      <p class="shop-note">XP за ролики, победы в дуэлях и офлайн-награды. Награды сезона сгорают с новым сезоном — успей забрать.</p>
+      <div class="winner-banner" id="winnerBanner">
+        <h3 id="winnerTitle">Ты в призах сезона!</h3>
+        <p id="winnerText">—</p>
+        <button type="button" class="btn" id="btnClaimPodium"><span>Забрать призы</span><small>игровые + заявка на реальные</small></button>
+      </div>
+      <p class="shop-note">XP за ролики, победы в дуэлях и офлайн. В конце сезона топ получает игровые награды и реальные призы от Матафоникса.</p>
+      <p class="pvp-sec-title">Призы победителям</p>
+      <div id="seasonPrizes"></div>
+      <p class="pvp-sec-title">Трек XP</p>
       <div id="seasonRewards"></div>
+      <button type="button" class="btn sec" id="btnSimSeasonEnd" style="margin-top:12px;font-size:0.85rem;padding:12px">Демо: завершить сезон и раздать призы</button>
     </div>
   </div>
 
@@ -2153,6 +2191,35 @@
     { id: "r7", xp: 750, title: "Король хостела", reward: { stars: 10, likes: 70, subs: 5 } },
     { id: "r8", xp: 1000, title: "Финал трека", reward: { stars: 15, likes: 100, views: 100, subs: 10 } }
   ];
+
+  var SEASON_PODIUM = [
+    {
+      id: "p1", place: 1, placeMax: 1, cls: "gold", title: "🥇 Чемпион сезона",
+      game: { stars: 120, likes: 800, views: 600, subs: 40 },
+      real: "Реально: мерч Matafonix + репост/сторис от @matafonixx + 500 Telegram Stars на аккаунт"
+    },
+    {
+      id: "p2", place: 2, placeMax: 2, cls: "silver", title: "🥈 2 место",
+      game: { stars: 70, likes: 450, views: 350, subs: 22 },
+      real: "Реально: мерч-набор + 250 Telegram Stars + отметка в посте канала"
+    },
+    {
+      id: "p3", place: 3, placeMax: 3, cls: "bronze", title: "🥉 3 место",
+      game: { stars: 40, likes: 280, views: 220, subs: 12 },
+      real: "Реально: 150 Telegram Stars + промо-код на мерч"
+    },
+    {
+      id: "p10", place: 4, placeMax: 10, cls: "", title: "🔥 Топ-10",
+      game: { stars: 15, likes: 120, views: 100, subs: 6 },
+      real: "Реально: 50 Telegram Stars + бейдж «Топ сезона» в игре"
+    },
+    {
+      id: "p50", place: 11, placeMax: 50, cls: "", title: "✨ Топ-50",
+      game: { stars: 5, likes: 50, views: 40, subs: 2 },
+      real: "Реально: участие в розыгрыше мерча среди топ-50"
+    }
+  ];
+
   var LOCATIONS = [
     {
       id: "hostel", name: "Хостел у Казанского", short: "Хостел",
@@ -2346,6 +2413,9 @@
       buddyIds: [],
       chats: {},
       season: null,
+      seasonHistory: [],
+      podiumPending: null,
+      seasonTitles: [],
       ac: { strikes: 0, flags: [], sig: "" }
     };
   }
@@ -2519,6 +2589,9 @@
         if (!d.buddyIds) d.buddyIds = [];
         if (!d.chats) d.chats = {};
         if (d.season == null) d.season = null;
+        if (!d.seasonHistory) d.seasonHistory = [];
+        if (d.podiumPending === undefined) d.podiumPending = null;
+        if (!d.seasonTitles) d.seasonTitles = [];
         if (typeof d.avatarImg === "string" && d.avatarImg.length > 180000) d.avatarImg = "";
         if (d.stars == null) d.stars = 0;
         if (!d.owned) d.owned = {};
@@ -2805,15 +2878,131 @@
     return { id: id, xp: 0, claimed: [], best: 0, wins: 0, rounds: 0 };
   }
 
+  function matchPodium(place) {
+    for (var i = 0; i < SEASON_PODIUM.length; i++) {
+      var p = SEASON_PODIUM[i];
+      if (place >= p.place && place <= p.placeMax) return p;
+    }
+    return null;
+  }
+
+  function estimateSeasonPlace(xp) {
+    // место по XP относительно ботов + live + ты
+    var rows = [];
+    BOTS.forEach(function (b) {
+      rows.push(Math.floor((b.best || 40) * 3.2 + (b.subs || 0) / 8));
+    });
+    LIVE_PLAYERS.forEach(function (p) {
+      rows.push(Math.floor((p.best || 40) * 2.8 + (p.mmr || 1000) / 5));
+    });
+    rows.push(xp || 0);
+    rows.sort(function (a, b) { return b - a; });
+    var my = xp || 0;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i] === my) return i + 1;
+    }
+    return rows.length;
+  }
+
+  function settleSeason(oldSeason) {
+    if (!oldSeason || oldSeason.settled) return;
+    var xp = oldSeason.xp || 0;
+    var place = estimateSeasonPlace(xp);
+    var prize = matchPodium(place);
+    oldSeason.settled = true;
+    oldSeason.finalPlace = place;
+    oldSeason.finalXp = xp;
+    if (!channel.seasonHistory) channel.seasonHistory = [];
+    channel.seasonHistory.unshift({
+      id: oldSeason.id,
+      xp: xp,
+      place: place,
+      best: oldSeason.best || 0,
+      wins: oldSeason.wins || 0,
+      rounds: oldSeason.rounds || 0,
+      at: Date.now(),
+      prizeId: prize ? prize.id : null
+    });
+    channel.seasonHistory = channel.seasonHistory.slice(0, 12);
+    if (prize) {
+      channel.podiumPending = {
+        seasonId: oldSeason.id,
+        place: place,
+        prizeId: prize.id,
+        title: prize.title,
+        game: prize.game,
+        real: prize.real,
+        claimed: false
+      };
+      toast("Сезон завершён · ты #" + place + " — есть призы!");
+    } else {
+      channel.podiumPending = null;
+      toast("Сезон завершён · место #" + place);
+    }
+  }
+
   function ensureSeason() {
     var meta = currentSeasonMeta();
-    if (!channel.season || channel.season.id !== meta.id) {
+    if (!channel.season) {
+      channel.season = emptySeasonState(meta.id);
+      save();
+    } else if (channel.season.id !== meta.id) {
+      settleSeason(channel.season);
       channel.season = emptySeasonState(meta.id);
       save();
     }
     if (!channel.season.claimed) channel.season.claimed = [];
     return meta;
   }
+
+  function claimPodiumRewards() {
+    var pend = channel.podiumPending;
+    if (!pend || pend.claimed) return toast("Нечего забирать");
+    var game = pend.game || {};
+    Object.keys(game).forEach(function (k) {
+      channel[k] = (channel[k] || 0) + game[k];
+    });
+    if (!channel.seasonTitles) channel.seasonTitles = [];
+    var title = pend.title + " · #" + pend.place;
+    if (channel.seasonTitles.indexOf(title) < 0) channel.seasonTitles.unshift(title);
+    channel.seasonTitles = channel.seasonTitles.slice(0, 8);
+    // бейдж сезона в профиль
+    if (!channel.owned) channel.owned = {};
+    channel.owned.badge_fan = 1;
+    if (pend.place <= 3) {
+      channel.owned.frame_gold = 1;
+      channel.equipped.frame = "frame_gold";
+      channel.equipped.badge = "badge_fan";
+    }
+    pend.claimed = true;
+    channel.podiumPending = pend;
+    save();
+    renderSeason();
+    renderHub();
+    toast("Игровые призы начислены · реальные — через @reklamamtx");
+  }
+
+  function simulateSeasonEnd() {
+    ensureSeason();
+    // форсим XP если пусто — чтобы демо показало призы
+    if ((channel.season.xp || 0) < 80) {
+      channel.season.xp = 420 + Math.floor(Math.random() * 200);
+      channel.season.rounds = Math.max(channel.season.rounds || 0, 12);
+      channel.season.best = Math.max(channel.season.best || 0, 90);
+    }
+    var old = channel.season;
+    // сдвигаем на «следующий» сезон вручную
+    settleSeason(old);
+    var meta = currentSeasonMeta();
+    // новый стейт того же id перезапишем как следующий демо-id
+    channel.season = emptySeasonState(meta.id + "_demo_" + Date.now());
+    // сразу вернём актуальный сезон, но pending сохраним
+    channel.season = emptySeasonState(meta.id);
+    save();
+    renderSeason();
+    renderHub();
+  }
+
 
   function formatSeasonLeft() {
     var meta = currentSeasonMeta();
@@ -2882,6 +3071,44 @@
     document.getElementById("seasonRounds").textContent = formatNum(channel.season.rounds || 0);
     document.getElementById("seasonWins").textContent = formatNum(channel.season.wins || 0);
     document.getElementById("seasonBest").textContent = formatNum(channel.season.best || 0);
+
+    // призы победителям (игровые + реальные)
+    var prizes = document.getElementById("seasonPrizes");
+    if (prizes) {
+      prizes.innerHTML = "";
+      SEASON_PODIUM.forEach(function (p) {
+        var div = document.createElement("div");
+        div.className = "season-prize " + (p.cls || "");
+        var range = p.place === p.placeMax ? ("#" + p.place) : ("#" + p.place + "–" + p.placeMax);
+        div.innerHTML =
+          "<div class='place-tag'>" + range + "</div>" +
+          "<h3>" + p.title + "</h3>" +
+          "<div class='game'>В игре: " + costLabel(p.game) + "</div>" +
+          "<div class='real'>" + p.real + "</div>";
+        prizes.appendChild(div);
+      });
+    }
+
+    // баннер незабранного подиума
+    var banner = document.getElementById("winnerBanner");
+    var pend = channel.podiumPending;
+    if (banner) {
+      if (pend && !pend.claimed) {
+        banner.classList.add("show");
+        document.getElementById("winnerTitle").textContent = pend.title + " · место #" + pend.place;
+        document.getElementById("winnerText").innerHTML =
+          "<b>Игровые:</b> " + costLabel(pend.game || {}) + "<br><b>Реальные:</b> " + (pend.real || "");
+        document.getElementById("btnClaimPodium").style.display = "";
+      } else if (pend && pend.claimed) {
+        banner.classList.add("show");
+        document.getElementById("winnerTitle").textContent = "Призы получены · #" + pend.place;
+        document.getElementById("winnerText").textContent =
+          "Игровое начислено. За реальными призами — менеджеру @reklamamtx (сезон " + (pend.seasonId || "") + ").";
+        document.getElementById("btnClaimPodium").style.display = "none";
+      } else {
+        banner.classList.remove("show");
+      }
+    }
 
     var box = document.getElementById("seasonRewards");
     box.innerHTML = "";
@@ -3643,6 +3870,13 @@
   }
 
   function rank() {
+    if (channel.seasonTitles && channel.seasonTitles.length) {
+      var t = channel.seasonTitles[0];
+      if (t.indexOf("Чемпион") >= 0) return "Чемпион сезона";
+      if (t.indexOf("2 место") >= 0) return "Вице-сезона";
+      if (t.indexOf("3 место") >= 0) return "Бронза сезона";
+      if (t.indexOf("Топ-10") >= 0) return "Топ сезона";
+    }
     var loc = currentLoc();
     if (loc.id === "holding") return "Медиамагнат";
     if (loc.id === "pent") return "Топ Москвы";
@@ -3702,7 +3936,9 @@
     document.getElementById("hubStars").textContent = "★ " + formatNum(channel.stars || 0);
     var sMeta = ensureSeason();
     document.getElementById("hubSeason").textContent = sMeta.tag + " · " + seasonTier() + " ур.";
-    document.getElementById("hubSeasonLvl").textContent = (channel.season.xp || 0) + " XP · " + formatSeasonLeft().replace(" до конца сезона", "");
+    var lvlTxt = (channel.season.xp || 0) + " XP · " + formatSeasonLeft().replace(" до конца сезона", "");
+    if (channel.podiumPending && !channel.podiumPending.claimed) lvlTxt = "🏆 забери призы!";
+    document.getElementById("hubSeasonLvl").textContent = lvlTxt;
 
     var banner = document.getElementById("boostBanner");
     if (channel.nextBoost) {
@@ -4825,6 +5061,11 @@
   document.getElementById("backSeason").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("tabSeasonLb").onclick = function () { lbMode = "season"; renderTop(); };
   document.getElementById("hubSeason").onclick = function () { renderSeason(); show("season"); };
+  document.getElementById("btnClaimPodium").onclick = claimPodiumRewards;
+  document.getElementById("btnSimSeasonEnd").onclick = function () {
+    if (!confirm("Демо: завершить текущий сезон и посчитать призы по твоему XP?")) return;
+    simulateSeasonEnd();
+  };
   document.getElementById("back1").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backShop").onclick = function () { renderHub(); show("hub"); };
   document.getElementById("backTop").onclick = function () { renderHub(); show("hub"); };
