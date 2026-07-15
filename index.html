@@ -31,11 +31,28 @@
   </div>
   <script>
     (function () {
-      var target = "https://game-bot.ru/" + (location.search || "");
       var TG = window.Telegram && window.Telegram.WebApp;
+      var TME = "https://t.me/apoor_bloger_game_bot?startapp";
+      var WEB = "https://game-bot.ru/";
+      var inTg = !!(TG && TG.initDataUnsafe && TG.initDataUnsafe.user);
+      document.getElementById("go").href = inTg ? TME : WEB;
+      var done = false;
+      function go() {
+        if (done) return;
+        done = true;
+        if (inTg) {
+          // прямой location.replace терял initData → игра открывалась «анонимно».
+          // Открываем Mini App правильно, через Telegram, и закрываем этот webview.
+          try { TG.openTelegramLink(TME); } catch (e) { location.replace(WEB); return; }
+          setTimeout(function () { try { TG.close(); } catch (e2) {} }, 400);
+        } else {
+          location.replace(WEB);
+        }
+      }
+      setTimeout(go, 3500); // страховка
       try {
         // переносим старый прогресс в облако Telegram, чтобы новая версия его подхватила
-        if (TG && TG.CloudStorage && TG.initDataUnsafe && TG.initDataUnsafe.user) {
+        if (inTg && TG.CloudStorage) {
           var uid = TG.initDataUnsafe.user.id;
           var raw = localStorage.getItem("matafonix_v8_tg" + uid) || localStorage.getItem("matafonix_v8");
           if (raw) {
@@ -48,16 +65,23 @@
             var chunks = [];
             for (var i = 0; i < raw.length; i += CHUNK) chunks.push(raw.slice(i, i + CHUNK));
             if (chunks.length && chunks.length <= 20) {
-              TG.CloudStorage.setItem("mtx_n", String(chunks.length), function () {});
-              for (var j = 0; j < chunks.length; j++) {
-                TG.CloudStorage.setItem("mtx_" + j, chunks[j], function () {});
-              }
+              var left = chunks.length;
+              chunks.forEach(function (chunk, j) {
+                TG.CloudStorage.setItem("mtx_" + j, chunk, function () {
+                  left--;
+                  if (left === 0) {
+                    TG.CloudStorage.setItem("mtx_n", String(chunks.length), function () {
+                      setTimeout(go, 150);
+                    });
+                  }
+                });
+              });
+              return;
             }
           }
         }
       } catch (e) {}
-      document.getElementById("go").href = target;
-      setTimeout(function () { location.replace(target); }, 1200);
+      setTimeout(go, 900);
     })();
   </script>
 </body>
